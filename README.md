@@ -1,18 +1,53 @@
-# sv
 
-Everything you need to build a Svelte project, powered by [`sv`](https://github.com/sveltejs/cli).
+### Geometry
 
-## Creating a project
+Geometries are conceptualy organized in levels from most primitive to most complex.
 
-If you're seeing this, you've probably already done this step. Congrats!
+1. Point
+2. Arc, Circle, Ellipse, Line, Spline
+3. Poly???
 
-```bash
-# create a new project in the current directory
-npx sv create
 
-# create a new project in my-app
-npx sv create my-app
-```
+Geometry
+    Point
+    Shape
+        Line
+            Segment
+            Ray
+        Curve
+            Ellipse
+                Circle
+                    Arc (closed==false)
+            Spline
+                Nurbs
+                Quadratic
+                Cubic
+    Polyshape<Shape>
+        Polyline<Line>
+            Polygon (closed==true)
+        Polycurve<Curve>
+
+### Drawing
+
+Drawing
+    Area
+    Layer
+        Gui
+            Geometry
+
+### Program
+
+Program
+    Machine
+        Stock
+            Part
+                Cut
+                    Rapid
+                        Line
+                    Lead
+                        Arc, Line
+                    Path
+                        Geometry
 
 ## Developing
 

@@ -7,6 +7,11 @@ declare global {
 		// interface PageData {}
 		// interface PageState {}
 		// interface Platform {}
+		
+		interface FileHandler {
+			initializeFileHandlers(): void;
+			handleFileSelection(file: File): void;
+		}
 	}
 }
 
