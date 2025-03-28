@@ -21,8 +21,20 @@
     {#if svgContent}
         {@html svgContent}
     {:else}
-        <div class="placeholder">
-            Upload a DXF file to view
-        </div>
+        <svg/>
     {/if}
 </div>
+
+<style>
+
+    #svg-container {
+        height: 100%;
+    }
+
+    #svg-container svg {
+        width: 100%;
+        height: 100%;
+        display: block;
+    }
+
+</style>

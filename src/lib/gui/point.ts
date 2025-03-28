@@ -1,5 +1,6 @@
 import type { Point } from "$lib/geometry/point/point";
 import Konva from "konva";
+import type { Gui } from "./gui";
 
 /**
  * Analogs:
@@ -8,9 +9,9 @@ import Konva from "konva";
  * - fabricjs Point
  * - konvajs Konva.Circle with small radius
  */
-export class PointGui {
+export class PointGui implements Gui {
 
-    constructor(private point: Point) {}
+    constructor(public geometry: Point) {}
 
     toKonvaJs(): Konva.Shape {
         // TODO set very small radius
@@ -19,7 +20,4 @@ export class PointGui {
         });
     }
 
-    onDrag() { }
-
-    onTransform() { }
 }

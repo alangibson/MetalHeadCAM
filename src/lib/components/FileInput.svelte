@@ -39,6 +39,10 @@
         border: none;
         border-radius: 4px;
         cursor: pointer;
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
     }
     
     .file-button:hover {

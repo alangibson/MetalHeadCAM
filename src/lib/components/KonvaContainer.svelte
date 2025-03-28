@@ -2,6 +2,7 @@
     import Konva from "konva";
     import { StageGui } from "$lib/gui/stage";
     import { DXFConverter } from "$lib/input/dxf/dxf";
+    import { SvelteSet } from 'svelte/reactivity';
 
     let {
         drawing,
@@ -10,6 +11,7 @@
         konvaStagePointerY = $bindable(0),
         stagePointerX = $bindable(0),
         stagePointerY = $bindable(0),
+        selectedKonvaShapes = $bindable<SvelteSet<Konva.Shape>>(new SvelteSet())
     } = $props();
     let container = $state();; // bound later
 
@@ -67,6 +69,38 @@
 
             DXFConverter.convertDrawingToKonvaLayers(drawing).forEach(
                 (layer) => {
+
+                    for (const konvaShape of layer.children) {
+                        
+                        let strokeLocked = false;
+                        let lastStroke = 'black';
+
+                        konvaShape.on('mouseenter', () => {
+                            // highlight shape
+                            if (!strokeLocked)
+                                lastStroke = konvaShape.getAttr('stroke');
+                                konvaShape.setAttr('stroke', 'yellow');
+                        });
+
+                        konvaShape.on('mouseleave', () => {
+                            // remove highlight shape
+                            if (!strokeLocked)
+                                konvaShape.setAttr('stroke', lastStroke);
+                        });
+
+                        konvaShape.on('click', () => {
+                            const gui = konvaShape.getAttr('gui');
+                            console.log('konvaShape click', konvaShape, gui);
+                            // Lock highlight
+                            strokeLocked = !strokeLocked;
+                            // Add to selected shape list
+                            if (! selectedKonvaShapes.has(konvaShape))
+                                selectedKonvaShapes.add(konvaShape);
+                            else
+                                selectedKonvaShapes.delete(konvaShape);
+                        });
+                    }
+
                     konvaStage.add(layer);
                 },
             );

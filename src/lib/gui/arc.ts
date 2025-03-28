@@ -1,6 +1,7 @@
 import type { Arc } from "$lib/geometry/arc/arc";
 import { degreesToRadians, radiansToDegrees } from "$lib/geometry/arc/arc.function";
 import Konva from "konva";
+import type { Gui } from "./gui";
 
 /**
  * Analogs:
@@ -9,37 +10,38 @@ import Konva from "konva";
  * - fabricjs Circle with startAngle/endAngle or Path
  * - konvajs Konva.Arc
  */
-export class ArcGui {
+export class ArcGui implements Gui {
 
-    constructor(private arc: Arc) {}
+    constructor(public geometry: Arc) {}
 
     toKonvaJs(): Konva.Shape {
         const konvaShape = new Konva.Arc({
             // geometry
-            x: this.arc.origin.x,
-            y: this.arc.origin.y,
-            innerRadius: this.arc.radius,
-            outerRadius: this.arc.radius,
-            angle: radiansToDegrees(this.arc.endAngle - this.arc.startAngle),
-            rotation: radiansToDegrees(this.arc.startAngle),
+            x: this.geometry.origin.x,
+            y: this.geometry.origin.y,
+            innerRadius: this.geometry.radius,
+            outerRadius: this.geometry.radius,
+            angle: radiansToDegrees(this.geometry.endAngle - this.geometry.startAngle),
+            rotation: radiansToDegrees(this.geometry.startAngle),
             // TODO arc.direction is still wrong for some arcs.
             // clockwise: this.arc.direction == ArcDirectionEnum.CW,
             // style
             stroke: 'red',
-            strokeWidth: 1
+            strokeWidth: 1,
         });
+
+        // Remember the Gui object that created this shape
+        konvaShape.setAttr('gui', this);
 
         // Update Geometry on Konva transformation
         konvaShape.on('transformend', () => {
-            this.arc.radius = konvaShape.outerRadius(),
-            this.arc.startAngle = degreesToRadians(konvaShape.rotation()),
-            this.arc.endAngle = degreesToRadians(konvaShape.angle() + konvaShape.rotation()),
-            this.arc.origin.x = konvaShape.x(),
-            this.arc.origin.y = konvaShape.y()
+            this.geometry.radius = konvaShape.outerRadius(),
+            this.geometry.startAngle = degreesToRadians(konvaShape.rotation()),
+            this.geometry.endAngle = degreesToRadians(konvaShape.angle() + konvaShape.rotation()),
+            this.geometry.origin.x = konvaShape.x(),
+            this.geometry.origin.y = konvaShape.y()
         });
-
-        konvaShape.on('pointerenter', () => console.log('pointerenter', this.arc.origin));
-
+        
         return konvaShape;
     }
 

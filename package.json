@@ -28,6 +28,7 @@
 		"dxf": "^5.2.0",
 		"konva": "^9.3.19",
 		"panzoom": "^9.4.3",
+		"split-grid": "^1.0.11",
 		"svelte-konva": "^1.0.0-next.0",
 		"transformation-matrix": "^3.0.0",
 		"vecks": "^3.9.2"
