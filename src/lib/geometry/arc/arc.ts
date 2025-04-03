@@ -12,12 +12,14 @@ export class Arc implements ArcData, Shape {
     radius: number; 
     startAngle: number;
     endAngle: number;
+    _direction?: ArcDirectionEnum;
     
     constructor(data: ArcData) {
         this.origin = new Point(data.origin);
         this.radius = data.radius;
         this.startAngle = data.startAngle;
         this.endAngle = data.endAngle;
+        this._direction = data.direction;
     }
 
     get startPoint(): Point {
@@ -35,7 +37,10 @@ export class Arc implements ArcData, Shape {
     }
 
     get direction(): ArcDirectionEnum {
-        return arcDirection(this.startAngle, this.endAngle);
+        if (this._direction)
+            return this._direction;
+        else
+            return arcDirection(this.startAngle, this.endAngle);
     }
 
     // transform(transform: TransformData): void {

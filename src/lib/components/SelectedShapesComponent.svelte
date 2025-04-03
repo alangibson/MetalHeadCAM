@@ -1,6 +1,14 @@
 <script lang="ts">
     import type Konva from "konva";
     import { SvelteSet } from "svelte/reactivity";
+    import ArcProperties from "./shapes/arc/ArcProperties.svelte";
+    import CircleProperties from "./shapes/circle/CircleProperties.svelte";
+    import CubicCurveProperties from "./shapes/cubic-curve/CubicCurveProperties.svelte";
+    import EllipseProperties from "./shapes/ellipse/EllipseProperties.svelte";
+    import LineProperties from "./shapes/line/LineProperties.svelte";
+    import PolyshapeProperties from "./shapes/polyshape/PolyshapeProperties.svelte";
+    import QuadraticCurveProperties from "./shapes/quadratic-curve/QuadraticCurveProperties.svelte";
+    import SplineProperties from "./shapes/spline/SplineProperties.svelte";
 
     let {
         selectedKonvaShapes = $bindable<SvelteSet<Konva.Shape>>(
@@ -28,6 +36,25 @@
                     <span class="arrow">{expandedItems.has(i) ? '▼' : '▶'}</span>
                     {konvaShape.constructor.name} ({konvaShape.index})
                 </div>
+
+                <div class="expandable" class:expanded={expandedItems.has(i)}>
+                    {#if konvaShape.constructor.name === "Arc"}
+                        <ArcProperties {konvaShape} />
+                    {:else if konvaShape.constructor.name === "Polyshape"}
+                        <PolyshapeProperties {konvaShape} />
+                    {:else if konvaShape.constructor.name === "Line"}
+                        <LineProperties {konvaShape} />
+                    {:else if konvaShape.constructor.name === "Circle"}
+                        <CircleProperties {konvaShape} />
+                    {:else if konvaShape.constructor.name === "Ellipse"}
+                        <EllipseProperties {konvaShape} />
+                    {:else if konvaShape.constructor.name === "QuadraticCurve"}
+                        <QuadraticCurveProperties {konvaShape} />
+                    {:else if konvaShape.constructor.name === "Spline"}
+                        <SplineProperties {konvaShape} />
+                    {/if}
+                </div>
+<!-- 
                 <table class:expanded={expandedItems.has(i)}>
                     <tbody>
                         <tr>
@@ -36,11 +63,21 @@
                         </tr>
                         <tr>
                             <td>index</td>
-                            <td class="value">{konvaShape.index}</td>
+                            <td class="value">
+                                {konvaShape.index}
+                            </td>
                         </tr>
                         <tr>
-                            <td>origin point</td>
-                            <td class="value"></td>
+                            <td>origin point x</td>
+                            <td class="value">
+                                <input bind:value="{originX}"/>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>origin point y</td>
+                            <td class="value">
+                                <input bind:value="{originY}"/>
+                            </td>
                         </tr>
                         <tr>
                             <td>rotation angle</td>
@@ -79,7 +116,7 @@
                             <td class="value"></td>
                         </tr>
                     </tbody>
-                </table>
+                </table> -->
             </li>
         {/each}
     </ul>
@@ -101,17 +138,13 @@
         width: 16px;
     }
 
-    table {
+    div.expandable {
         display: none;
         margin-left: 16px;
     }
 
-    table.expanded {
-        display: table;
-    }
-
-    table td.value {
-        border: 1px solid black;
+    div.expanded {
+        display: block;
     }
 
     ul {

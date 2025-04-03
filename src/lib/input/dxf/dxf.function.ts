@@ -1,5 +1,5 @@
-import { V2 } from 'vecks'
-import type { Arc as DxfArc, Circle as DxfCircle, Ellipse as DxfEllipse, Line as DxfLine, LWPolyline as DxfLWPolyline, Point2D as DxfPoint, Spline as DxfSpline} from 'dxf/handlers/entities';
+import { V2 } from 'vecks';
+import type { Arc as DxfArc, Circle as DxfCircle, Ellipse as DxfEllipse, Line as DxfLine, LWPolyline as DxfLWPolyline, Point2D as DxfPoint, Spline as DxfSpline } from 'dxf/handlers/entities';
 import type { EllipseData } from '$lib/geometry/ellipse/ellipse.data';
 import type { PointData } from '$lib/geometry/point/point.data';
 import type { PolyshapeData } from '$lib/geometry/polyshape/polyshape.data';
@@ -14,25 +14,27 @@ import type { QuadraticCurveData } from '$lib/geometry/quadratic-curve/quadratic
 import type { SplineData } from '$lib/geometry/spline/spline.data';
 import type { Entity as DxfEntity } from 'dxf/handlers/entities';
 import type { TransformData } from "$lib/geometry/transform/transform.data";
+import { ArcDirectionEnum } from '$lib/geometry/arc/arc.enum';
+import { degreesToRadians } from '$lib/geometry/arc/arc.function';
 
 export function dxfArcToArcData(dxfArc: DxfArc): ArcData {
-  return {
-    origin: {x: dxfArc.x, y: dxfArc.y},
-    radius: dxfArc.r,
-    startAngle: dxfArc.startAngle,
-    endAngle: dxfArc.endAngle
-  }
+    return {
+        origin: { x: dxfArc.x, y: dxfArc.y },
+        radius: dxfArc.r,
+        startAngle: dxfArc.startAngle,
+        endAngle: dxfArc.endAngle
+    }
 }
 
 export function dxfCircleToCircleData(dxfCircle: DxfCircle): CircleData {
     return {
-        origin: {x: dxfCircle.x, y: dxfCircle.y},
+        origin: { x: dxfCircle.x, y: dxfCircle.y },
         radius: dxfCircle.r
     }
 }
 
 export function dxfEllipseToEllipseData(dxfEllipse: DxfEllipse): EllipseData {
-    
+
     // DXF ellipse center point
     const origin: PointData = {
         x: dxfEllipse.x,
@@ -43,7 +45,7 @@ export function dxfEllipseToEllipseData(dxfEllipse: DxfEllipse): EllipseData {
     const majorX = dxfEllipse.majorX;
     const majorY = dxfEllipse.majorY;
     const majorLength = Math.sqrt(majorX * majorX + majorY * majorY);
-    
+
     // Calculate rotation angle from major axis vector
     // atan2 gives angle in radians from positive x-axis
     const rotation = Math.atan2(majorY, majorX);
@@ -61,26 +63,24 @@ export function dxfEllipseToEllipseData(dxfEllipse: DxfEllipse): EllipseData {
         endAngle: dxfEllipse.endAngle
     };
 
-    console.log('Ellipse data', data);
-
     return data;
 }
 
 export function dxfLineToLineData(dxfLine: DxfLine): LineData {
-  return {
-      startPoint: { x: dxfLine.start?.x, y: dxfLine.start?.y },
-      endPoint: { x: dxfLine.end?.x, y: dxfLine.end?.y }
-  }
+    return {
+        startPoint: { x: dxfLine.start?.x, y: dxfLine.start?.y },
+        endPoint: { x: dxfLine.end?.x, y: dxfLine.end?.y }
+    }
 }
 
 export function dxfPointToPointData(dxfPoint: DxfPoint): PointData {
-  return {x: dxfPoint.x, y: dxfPoint.y};
+    return { x: dxfPoint.x, y: dxfPoint.y };
 }
 
 export function dxfPointsToPolyshapeData(lwpolyline: DxfLWPolyline): PolyshapeData {
 
     const vertices = lwpolyline.vertices;
-    let shapes: Shape[] = vertices.slice(1).map((curr, i) => 
+    let shapes: Shape[] = vertices.slice(1).map((curr, i) =>
         dxfPointsToShape(vertices[i], curr)
     );
 
@@ -101,49 +101,70 @@ export function dxfPointsToShape(startPoint: DxfPoint, endPoint: DxfPoint): Shap
         const arcData: ArcData = dxfBulgeToArcData(startPoint, endPoint, startPoint.bulge);
         return new Arc(arcData);
     } else {
-        return new Line({startPoint, endPoint});
+        return new Line({ startPoint, endPoint });
     }
 }
 
 export function dxfSplineToQuadraticCurveData(dxfSpline: DxfSpline): QuadraticCurveData {
-  return {
-      startPoint: dxfSpline.controlPoints[0],
-      controlPoint: dxfSpline.controlPoints[1],
-      endPoint: dxfSpline.controlPoints[2]
-  }
+    return {
+        startPoint: dxfSpline.controlPoints[0],
+        controlPoint: dxfSpline.controlPoints[1],
+        endPoint: dxfSpline.controlPoints[2]
+    }
 }
 
 export function dxfSplineToCubicCurveData(dxfSpline: DxfSpline): CubicCurveData {
-  return {
-      startPoint: dxfSpline.controlPoints[0],
-      control1Point: dxfSpline.controlPoints[1], 
-      control2Point: dxfSpline.controlPoints[2],
-      endPoint: dxfSpline.controlPoints[3]
-  }
+    return {
+        startPoint: dxfSpline.controlPoints[0],
+        control1Point: dxfSpline.controlPoints[1],
+        control2Point: dxfSpline.controlPoints[2],
+        endPoint: dxfSpline.controlPoints[3]
+    }
 }
 
 export function dxfSplineToSplineData(dxfSpline: DxfSpline): SplineData {
-  return { controlPoints: dxfSpline.controlPoints }
+    return { controlPoints: dxfSpline.controlPoints }
 }
 
 export function dxfBulgeToArcData(startPoint: DxfPoint, endPoint: DxfPoint, bulge: number): ArcData {
-    
-    const theta = 4 * Math.atan(bulge);
-    
+
+    // If the bulge is < 0, the arc goes clockwise. So we simply
+    // reverse a and b and invert sign
+    // Bulge = tan(theta/4)
+    let theta: number;
+    let direction: ArcDirectionEnum;
+    // let a
+    // let b
+    if (bulge < 0) {
+    //     theta = Math.atan(-bulge) * 4;
+        direction = ArcDirectionEnum.CW;
+    //     // a = new V2(from[0], from[1])
+    //     // b = new V2(to[0], to[1])
+    } else {
+    //     // Default is counter-clockwise
+    //     theta = Math.atan(bulge) * 4;
+        direction = ArcDirectionEnum.CCW;
+    //     // a = new V2(to[0], to[1])
+    //     // b = new V2(from[0], from[1])
+    //     [startPoint, endPoint] = [endPoint, startPoint];
+    }
+    theta = 4 * Math.atan(bulge);
+    // direction = ArcDirectionEnum.CW; // From Polylinie.dxf $ARCDIR
+
     const dx = endPoint.x - startPoint.x;
     const dy = endPoint.y - startPoint.y;
     const chord = Math.sqrt(dx * dx + dy * dy);
-    
+
     const radius = Math.abs(chord / (2 * Math.sin(theta / 2)));
-    
+
     const chordMidX = (startPoint.x + endPoint.x) / 2;
     const chordMidY = (startPoint.y + endPoint.y) / 2;
     const perpDist = radius * Math.cos(theta / 2);
-    const perpAngle = Math.atan2(dy, dx) + (bulge > 0 ? Math.PI/2 : -Math.PI/2);
-    
+    const perpAngle = Math.atan2(dy, dx) + (bulge > 0 ? Math.PI / 2 : -Math.PI / 2);
+
     const centerX = chordMidX + perpDist * Math.cos(perpAngle);
     const centerY = chordMidY + perpDist * Math.sin(perpAngle);
-    
+
     const startAngle = Math.atan2(startPoint.y - centerY, startPoint.x - centerX);
     const endAngle = Math.atan2(endPoint.y - centerY, endPoint.x - centerX);
 
@@ -151,9 +172,105 @@ export function dxfBulgeToArcData(startPoint: DxfPoint, endPoint: DxfPoint, bulg
         origin: { x: centerX, y: centerY },
         radius,
         startAngle,
-        endAngle
+        endAngle,
+        direction
+        // direction: dxfBulgeArcDirection(bulge)
     };
 }
+
+export function dxfBulgeToArcData2(from: DxfPoint, to: DxfPoint, bulge: number): ArcData {
+    // // Resolution in degrees
+    // if (!resolution) {
+    //   resolution = 5
+    // }
+
+    // If the bulge is < 0, the arc goes clockwise. So we simply
+    // reverse a and b and invert sign
+    // Bulge = tan(theta/4)
+    let theta: number;
+    let a: V2;
+    let b: V2;
+    let direction: ArcDirectionEnum;
+    if (bulge < 0) {
+        direction = ArcDirectionEnum.CW;
+        theta = Math.atan(-bulge) * 4;
+        a = new V2(from.x, from.y);
+        b = new V2(to.x, to.y);
+    } else {
+        // Default is counter-clockwise
+        // TODO Default is actually in DXF HEADER as $ANGDIR.
+        direction = ArcDirectionEnum.CCW;
+        theta = Math.atan(bulge) * 4;
+        a = new V2(to.x, to.y);
+        b = new V2(from.x, from.y);
+    }
+
+    const ab = b.sub(a);
+    const lengthAB = ab.length();
+    const c = a.add(ab.multiply(0.5));
+
+    // Distance from center of arc to line between form and to points
+    const lengthCD = Math.abs(lengthAB / 2 / Math.tan(theta / 2))
+    const normAB = ab.norm()
+
+    let d;
+    if (theta < Math.PI) {
+        const normDC = new V2(
+            normAB.x * Math.cos(Math.PI / 2) - normAB.y * Math.sin(Math.PI / 2),
+            normAB.y * Math.cos(Math.PI / 2) + normAB.x * Math.sin(Math.PI / 2),
+        )
+        // D is the center of the arc
+        d = c.add(normDC.multiply(-lengthCD))
+    } else {
+        const normCD = new V2(
+            normAB.x * Math.cos(Math.PI / 2) - normAB.y * Math.sin(Math.PI / 2),
+            normAB.y * Math.cos(Math.PI / 2) + normAB.x * Math.sin(Math.PI / 2),
+        )
+        // D is the center of the arc
+        d = c.add(normCD.multiply(lengthCD))
+    }
+
+    // Add points between start start and eng angle relative
+    // to the center point
+    let startAngle = Math.atan2(b.y - d.y, b.x - d.x);
+    let endAngle = Math.atan2(a.y - d.y, a.x - d.x);
+    if (endAngle < startAngle) {
+        endAngle += degreesToRadians(360);
+    }
+    const r = b.sub(d).length();
+
+    // const startInter =
+    //   Math.floor(startAngle / resolution) * resolution + resolution
+    // const endInter = Math.ceil(endAngle / resolution) * resolution - resolution
+    // const points = []
+    // for (let i = startInter; i <= endInter; i += resolution) {
+    //   points.push(
+    //     d.add(
+    //       new V2(
+    //         Math.cos((i / 180) * Math.PI) * r,
+    //         Math.sin((i / 180) * Math.PI) * r,
+    //       ),
+    //     ),
+    //   )
+    // }
+
+    // Maintain the right ordering to join the from and to points
+    // if (bulge < 0) {
+    //     // points.reverse()
+    //     [startAngle, endAngle] = [endAngle, startAngle];
+    // }
+    
+    // return points.map((p) => [p.x, p.y])
+
+    return {
+        origin: {x: d.x, y: d.y},
+        radius: r,
+        startAngle,
+        endAngle,
+        direction
+    };
+}
+
 
 export function dxfEntityTransformToTransformData(transform): TransformData {
     return {
@@ -169,7 +286,7 @@ export function dxfEntityTransformToTransformData(transform): TransformData {
 /**
  * Returns a conversion factor to scale DXF measurement to screen pixels.
  */
-export function dxfMeasurementToPx(unit: number|undefined) {
+export function dxfMeasurementToPx(unit: number | undefined) {
     const units = unit || 0;
     const unitsToMm = {
         0: 1,    // Unitless - assume mm

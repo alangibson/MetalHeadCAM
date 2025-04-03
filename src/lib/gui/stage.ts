@@ -1,4 +1,3 @@
-import { LayerGuis } from "$lib/drawing/layer/layers";
 import type { PointData } from "$lib/geometry/point/point.data";
 import Konva from "konva";
 import { inchesToPixels, mmToInches } from "./stage.function";

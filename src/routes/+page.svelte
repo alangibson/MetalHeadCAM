@@ -1,5 +1,5 @@
 <script lang="ts">
-    import type { Drawing } from "$lib/drawing/drawing/drawing";
+    import type { Drawing } from "$lib/domain/drawing/drawing";
     import type Konva from "konva";
     import { SvelteSet } from 'svelte/reactivity';
     import FileOpenRow from "$lib/components/FileOpenRow.svelte";

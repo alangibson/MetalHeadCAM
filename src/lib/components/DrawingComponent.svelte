@@ -1,5 +1,5 @@
 <script lang="ts">
-    import type { Drawing } from "$lib/drawing/drawing/drawing";
+    import type { Drawing } from "$lib/domain/drawing/drawing";
     import Konva from "konva";
     import KonvaContainer from "./KonvaContainer.svelte";
     import SvgContainer from "./SvgContainer.svelte";

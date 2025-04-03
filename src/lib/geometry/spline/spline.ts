@@ -4,6 +4,9 @@ import type { SplineData } from "./spline.data";
 import type { TransformData } from "../transform/transform.data";
 import { scale, rotate, translate, compose, applyToPoint } from 'transformation-matrix';
 
+/**
+ * A NURBS.
+ */
 export class Spline implements SplineData, Shape {
     
     controlPoints: Point[];
