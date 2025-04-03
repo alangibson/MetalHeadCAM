@@ -5,7 +5,7 @@
     import ArcShape from "./shapes/arc/ArcShape.svelte";
     import { onMount } from "svelte";
     import type { PointData } from "$lib/geometry/point/point.data";
-    import { inchesToPixels, mmToInches } from "$lib/gui/stage.function";
+    import { inchesToPixels, mmToInches } from "$lib/components/stage.function";
     import { tick } from "svelte";
     import CircleShape from "./shapes/circle/CircleShape.svelte";
     import CubicCurveShape from "./shapes/cubic-curve/CubicCurveShape.svelte";
