@@ -6,25 +6,31 @@
         Group as KonvaGroup,
     } from "svelte-konva";
     import PolyshapeShape from "../shapes/polyshape/PolyshapeShape.svelte";
-    import Konva from "konva";
-
+    import type { Component } from "svelte";
+    import { PlanningStageState } from "./state.svelte";
+    
     let { 
         plan,
-        zoomBy = $bindable(1.0)
-     }: { plan: Plan | undefined, zoomBy: number } = $props();
-    
-    // Reference to underlying Konva.Stage object
-    let konvaStage = $state<Konva.Stage>();
-    let konvaStageWidth = $state(800);
-    let konvaStageHeight = $state(800);
-    // Gets set in onMount
-    let konvaStageComponent;
+     }: { plan: Plan | undefined } = $props();
+
+    let konvaStageComponent: Component|undefined = $state();
+    $effect(() => {
+        const konvaStage = konvaStageComponent?.handle();
+        PlanningStageState.konvaStage = konvaStage;
+    });
 </script>
 
 <KonvaStage
     bind:this={konvaStageComponent}
-    width={konvaStageWidth}
-    height={konvaStageHeight}
+    draggable={true}
+    width={PlanningStageState.konvaStageWidth}
+    height={PlanningStageState.konvaStageHeight}
+    x={PlanningStageState.translateX}
+    y={PlanningStageState.translateY}
+    scaleX={PlanningStageState.stageScaleX}
+    scaleY={PlanningStageState.stageScaleY}
+    onpointermove={PlanningStageState.onPointerMove}
+    onwheel={PlanningStageState.onWheel}
 >
     <KonvaLayer>
         {#each plan?.parts as part, part_i}
@@ -32,12 +38,13 @@
                 {#each part.cuts as cut, cut_i}
                     <!-- TODO render rapid in -->
                     <!-- TODO render lead in -->
-                    <!-- TODO render path -->
                     <PolyshapeShape
                         geometry={cut.path}
-                        onmouseenter={null}
-                        onmouseleave={null}
-                        onclick={null}
+                        stageScaleBy={PlanningStageState.stageScaleBy}
+                        strokeWidth={PlanningStageState.strokeWidth}
+                        onmouseenter={PlanningStageState.onMouseEnter}
+                        onmouseleave={PlanningStageState.onMouseLeave}
+                        onclick={PlanningStageState.onClick}
                     ></PolyshapeShape>
                     <!-- TODO render offset -->
                     <!-- TODO render lead out -->

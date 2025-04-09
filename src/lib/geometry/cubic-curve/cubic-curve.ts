@@ -5,7 +5,7 @@ import type { TransformData } from "../transform/transform.data";
 import { GeometryTypeEnum } from "../geometry/geometry.enum";
 import { Boundary } from "../boundary/boundary";
 import type { Geometry } from "../geometry/geometry";
-import { cubicCurveBoundary, cubicCurveIsClosed, cubicCurveSample, cubicCurveTransform } from "./cubic-curve.function";
+import { cubicCurveBoundary, cubicCurveIsClosed, cubicCurveReverse, cubicCurveSample, cubicCurveTransform } from "./cubic-curve.function";
 
 export class CubicCurve implements CubicCurveData, Shape {
 
@@ -56,4 +56,13 @@ export class CubicCurve implements CubicCurveData, Shape {
     sample(samples: number = 20): Point[] {
         return cubicCurveSample(this, samples).map(p => new Point(p));
     }
+
+    reverse() {
+		const reversed: CubicCurveData = cubicCurveReverse(this);
+		this.startPoint = new Point(reversed.startPoint);
+		this.control1Point = new Point(reversed.control1Point);
+		this.control2Point = new Point(reversed.control2Point);
+		this.endPoint = new Point(reversed.endPoint);
+	}
+
 }

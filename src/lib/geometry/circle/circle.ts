@@ -55,4 +55,7 @@ export class Circle implements CircleData, Shape {
         return circleSample(this, samples).map(p => new Point(p));
     }
 
+    reverse(): void {
+		// Noop
+	}
 }

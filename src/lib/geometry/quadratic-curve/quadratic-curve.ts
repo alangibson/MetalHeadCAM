@@ -54,4 +54,10 @@ export class QuadraticCurve implements QuadraticCurveData, Shape {
     sample(samples: number = 20): Point[] {
         return quadraticCurveSample(this, samples).map(data => new Point(data));
     }
+
+	reverse() {
+		const endPoint = this.endPoint;
+		this.endPoint = this.startPoint;
+		this.startPoint = endPoint;
+	}
 }

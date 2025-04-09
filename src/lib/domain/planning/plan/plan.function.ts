@@ -1,12 +1,28 @@
-import type { Layer } from "$lib/domain/drawing/layer/layer";
-import type { Geometry } from "$lib/geometry/geometry/geometry";
-import type { PointData } from "$lib/geometry/point/point.data";
 import { Polyshape } from "$lib/geometry/polyshape/polyshape";
 import { polyshapeContains } from "$lib/geometry/polyshape/polyshape.function";
 import type { Shape } from "$lib/geometry/shape/shape";
-import { shapeChains } from "$lib/geometry/shape/shape.function";
 import { Cut } from "../cut/cut";
 import { Part } from "../part/part";
+
+export function reorientShapes(shapes: Shape[], tolerance: number = 0.05) {
+	for (let i = 1; i < shapes.length; i++) {
+		const prevShape: Shape = shapes[i - 1];
+		const currentShape: Shape = shapes[i];
+		if (prevShape.endPoint.coincident(currentShape.startPoint, tolerance)) {
+			// Already correctly oriented
+			continue;
+		} else if (prevShape.endPoint.coincident(currentShape.endPoint, tolerance)) {
+			// Reverse the current segment to match the end to start
+			currentShape.reverse();
+		} else if (prevShape.startPoint.coincident(currentShape.startPoint, tolerance)) {
+			// Reverse the previous segment to match the start to end
+			prevShape.reverse();
+		} else if (prevShape.startPoint.coincident(currentShape.endPoint, tolerance)) {
+			currentShape.reverse();
+			prevShape.reverse();
+		}
+	}
+}
 
 /**
  * Join chains of shapes into as few continuous Polyshapes as possible.
@@ -15,43 +31,14 @@ export function geometriesToPolyshapes(shapeChains: Shape[][]): Polyshape[] {
     // Connect all shapes end-to-start within given tolerance
     const polyshapes: Polyshape[] = [];
     for (let shapeChain of shapeChains) {
-        // TODO ? reorientShapes(graph, config.tolerance);
         const shapes: Shape[] = [];
-        // let lastShape: Shape;
         for (let shape of shapeChain) {
             shapes.push(shape);
-            // area.add(shape);
-            // lastShape = shape;
         }
         polyshapes.push(new Polyshape({shapes}));
     }
     return polyshapes;
 }
-
-// export function layerToCuts(layer: Layer): Cut[] {
-
-//     // TODO ?
-//     // Translate Area, and all Geometry in it, so that 0,0 is at bottom-left
-//     // const area = new Area();
-//     // ... add each shape in graph...
-//     // area.translate(-area.min.x, -area.min.y);   
-
-//     // Create Cuts from Shapes in Drawing Layers
-//     const cuts: Cut[] = [];
-//     for (const geometries of layer.geometries) {
-
-//         // TODO Each Polyshape is a Cut
-//         const cut: Cut = new Cut({ path: polyshape });
-
-//         // TODO tweak Cut/Path based on Operation settings
-//         // - Hole underspeed?
-//         // - Add leads?
-
-//         cuts.push(cut);
-//     }
-
-//     return cuts;
-// }
 
 /**
  * Group one or more Cut(s) it one or more Part(s).

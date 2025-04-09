@@ -46,4 +46,10 @@ export class Line implements LineData, Shape {
         return [this.startPoint, this.endPoint];
     }
 
+    reverse(): void {
+		const startPoint = this.startPoint;
+		this.startPoint = this.endPoint;
+		this.endPoint = startPoint;
+	}
+
 }

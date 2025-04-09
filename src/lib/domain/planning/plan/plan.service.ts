@@ -5,7 +5,7 @@ import { shapeChains } from "$lib/geometry/shape/shape.function";
 import { Cut } from "../cut/cut";
 import type { Part } from "../part/part";
 import { Plan } from "./plan";
-import { cutsToParts, geometriesToPolyshapes as shapeChainsToPolyshapes } from "./plan.function";
+import { cutsToParts, reorientShapes, geometriesToPolyshapes as shapeChainsToPolyshapes } from "./plan.function";
 
 export namespace Planning {
     
@@ -17,23 +17,28 @@ export namespace Planning {
             return undefined;
 
         for (const layer of drawing.layers) {
-            // Connect all shapes end-to-start within given tolerance
-            const shapeChain: Shape[][] = shapeChains(layer.geometries, 0.005);
-            console.log('shapeChains', shapeChain);
+            // Find chains of Shapes that are connected by overlapping start and end points
+            const shapeChain: Shape[][] = shapeChains(layer.geometries, 0.05);
+
+            // Shape chains are not necessarily sorted end-to-start, 
+            // so reverse shapes a needed so that they are.
+            shapeChain.forEach((shapeChain: Shape[]) => reorientShapes(shapeChain, 0.05));
 
             // Transform Layer geometries to connected Polyshapes
             const polyshapes: Polyshape[] = shapeChainsToPolyshapes(shapeChain);
-            console.log('polyshapes', polyshapes);
 
-            // Build up a list of Cuts
+            // Build up a list of Cuts. Each Polyshape is a Cut path.
             const cuts: Cut[] = polyshapes.map((path: Polyshape) => new Cut({path}));
-            console.log('cuts', cuts);
 
             // Group Cut(s) into Part(s)
             const parts: Part[] = cutsToParts(cuts);
-            console.log('parts', parts);
 
-            // TODO Optimize Rapid moves between Cuts
+            // TODO Add Leads if needed 
+
+            // TODO Add offsets to paths if needed
+
+            // TODO Add/optimize Rapid moves between Cuts
+            //
             // Works on parts, instead of cuts, because we have to consider
             // if cuts are holes or shells of parts.
             // PathOptimizer.optimize(parts);

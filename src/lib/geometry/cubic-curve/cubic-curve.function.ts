@@ -88,6 +88,23 @@ export function cubicCurveTransform(transform: TransformData, curve: CubicCurveD
 	};
 }
 
+/**
+ * Reverses the orientation of a cubic Bezier curve.
+ *
+ * @param {Array} cubicCurve - An array of four points defining the Bezier curve.
+ * Each point is an object with 'x' and 'y' properties.
+ * @returns {Array} - A new array of points representing the reversed Bezier curve.
+ */
+export function cubicCurveReverse(cubicCurve: CubicCurveData): CubicCurveData {
+	// Reverse the control points to reverse the curve's orientation
+	return {
+		startPoint: cubicCurve.endPoint, // End point becomes the new start point
+		control1Point: cubicCurve.control2Point, // Control point 2 becomes control point 1
+		control2Point: cubicCurve.control1Point, // Control point 1 becomes control point 2
+		endPoint: cubicCurve.startPoint // Start point becomes the new end point
+	};
+}
+
 // TODO is this one more accurate?
 // 
 // export function cubicCurveBoundary(

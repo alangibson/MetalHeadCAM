@@ -4,6 +4,7 @@
     import { Line } from "$lib/geometry/line/line";
     import type { Polyshape } from "$lib/geometry/polyshape/polyshape";
     import { arcToSvgFlags } from "$lib/geometry/arc/arc.function";
+    import { Circle } from "$lib/geometry/circle/circle";
 
     let {
         geometry: polyshape = $bindable<Polyshape>(),
@@ -38,12 +39,30 @@
                 );
                 const pathArc = ` A ${rx} ${ry} ${xAxisRotation} ${largeArcFlag} ${sweepFlag} ${shape.endPoint.x} ${shape.endPoint.y}`;
                 pathData += pathArc;
+            } else if (shape instanceof Circle) {
+                // Draw circle using SVG path commands
+                // Move to start point (center + radius on x-axis)
+                const startX = shape.origin.x + shape.radius;
+                const startY = shape.origin.y;
+                pathData += ` M ${startX} ${startY}`;
+                // Draw circle using two arcs
+                // First arc: 180 degrees
+                pathData += ` A ${shape.radius} ${shape.radius} 0 1 1 ${shape.origin.x - shape.radius} ${shape.origin.y}`;
+                // Second arc: remaining 180 degrees
+                pathData += ` A ${shape.radius} ${shape.radius} 0 1 1 ${startX} ${startY}`;
+
+            // TODO Support Spline
+
+            } else {
+                throw new Error(`Shape not supported: ${shape.type}`);
             }
         }
 
         if (polyshape.isClosed) {
             pathData += ' Z';
         }
+
+        console.log(pathData);
 
         return pathData;
     }

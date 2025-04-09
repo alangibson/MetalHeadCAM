@@ -64,4 +64,9 @@ export class Ellipse implements EllipseData, Shape {
     sample(samples: number = 20): Point[] {
         return ellipseToPoints(this, samples).map(p => new Point(p));
     }
+
+    reverse(): void {
+        throw new Error("Method not implemented.");
+    }
+
 }

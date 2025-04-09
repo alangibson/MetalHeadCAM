@@ -2,7 +2,7 @@ import type { TransformData } from "../transform/transform.data";
 import { Point } from "../point/point";
 import type { Shape } from "../shape/shape";
 import type { ArcData } from "./arc.data";
-import type { ArcDirectionEnum } from "./arc.enum";
+import { ArcDirectionEnum } from "./arc.enum";
 import { arcBoundary, arcDirection, arcIsClosed, arcSample, arcTransform } from "./arc.function";
 import { GeometryTypeEnum } from "../geometry/geometry.enum";
 import { Boundary } from "../boundary/boundary";
@@ -80,5 +80,12 @@ export class Arc implements ArcData, Shape {
         // Convert to array of points for rendering/calculations
         return arcSample(this, samples).map(p => new Point(p));
     }
+
+	reverse(): void {
+		const start_angle = this.startAngle;
+		this.startAngle = this.endAngle;
+		this.endAngle = start_angle;
+		this._direction = this._direction == ArcDirectionEnum.CW ? ArcDirectionEnum.CCW : ArcDirectionEnum.CW;
+	}
 
 }

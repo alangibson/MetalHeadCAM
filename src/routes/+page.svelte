@@ -14,28 +14,12 @@
     import type { Plan } from "$lib/domain/planning/plan/plan";
     import { Planning } from "$lib/domain/planning/plan/plan.service";
 
-    // TODO this should all go in a shared context file
-    // Shared context
-    //
-    // Content
     let svgContent: string = $state("");
     let drawing: Drawing = $state();
     let plan: Plan | undefined = $derived(Planning.fromDrawing(drawing));
-    // Runtime properties
-    // 0,0 at top-left
-    let konvaStagePointerX = $state(0);
-    let konvaStagePointerY = $state(0);
-    // 0,0 at bottom-left
-    let stagePointerX = $state(0);
-    let stagePointerY = $state(0);
-    // Zoom scaling factor
-    let zoomBy = $state(1.0);
 
-    // let activeTab = $state("drawing");
     // 1 = Project, 2 = Import, 3 = Drawing, 4 = Program
     let activeStage = $state(2);
-    // Shapes that are currently selected
-    let selectedKonvaShapes = $state<SvelteSet<Konva.Shape>>(new SvelteSet());
 </script>
 
 <div class="canvas-container">
@@ -52,27 +36,12 @@
                 <DrawingLayersComponent bind:drawing></DrawingLayersComponent>
             {/snippet}
             {#snippet middleColumn()}
-                <DrawingComponent
-                    bind:svgContent
-                    bind:drawing
-                    bind:zoomBy
-                    bind:konvaStagePointerX
-                    bind:konvaStagePointerY
-                    bind:stagePointerX
-                    bind:stagePointerY
-                    bind:selectedKonvaShapes
+                <DrawingComponent bind:svgContent bind:drawing
                 ></DrawingComponent>
             {/snippet}
             {#snippet rightColumn()}
-                <DrawingPositionComponent
-                    bind:zoomBy
-                    bind:konvaStagePointerX
-                    bind:konvaStagePointerY
-                    bind:stagePointerX
-                    bind:stagePointerY
-                ></DrawingPositionComponent>
-                <SelectedShapesComponent bind:selectedKonvaShapes
-                ></SelectedShapesComponent>
+                <DrawingPositionComponent></DrawingPositionComponent>
+                <SelectedShapesComponent></SelectedShapesComponent>
             {/snippet}
         </RowLayout>
     {:else if activeStage === 4}
@@ -82,7 +51,7 @@
                 <PlanItems {plan}></PlanItems>
             {/snippet}
             {#snippet middleColumn()}
-                <PlanComponent {plan} bind:zoomBy></PlanComponent>
+                <PlanComponent {plan}></PlanComponent>
             {/snippet}
             {#snippet rightColumn()}{/snippet}
         </RowLayout>
