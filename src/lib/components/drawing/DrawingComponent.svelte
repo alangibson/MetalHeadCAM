@@ -1,9 +1,9 @@
 <script lang="ts">
-    import type { Drawing } from "$lib/domain/drawing/drawing";
+    import type { Drawing } from "$lib/domain/drawing/drawing/drawing";
     import Konva from "konva";
+    import { SvelteSet } from "svelte/reactivity";
     import KonvaContainer from "./KonvaContainer.svelte";
     import SvgContainer from "./SvgContainer.svelte";
-    import { SvelteSet } from "svelte/reactivity";
 
     let {
         svgContent = $bindable<string>(),
@@ -15,7 +15,7 @@
         stagePointerX = $bindable(0),
         stagePointerY = $bindable(0),
         // Zoom scaling factor
-        scaleBy = $bindable(1.0),
+        zoomBy = $bindable(1.0),
         selectedKonvaShapes = $bindable<SvelteSet<Konva.Shape>>(
             new SvelteSet(),
         ),
@@ -47,7 +47,7 @@
         <div style="display: {activeTab === 'drawing' ? 'block' : 'none'}">
             <KonvaContainer
                 {drawing}
-                bind:scaleBy
+                bind:zoomBy
                 bind:konvaStagePointerX
                 bind:konvaStagePointerY
                 bind:stagePointerX

@@ -1,5 +1,5 @@
-import type { Point } from "../point/point";
+import type { PointData } from "../point/point.data";
 
 export interface SplineData {
-    controlPoints: Point[];
+    controlPoints: PointData[];
 }

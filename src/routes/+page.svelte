@@ -1,18 +1,26 @@
 <script lang="ts">
-    import type { Drawing } from "$lib/domain/drawing/drawing";
+    import type { Drawing } from "$lib/domain/drawing/drawing/drawing";
     import type Konva from "konva";
-    import { SvelteSet } from 'svelte/reactivity';
-    import FileOpenRow from "$lib/components/FileOpenRow.svelte";
-    import DrawingComponent from "$lib/components/DrawingComponent.svelte";
+    import { SvelteSet } from "svelte/reactivity";
     import RowLayout from "$lib/components/RowLayout.svelte";
-    import DrawingPositionComponent from "$lib/components/DrawingPositionComponent.svelte";
-    import SelectedShapesComponent from "$lib/components/SelectedShapesComponent.svelte";
+    import DrawingPositionComponent from "$lib/components/drawing/DrawingPositionComponent.svelte";
+    import SelectedShapesComponent from "$lib/components/drawing/SelectedShapesComponent.svelte";
+    import DrawingLayersComponent from "$lib/components/drawing/DrawingLayersComponent.svelte";
+    import DrawingComponent from "$lib/components/drawing/DrawingComponent.svelte";
+    import FileOpenRow from "$lib/components/importing/FileOpenRow.svelte";
+    import OperationsComponent from "$lib/components/planning/OperationsComponent.svelte";
+    import PlanComponent from "$lib/components/planning/PlanComponent.svelte";
+    import PlanItems from "$lib/components/planning/PlanItems.svelte";
+    import type { Plan } from "$lib/domain/planning/plan/plan";
+    import { Planning } from "$lib/domain/planning/plan/plan.service";
 
+    // TODO this should all go in a shared context file
     // Shared context
     //
     // Content
     let svgContent: string = $state("");
     let drawing: Drawing = $state();
+    let plan: Plan | undefined = $derived(Planning.fromDrawing(drawing));
     // Runtime properties
     // 0,0 at top-left
     let konvaStagePointerX = $state(0);
@@ -21,7 +29,8 @@
     let stagePointerX = $state(0);
     let stagePointerY = $state(0);
     // Zoom scaling factor
-    let scaleBy = $state(1.0);
+    let zoomBy = $state(1.0);
+
     // let activeTab = $state("drawing");
     // 1 = Project, 2 = Import, 3 = Drawing, 4 = Program
     let activeStage = $state(2);
@@ -34,15 +43,19 @@
         <RowLayout bind:activeStage></RowLayout>
     {:else if activeStage === 2}
         <RowLayout bind:activeStage>
-            <FileOpenRow bind:svgContent bind:drawing bind:activeStage></FileOpenRow>
+            <FileOpenRow bind:svgContent bind:drawing bind:activeStage
+            ></FileOpenRow>
         </RowLayout>
     {:else if activeStage === 3}
         <RowLayout bind:activeStage>
+            {#snippet leftColumn()}
+                <DrawingLayersComponent bind:drawing></DrawingLayersComponent>
+            {/snippet}
             {#snippet middleColumn()}
                 <DrawingComponent
                     bind:svgContent
                     bind:drawing
-                    bind:scaleBy
+                    bind:zoomBy
                     bind:konvaStagePointerX
                     bind:konvaStagePointerY
                     bind:stagePointerX
@@ -52,17 +65,27 @@
             {/snippet}
             {#snippet rightColumn()}
                 <DrawingPositionComponent
-                    bind:scaleBy
+                    bind:zoomBy
                     bind:konvaStagePointerX
                     bind:konvaStagePointerY
                     bind:stagePointerX
                     bind:stagePointerY
                 ></DrawingPositionComponent>
-                <SelectedShapesComponent bind:selectedKonvaShapes></SelectedShapesComponent>
+                <SelectedShapesComponent bind:selectedKonvaShapes
+                ></SelectedShapesComponent>
             {/snippet}
         </RowLayout>
     {:else if activeStage === 4}
-        <RowLayout bind:activeStage></RowLayout>
+        <RowLayout bind:activeStage>
+            {#snippet leftColumn()}
+                <OperationsComponent></OperationsComponent>
+                <PlanItems {plan}></PlanItems>
+            {/snippet}
+            {#snippet middleColumn()}
+                <PlanComponent {plan} bind:zoomBy></PlanComponent>
+            {/snippet}
+            {#snippet rightColumn()}{/snippet}
+        </RowLayout>
     {/if}
 </div>
 

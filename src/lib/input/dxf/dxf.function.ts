@@ -16,6 +16,7 @@ import type { Entity as DxfEntity } from 'dxf/handlers/entities';
 import type { TransformData } from "$lib/geometry/transform/transform.data";
 import { ArcDirectionEnum } from '$lib/geometry/arc/arc.enum';
 import { degreesToRadians } from '$lib/geometry/arc/arc.function';
+import type InsertEntityData from 'dxf/handlers/entity/insert';
 
 export function dxfArcToArcData(dxfArc: DxfArc): ArcData {
     return {
@@ -272,14 +273,17 @@ export function dxfBulgeToArcData2(from: DxfPoint, to: DxfPoint, bulge: number):
 }
 
 
-export function dxfEntityTransformToTransformData(transform): TransformData {
+export function dxfEntityTransformToTransformData(dxfTransform: InsertEntityData): TransformData {
     return {
-        translateX: transform.x ?? 0,
-        translateY: transform.y ?? 0,
-        rotateAngle: transform.rotation ? (transform.rotation * Math.PI / 180) : 0,
-        scaleX: transform.scaleX ?? 1,
-        scaleY: transform.scaleY ?? 1,
-        extrusionZ: transform.extrusionZ ?? 1
+        // In DXF, the INSERT entity defines x,y as the insertion point of a BLOCK.
+        // We treat insert point as a transform from 0,0.
+        translateX: dxfTransform.x ?? 0,
+        translateY: dxfTransform.y ?? 0,
+        // Rotation angle in degrees around Z axis
+        rotateAngle: dxfTransform.rotation ? degreesToRadians(dxfTransform.rotation) : 0,
+        // Scale transform. Default to 1 for no change in size.
+        scaleX: dxfTransform.scaleX ?? 1,
+        scaleY: dxfTransform.scaleY ?? 1
     };
 }
 

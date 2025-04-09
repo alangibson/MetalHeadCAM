@@ -7,7 +7,7 @@
         stagePointerX = $bindable(0),
         stagePointerY = $bindable(0),
         // Zoom scaling factor
-        scaleBy = $bindable(1.0)
+        zoomBy = $bindable(1.0)
     } = $props();
 
     // Runtime properties
@@ -18,14 +18,14 @@
     // let stagePointerX = $state(0);
     // let stagePointerY = $state(0);
     // Zoom scaling factor
-    // let scaleBy = $state(1.0);
+    // let zoomBy = $state(1.0);
 </script>
 
 <div>Stage</div>
 <div>
     Pos: X={konvaStagePointerX.toFixed(1)} Y={konvaStagePointerY.toFixed(1)}
 </div>
-<div>Zoom: {Math.round(scaleBy * 100)}%</div>
+<div>Zoom: {Math.round(zoomBy * 100)}% ({zoomBy})</div>
 <div>Drawing</div>
 <div>
     Pos: X={stagePointerX.toFixed(1)} Y={stagePointerY.toFixed(1)}

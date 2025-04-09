@@ -2,12 +2,15 @@ import { Point } from "../point/point";
 import type { PointData } from "../point/point.data";
 import type { Shape } from "../shape/shape";
 import type { EllipseData } from "./ellipse.data";
-import { ellipseTransform, getPointAtAngleOnEllipse } from "./ellipse.function";
+import { ellipseBoundary, ellipseIsClosed, ellipseToPoints, ellipseTransform, ellipsePointAtAngle } from "./ellipse.function";
 import type { TransformData } from "../transform/transform.data";
-import { scale, rotate, translate, compose, applyToPoint } from 'transformation-matrix';
+import { GeometryTypeEnum } from "../geometry/geometry.enum";
+import { Boundary } from "../boundary/boundary";
+import type { Geometry } from "../geometry/geometry";
 
 export class Ellipse implements EllipseData, Shape {
     
+    type = GeometryTypeEnum.ELLIPSE;
     origin: PointData;
     majorLength: number;
     minorLength: number;
@@ -24,24 +27,20 @@ export class Ellipse implements EllipseData, Shape {
         this.endAngle = data.endAngle;
     }
 
+    get isClosed(): boolean {
+        return ellipseIsClosed(this.startAngle, this.endAngle);
+    }
+    
+    get boundary(): Boundary {
+        return new Boundary(ellipseBoundary(this));
+    }
+
     get startPoint(): Point {
-        return new Point(getPointAtAngleOnEllipse(
-            this.origin,
-            this.majorLength,
-            this.minorLength,
-            this.rotation,
-            this.startAngle
-        ));
+        return new Point(ellipsePointAtAngle(this, this.startAngle));
     }
 
     get endPoint(): Point {
-        return new Point(getPointAtAngleOnEllipse(
-            this.origin,
-            this.majorLength,
-            this.minorLength,
-            this.rotation,
-            this.endAngle
-        ));
+        return new Point(ellipsePointAtAngle(this, this.endAngle));
     }
 
     transform(transform: TransformData): void {
@@ -55,4 +54,14 @@ export class Ellipse implements EllipseData, Shape {
         this.endAngle = ellipseData.endAngle;
     }
 
+    contains(geometry: Geometry): boolean {
+        if (! this.isClosed)
+            return false;
+        else
+            throw new Error("Method not implemented.");
+    }
+
+    sample(samples: number = 20): Point[] {
+        return ellipseToPoints(this, samples).map(p => new Point(p));
+    }
 }

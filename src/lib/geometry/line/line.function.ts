@@ -1,0 +1,66 @@
+import type { PointData } from "../point/point.data";
+import type { TransformData } from "../transform/transform.data";
+import type { LineData } from "./line.data";
+import { scale, rotate, translate, compose, applyToPoint } from 'transformation-matrix';
+
+// Helper function to calculate orientation
+export function lineOrientation(a: PointData, b: PointData, c: PointData) {
+	const val = (b.y - a.y) * (c.x - b.x) - (b.x - a.x) * (c.y - b.y);
+	if (val === 0) return 0; // Colinear
+	return val > 0 ? 1 : 2; // Clockwise or Counterclockwise
+}
+
+// Helper function to check if point q lies on segment pr
+export function pointIsOnLine(p: PointData, q: PointData, r: PointData) {
+	return (
+		q.x <= Math.max(p.x, r.x) &&
+		q.x >= Math.min(p.x, r.x) &&
+		q.y <= Math.max(p.y, r.y) &&
+		q.y >= Math.min(p.y, r.y)
+	);
+}
+
+// Function to check if two line segments intersect
+export function lineIntersects(
+	p1: PointData,
+	p2: PointData,
+	p3: PointData,
+	p4: PointData
+) {
+	const o1 = lineOrientation(p1, p2, p3);
+	const o2 = lineOrientation(p1, p2, p4);
+	const o3 = lineOrientation(p3, p4, p1);
+	const o4 = lineOrientation(p3, p4, p2);
+
+	// General case
+	if (o1 !== o2 && o3 !== o4) {
+		return true;
+	}
+
+	// Special Cases
+	if (o1 === 0 && pointIsOnLine(p1, p3, p2)) return true; // p3 lies on p1p2
+	if (o2 === 0 && pointIsOnLine(p1, p4, p2)) return true; // p4 lies on p1p2
+	if (o3 === 0 && pointIsOnLine(p3, p1, p4)) return true; // p1 lies on p3p4
+	if (o4 === 0 && pointIsOnLine(p3, p2, p4)) return true; // p2 lies on p3p4
+
+	return false;
+}
+
+/** Apply transform to a line */
+export function lineTransform(transform: TransformData, line: LineData): LineData {
+	// Create transformation matrix
+	const matrix = compose(
+		translate(transform.translateX || 0, transform.translateY || 0),
+		rotate(transform.rotateAngle || 0),
+		scale(transform.scaleX || 1, transform.scaleY || 1)
+	);
+
+	// Transform all points
+	const startPoint = applyToPoint(matrix, line.startPoint);
+	const endPoint = applyToPoint(matrix, line.endPoint);
+
+	return {
+		startPoint,
+		endPoint
+	};
+}

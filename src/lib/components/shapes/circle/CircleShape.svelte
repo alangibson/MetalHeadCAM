@@ -4,6 +4,8 @@
 
     let {
         geometry: circleData = $bindable<CircleData>(),
+        stageScaleBy = $bindable(1),
+        strokeWidth = $bindable(1),
         onmouseenter: onMouseEnter,
         onmouseleave: onMouseLeave,
         onclick: onClick,
@@ -27,7 +29,9 @@
 <KonvaCircle
     {...config}
     stroke="green"
-    strokeWidth={1}
+    {strokeWidth}
+    lineCap="round"
+    lineJoin="round"
     onmouseenter={onMouseEnter}
     onmouseleave={onMouseLeave}
     onclick={onClick}

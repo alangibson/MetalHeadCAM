@@ -1,10 +1,13 @@
 import type { Geometry } from "../geometry/geometry";
+import { GeometryTypeEnum } from "../geometry/geometry.enum";
 import type { TransformData } from "../transform/transform.data";
 import type { PointData } from "./point.data";
-import { scale, rotate, translate, compose, applyToPoint } from 'transformation-matrix';
+import { pointTransform } from "./point.function";
+import { pointCoincident } from "./point.function";
 
 export class Point implements PointData, Geometry {
 
+    type = GeometryTypeEnum.POINT;
     x: number;
     y: number;
 
@@ -17,18 +20,13 @@ export class Point implements PointData, Geometry {
      * Points are the same within a given tolerance.
      */
     coincident(thatPoint: Point, tolerance: number = 0.005): boolean {
-        return Math.abs(this.x - thatPoint.x) < tolerance && Math.abs(this.y - thatPoint.y) < tolerance;
+        return pointCoincident(this, thatPoint, tolerance);
     }
 
     transform(transform: TransformData): void {
-        const matrix = compose(
-            translate(transform.translateX || 0, transform.translateY || 0),
-            rotate(transform.rotateAngle || 0),
-            scale(transform.scaleX || 1, transform.scaleY || 1)
-        );
-        const newPoint = applyToPoint(matrix, this);
-        this.x = newPoint.x;
-        this.y = newPoint.y;
+        const transformed = pointTransform(transform, this);
+        this.x = transformed.x;
+        this.y = transformed.y;
     }
 
 }

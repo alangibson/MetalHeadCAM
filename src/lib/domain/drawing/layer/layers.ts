@@ -11,4 +11,8 @@ export class Layers implements Iterable<Layer> {
     [Symbol.iterator](): Iterator<Layer> {
         return this.layers[Symbol.iterator]();
     }
+
+    get length() {
+        return this.layers.length;
+    }
 }

@@ -1,14 +1,14 @@
 <script lang="ts">
     import type Konva from "konva";
     import { SvelteSet } from "svelte/reactivity";
-    import ArcProperties from "./shapes/arc/ArcProperties.svelte";
-    import CircleProperties from "./shapes/circle/CircleProperties.svelte";
-    import CubicCurveProperties from "./shapes/cubic-curve/CubicCurveProperties.svelte";
-    import EllipseProperties from "./shapes/ellipse/EllipseProperties.svelte";
-    import LineProperties from "./shapes/line/LineProperties.svelte";
-    import PolyshapeProperties from "./shapes/polyshape/PolyshapeProperties.svelte";
-    import QuadraticCurveProperties from "./shapes/quadratic-curve/QuadraticCurveProperties.svelte";
-    import SplineProperties from "./shapes/spline/SplineProperties.svelte";
+    import ArcProperties from "../shapes/arc/ArcProperties.svelte";
+    import CircleProperties from "../shapes/circle/CircleProperties.svelte";
+    import CubicCurveProperties from "../shapes/cubic-curve/CubicCurveProperties.svelte";
+    import EllipseProperties from "../shapes/ellipse/EllipseProperties.svelte";
+    import LineProperties from "../shapes/line/LineProperties.svelte";
+    import PolyshapeProperties from "../shapes/polyshape/PolyshapeProperties.svelte";
+    import QuadraticCurveProperties from "../shapes/quadratic-curve/QuadraticCurveProperties.svelte";
+    import SplineProperties from "../shapes/spline/SplineProperties.svelte";
 
     let {
         selectedKonvaShapes = $bindable<SvelteSet<Konva.Shape>>(

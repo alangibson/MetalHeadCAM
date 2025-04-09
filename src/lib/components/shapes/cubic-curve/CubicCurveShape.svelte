@@ -4,6 +4,8 @@
 
     let {
         geometry: curveData = $bindable<CubicCurveData>(),
+        stageScaleBy = $bindable(1),
+        strokeWidth = $bindable(1),
         onmouseenter: onMouseEnter,
         onmouseleave: onMouseLeave,
         onclick: onClick,
@@ -14,10 +16,10 @@
         points: [
             curveData.startPoint.x,
             curveData.startPoint.y,
-            curveData.controlPoint1.x,
-            curveData.controlPoint1.y,
-            curveData.controlPoint2.x,
-            curveData.controlPoint2.y,
+            curveData.control1Point.x,
+            curveData.control1Point.y,
+            curveData.control2Point.x,
+            curveData.control2Point.y,
             curveData.endPoint.x,
             curveData.endPoint.y
         ],
@@ -29,10 +31,10 @@
         const points = config.points;
         curveData.startPoint.x = points[0];
         curveData.startPoint.y = points[1];
-        curveData.controlPoint1.x = points[2];
-        curveData.controlPoint1.y = points[3];
-        curveData.controlPoint2.x = points[4];
-        curveData.controlPoint2.y = points[5];
+        curveData.control1Point.x = points[2];
+        curveData.control1Point.y = points[3];
+        curveData.control2Point.x = points[4];
+        curveData.control2Point.y = points[5];
         curveData.endPoint.x = points[6];
         curveData.endPoint.y = points[7];
     });
@@ -41,7 +43,7 @@
 <KonvaLine
     {...config}
     stroke="lightblue"
-    strokeWidth={1}
+    {strokeWidth}
     lineCap="round"
     lineJoin="round"
     onmouseenter={onMouseEnter}

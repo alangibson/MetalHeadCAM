@@ -4,6 +4,8 @@
 
     let {
         geometry: curveData = $bindable<QuadraticCurveData>(),
+        stageScaleBy = $bindable(1),
+        strokeWidth = $bindable(1),
         onmouseenter: onMouseEnter,
         onmouseleave: onMouseLeave,
         onclick: onClick,
@@ -47,7 +49,7 @@
 <KonvaLine
     {...config}
     stroke="darkblue"
-    strokeWidth={1}
+    {strokeWidth}
     lineCap="round"
     lineJoin="round"
     onmouseenter={onMouseEnter}

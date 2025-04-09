@@ -1,6 +1,5 @@
 <script lang="ts">
     import { Path as KonvaPath } from "svelte-konva";
-    import { ArcDirectionEnum } from "$lib/geometry/arc/arc.enum";
     import { Arc } from "$lib/geometry/arc/arc";
     import { Line } from "$lib/geometry/line/line";
     import type { Polyshape } from "$lib/geometry/polyshape/polyshape";
@@ -8,6 +7,8 @@
 
     let {
         geometry: polyshape = $bindable<Polyshape>(),
+        stageScaleBy = $bindable(1),
+        strokeWidth = $bindable(1),
         onmouseenter: onMouseEnter,
         onmouseleave: onMouseLeave,
         onclick: onClick,
@@ -44,29 +45,27 @@
             pathData += ' Z';
         }
 
-        console.log(pathData);
-
         return pathData;
     }
 
-    
-
     // Map from PolyshapeData to Konva.Path
-    let config = $state({
-        data: buildPathData(polyshape)
-    });
+    // let config = $state({
+    //     data: buildPathData(polyshape)
+    // });
+
+    let data = $derived(buildPathData(polyshape));
 
     // Update path data when shapes change
-    $effect(() => {
-        // FIXME this is wrong
-        config.data = buildPathData(polyshape);
-    });
+    // $effect(() => {
+    //     // FIXME this is wrong
+    //     config.data = buildPathData(polyshape);
+    // });
 </script>
 
 <KonvaPath
-    {...config}
+    {data}
     stroke="brown"
-    strokeWidth={1}
+    {strokeWidth}
     lineCap="round"
     lineJoin="round"
     onmouseenter={onMouseEnter}

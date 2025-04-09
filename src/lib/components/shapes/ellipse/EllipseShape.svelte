@@ -5,6 +5,8 @@
 
     let {
         geometry: ellipseData = $bindable<EllipseData>(),
+        stageScaleBy = $bindable(1),
+        strokeWidth = $bindable(1),
         onmouseenter: onMouseEnter,
         onmouseleave: onMouseLeave,
         onclick: onClick,
@@ -32,7 +34,9 @@
 <KonvaEllipse
     {...config}
     stroke="purple"
-    strokeWidth={1}
+    {strokeWidth}
+    lineCap="round"
+    lineJoin="round"
     onmouseenter={onMouseEnter}
     onmouseleave={onMouseLeave}
     onclick={onClick}

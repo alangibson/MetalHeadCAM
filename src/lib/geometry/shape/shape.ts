@@ -1,5 +1,6 @@
 import type { Boundary } from "../boundary/boundary";
 import type { Geometry } from "../geometry/geometry";
+import type { Point } from "../point/point";
 import type { PointData } from "../point/point.data";
 
 export enum AxisEnum {
@@ -9,6 +10,10 @@ export enum AxisEnum {
 
 /** A 2 dimensional shape */
 export interface Shape extends Geometry {
-    startPoint: PointData;
-    endPoint: PointData;
+    startPoint: Point;
+    endPoint: Point;
+    isClosed: boolean;
+    boundary: Boundary;
+    contains(geometry: Geometry): boolean;
+    sample(samples: number): Point[];
 }

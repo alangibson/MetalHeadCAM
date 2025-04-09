@@ -1,28 +1,27 @@
 import type { PointData } from '../point/point.data';
-import { rotateAngleNormalized } from '../shape/shape.function';
 import type { TransformData } from '../transform/transform.data';
 import type { EllipseData } from './ellipse.data';
+import type { BoundaryData } from "../boundary/boundary.data";
 import { scale, rotate, translate, compose, applyToPoint } from 'transformation-matrix';
+import { rotateAngleNormalized } from '../arc/arc.function';
 
-export function getPointAtAngleOnEllipse(
-    origin: PointData,
-    majorLength: number,
-    minorLength: number,
-    rotation: number,
+/** Get point on ellipse at given angle */
+export function ellipsePointAtAngle(
+    ellipse: EllipseData,
     angle: number
 ): PointData {
     // Get point on unrotated ellipse
-    const x = majorLength * Math.cos(angle);
-    const y = minorLength * Math.sin(angle);
+    const x = ellipse.majorLength * Math.cos(angle);
+    const y = ellipse.minorLength * Math.sin(angle);
 
     // Rotate point by ellipse rotation
-    const rotatedX = x * Math.cos(rotation) - y * Math.sin(rotation);
-    const rotatedY = x * Math.sin(rotation) + y * Math.cos(rotation);
+    const rotatedX = x * Math.cos(ellipse.rotation) - y * Math.sin(ellipse.rotation);
+    const rotatedY = x * Math.sin(ellipse.rotation) + y * Math.cos(ellipse.rotation);
 
     // Translate to ellipse origin
     return {
-        x: origin.x + rotatedX,
-        y: origin.y + rotatedY
+        x: ellipse.origin.x + rotatedX,
+        y: ellipse.origin.y + rotatedY
     };
 }
 
@@ -54,4 +53,54 @@ export function ellipseTransform(transform: TransformData, ellipse: EllipseData)
         startAngle: ellipse.startAngle,
         endAngle: ellipse.endAngle
     };
+}
+
+/** Check if an ellipse is closed (forms a complete ellipse) */
+export function ellipseIsClosed(startAngle: number, endAngle: number): boolean {
+    return Math.abs(endAngle - startAngle) >= 2 * Math.PI;
+}
+
+/** Calculate a bounding box for an ellipse */
+export function ellipseBoundary(ellipse: EllipseData): BoundaryData {
+    // For a rotated ellipse, we need to:
+    // 1. Get points along the ellipse
+    // 2. Find min/max x and y values
+    const points = [];
+    const segments = 36; // More segments for better accuracy
+
+    for (let i = 0; i <= segments; i++) {
+        const angle = ellipse.startAngle + (i / segments) * (ellipse.endAngle - ellipse.startAngle);
+        points.push(ellipsePointAtAngle(ellipse, angle));
+    }
+
+    let minX = Infinity;
+    let maxX = -Infinity;
+    let minY = Infinity;
+    let maxY = -Infinity;
+
+    points.forEach(point => {
+        minX = Math.min(minX, point.x);
+        maxX = Math.max(maxX, point.x);
+        minY = Math.min(minY, point.y);
+        maxY = Math.max(maxY, point.y);
+    });
+
+    return {
+        startPoint: { x: minX, y: minY },
+        endPoint: { x: maxX, y: maxY }
+    };
+}
+
+/** Convert ellipse to array of points */
+export function ellipseToPoints(
+    ellipse: EllipseData,
+    samples: number = 20
+): PointData[] {
+    const points: PointData[] = [];
+    for (let i = 0; i <= samples; i++) {
+        const t = i / samples;
+        const angle = ellipse.startAngle + t * (ellipse.endAngle - ellipse.startAngle);
+        points.push(ellipsePointAtAngle(ellipse, angle));
+    }
+    return points;
 }

@@ -6,13 +6,14 @@ import { Circle } from '../../geometry/circle/circle';
 import { Spline } from '../../geometry/spline/spline';
 import { Point } from '../../geometry/point/point';
 import { Polyshape } from '../../geometry/polyshape/polyshape';
-import { Drawing } from '../../domain/drawing/drawing';
+import { Drawing } from '../../domain/drawing/drawing/drawing';
 import { Ellipse } from '../../geometry/ellipse/ellipse';
 import { QuadraticCurve } from '../../geometry/quadratic-curve/quadratic-curve';
 import { CubicCurve } from '../../geometry/cubic-curve/cubic-curve';
 import { dxfArcToArcData, dxfCircleToCircleData, dxfEllipseToEllipseData, dxfEntityTransformToTransformData, dxfLineToLineData, dxfMeasurementToPx, dxfPointsToPolyshapeData, dxfPointToPointData, dxfSplineToCubicCurveData, dxfSplineToQuadraticCurveData, dxfSplineToSplineData } from './dxf.function';
 import type { TransformData } from "$lib/geometry/transform/transform.data";
-import { Layer } from '$lib/domain/layer/layer';
+import { Layer } from '$lib/domain/drawing/layer/layer';
+import type InsertEntityData from 'dxf/handlers/entity/insert';
 
 export class DXFConverter {
 
@@ -34,14 +35,23 @@ export class DXFConverter {
         // TODO scale all measurements to screen pixels with dxfMeasurementToPxFactor
         // const dxfMeasurementToPxFactor = dxfMeasurementToPx(helper.parsed?.header.$INSUNITS);
 
+        const dxfLayers = helper.denormalised.reduce((acc: {[key: string]: DxfEntity[]}, entity: DxfEntity) => {
+            const layerName = entity.layer || '0'; // Default to layer '0' if no layer specified
+            if (!acc[layerName]) {
+                acc[layerName] = [];
+            }
+            acc[layerName].push(entity);
+            return acc;
+        }, {});
+
         // Convert DXF entities to Drawing
         // helper.groups is same as helper.denormalised, just grouped by layer name
         // layers key is layer name as string; value is array of entities
-        const dxfLayers: LayerGroupedEntities = helper.groups;
+        // const dxfLayers: LayerGroupedEntities = helper.groups;
         const drawing: Drawing = new Drawing();
         for (const [layerName, dxfEntities] of Object.entries(dxfLayers)) {
-            console.log('Layer:', layerName);
             const layer: Layer = new Layer();
+            layer.name = layerName;
             for (const dxfEntity of dxfEntities) {
 
                 // Build up list of transforms
@@ -83,6 +93,10 @@ export class DXFConverter {
                     case 'LWPOLYLINE':
                         console.log('LWPolyline:', dxfEntity);
                         const dxfLwpolyline: LWPolyline = dxfEntity;
+                        if (dxfLwpolyline.vertices?.length < 2) {
+                            console.warn('LWPOLYLINE has too few vertices. Discarding.');
+                            break;
+                        }
                         const lwpolyline: Polyshape = new Polyshape(dxfPointsToPolyshapeData(dxfLwpolyline));
                         transformDatas.forEach((transformData) => lwpolyline.transform(transformData));
                         layer.add(lwpolyline);
@@ -104,12 +118,16 @@ export class DXFConverter {
                     case 'SPLINE':
                         console.log('Spline:', dxfEntity);
                         const dxfSpline: DxfSpline = dxfEntity;
-                        if (dxfSpline.controlPoints.length === 3) {
+                        if (dxfSpline.controlPoints.length < 3) {
+                            console.warn('SPLINE has too few control points. Discarding.');
+                            break;
+                        } else if (dxfSpline.controlPoints.length === 3) {
                             const quadraticCurve: QuadraticCurve = new QuadraticCurve(dxfSplineToQuadraticCurveData(dxfSpline));
                             transformDatas.forEach((transformData) => quadraticCurve.transform(transformData));
                             layer.add(quadraticCurve);
                             break;
                         } else if (dxfSpline.controlPoints.length === 4) {
+                            console.log('CubicCurve:', dxfSpline);
                             const cubicCurve: CubicCurve = new CubicCurve(dxfSplineToCubicCurveData(dxfSpline));
                             transformDatas.forEach((transformData) => cubicCurve.transform(transformData));
                             layer.add(cubicCurve);

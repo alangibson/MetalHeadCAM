@@ -1,18 +1,30 @@
-import type { Point } from "../point/point";
+import { Point } from "../point/point";
 import type { Shape } from "../shape/shape";
 import type { SplineData } from "./spline.data";
 import type { TransformData } from "../transform/transform.data";
-import { scale, rotate, translate, compose, applyToPoint } from 'transformation-matrix';
+import { GeometryTypeEnum } from "../geometry/geometry.enum";
+import { Boundary } from "../boundary/boundary";
+import type { Geometry } from "../geometry/geometry";
+import { splineBoundary, splineIsClosed, splineSample, splineTransform } from "./spline.function";
 
 /**
  * A NURBS.
  */
 export class Spline implements SplineData, Shape {
     
+    type = GeometryTypeEnum.SPLINE;
     controlPoints: Point[];
 
     constructor(data: SplineData) {
-        this.controlPoints = data.controlPoints;
+        this.controlPoints = data.controlPoints.map(p => new Point(p));
+    }
+
+    get isClosed(): boolean {
+        return splineIsClosed(this);
+    }
+
+    get boundary(): Boundary {
+        return new Boundary(splineBoundary(this));
     }
 
     get startPoint(): Point {
@@ -28,16 +40,23 @@ export class Spline implements SplineData, Shape {
     }
 
     transform(transform: TransformData): void {
-        const matrix = compose(
-            translate(transform.translateX || 0, transform.translateY || 0),
-            rotate(transform.rotateAngle || 0),
-            scale(transform.scaleX || 1, transform.scaleY || 1)
-        )
-        this.points.forEach(point => {
-            const newPoint = applyToPoint(matrix, point);
-            point.x = newPoint.x;
-            point.y = newPoint.y;
+        const transformed = splineTransform(transform, this);
+        this.controlPoints.forEach((point, i) => {
+            point.x = transformed.controlPoints[i].x;
+            point.y = transformed.controlPoints[i].y;
         });
     }
+
+    contains(geometry: Geometry): boolean {
+        if (! this.isClosed)
+            return false;
+        else
+            throw new Error("Method not implemented.");
+    }
+
+    sample(samples: number = 100): Point[] {
+        return splineSample(this, samples).map(p => new Point(p));
+    }
+
 }
 

@@ -4,6 +4,8 @@
 
     let {
         geometry: lineData = $bindable<LineData>(),
+        stageScaleBy = $bindable(1),
+        strokeWidth = $bindable(1),
         onmouseenter: onMouseEnter,
         onmouseleave: onMouseLeave,
         onclick: onClick,
@@ -32,7 +34,7 @@
 <KonvaLine
     {...config}
     stroke="orange"
-    strokeWidth={1}
+    {strokeWidth}
     lineCap="round"
     lineJoin="round"
     onmouseenter={onMouseEnter}

@@ -1,4 +1,10 @@
 
+### Known Issues
+
+- One arc transform in following file is misplaced:
+  problem_with_arc_and_problem_with_G41-G42_auto_switch.dxf
+- Ellipse arcs aren't supported
+
 ### Geometry
 
 Geometries are conceptualy organized in levels from most primitive to most complex.

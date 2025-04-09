@@ -31,7 +31,7 @@
         class:active={activeStage > 1}
         class:selected={activeStage === 1}
     >
-        <button onclick={(activeStage = 1)}>Project</button>
+        <button onclick={() => activeStage = 1}>Project</button>
         <span class="chevron">›</span>
     </div>
     <div
@@ -39,7 +39,7 @@
         class:active={activeStage > 2}
         class:selected={activeStage === 2}
     >
-        <button onclick={(activeStage = 2)}>Import</button>
+        <button onclick={() => activeStage = 2}>Import</button>
         <span class="chevron">›</span>
     </div>
     <div
@@ -47,7 +47,7 @@
         class:active={activeStage > 3}
         class:selected={activeStage === 3}
     >
-        <button onclick={(activeStage = 3)}>Drawing</button>
+        <button onclick={() => activeStage = 3}>Drawing</button>
         <span class="chevron">›</span>
     </div>
     <div
@@ -55,7 +55,7 @@
         class:active={activeStage > 4}
         class:selected={activeStage === 4}
     >
-        <button onclick={(activeStage = 4)}>Program</button>
+        <button onclick={() => activeStage = 4}>Program</button>
     </div>
 </div>
 

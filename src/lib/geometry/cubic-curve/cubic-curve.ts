@@ -1,12 +1,15 @@
 import type { Shape } from "../shape/shape";
-import type { PointData } from "../point/point.data";
 import type { CubicCurveData } from "./cubic-curve.data";
 import { Point } from "../point/point";
 import type { TransformData } from "../transform/transform.data";
-import { scale, rotate, translate, compose, applyToPoint } from 'transformation-matrix';
+import { GeometryTypeEnum } from "../geometry/geometry.enum";
+import { Boundary } from "../boundary/boundary";
+import type { Geometry } from "../geometry/geometry";
+import { cubicCurveBoundary, cubicCurveIsClosed, cubicCurveSample, cubicCurveTransform } from "./cubic-curve.function";
 
-export class CubicCurve implements Shape {
+export class CubicCurve implements CubicCurveData, Shape {
 
+    type = GeometryTypeEnum.CUBIC_CURVE;
     startPoint: Point;
     control1Point: Point;
     control2Point: Point;
@@ -18,22 +21,39 @@ export class CubicCurve implements Shape {
         this.control2Point = new Point(data.control2Point);
         this.endPoint = new Point(data.endPoint);
     }
+    
+    get isClosed(): boolean {
+        return cubicCurveIsClosed(this);
+    }
+    
+    get boundary(): Boundary {
+        return new Boundary(cubicCurveBoundary(this));
+    }
 
     get points(): Point[] {
         return [this.startPoint, this.control1Point, this.control2Point, this.endPoint];
     }
 
     transform(transform: TransformData): void {
-        const matrix = compose(
-            translate(transform.translateX || 0, transform.translateY || 0),
-            rotate(transform.rotateAngle || 0),
-            scale(transform.scaleX || 1, transform.scaleY || 1)
-        )
-        this.points.forEach(point => {
-            const newPoint = applyToPoint(matrix, point);
-            point.x = newPoint.x;
-            point.y = newPoint.y;
-        });
+        const transformed = cubicCurveTransform(transform, this);
+        this.startPoint.x = transformed.startPoint.x;
+        this.startPoint.y = transformed.startPoint.y;
+        this.control1Point.x = transformed.control1Point.x;
+        this.control1Point.y = transformed.control1Point.y;
+        this.control2Point.x = transformed.control2Point.x;
+        this.control2Point.y = transformed.control2Point.y;
+        this.endPoint.x = transformed.endPoint.x;
+        this.endPoint.y = transformed.endPoint.y;
     }
 
+    contains(geometry: Geometry): boolean {
+        if (! this.isClosed)
+            return false;
+        else
+            throw new Error("Method not implemented.");
+    }
+    
+    sample(samples: number = 20): Point[] {
+        return cubicCurveSample(this, samples).map(p => new Point(p));
+    }
 }

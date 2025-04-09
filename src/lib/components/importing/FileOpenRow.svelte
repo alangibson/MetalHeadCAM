@@ -1,5 +1,5 @@
 <script lang="ts">
-    import type { Drawing } from "$lib/domain/drawing/drawing";
+    import type { Drawing } from "$lib/domain/drawing/drawing/drawing";
     import { DXFConverter } from "$lib/input/dxf/dxf";
     import FileInput from "./FileInput.svelte";
 

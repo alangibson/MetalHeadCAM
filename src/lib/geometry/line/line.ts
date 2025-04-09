@@ -2,10 +2,14 @@ import { Point } from "../point/point";
 import type { Shape } from "../shape/shape";
 import type { LineData } from "./line.data";
 import type { TransformData } from "../transform/transform.data";
-import { scale, rotate, translate, compose, applyToPoint } from 'transformation-matrix';
+import { GeometryTypeEnum } from "../geometry/geometry.enum";
+import { Boundary } from "../boundary/boundary";
+import type { Geometry } from "../geometry/geometry";
+import { lineTransform } from "./line.function";
 
 export class Line implements LineData, Shape {
 
+    type = GeometryTypeEnum.LINE;
     startPoint: Point;
     endPoint: Point;
 
@@ -14,21 +18,32 @@ export class Line implements LineData, Shape {
         this.endPoint = new Point(data.endPoint);
     }
 
+    get isClosed(): boolean {
+        return false;
+    }
+
+    get boundary(): Boundary {
+        return new Boundary({ startPoint: this.startPoint, endPoint: this.endPoint });
+    }
+
     get points(): Point[] {
         return [this.startPoint, this.endPoint];
     }
 
     transform(transform: TransformData): void {
-        const matrix = compose(
-            translate(transform.translateX || 0, transform.translateY || 0),
-            rotate(transform.rotateAngle || 0),
-            scale(transform.scaleX || 1, transform.scaleY || 1)
-        )
-        this.points.forEach(point => {
-            const newPoint = applyToPoint(matrix, point);
-            point.x = newPoint.x;
-            point.y = newPoint.y;
-        });
+        const transformed = lineTransform(transform, this);
+        this.startPoint.x = transformed.startPoint.x;
+        this.startPoint.y = transformed.startPoint.y;
+        this.endPoint.x = transformed.endPoint.x;
+        this.endPoint.y = transformed.endPoint.y;
+    }
+
+    contains(geometry: Geometry): boolean {
+        return false;
+    }
+
+    sample(samples: number = 2): Point[] {
+        return [this.startPoint, this.endPoint];
     }
 
 }

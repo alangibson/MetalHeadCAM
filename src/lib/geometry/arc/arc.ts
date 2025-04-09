@@ -3,11 +3,14 @@ import { Point } from "../point/point";
 import type { Shape } from "../shape/shape";
 import type { ArcData } from "./arc.data";
 import type { ArcDirectionEnum } from "./arc.enum";
-import { arcDirection, arcTransform } from "./arc.function";
-import { scale, rotate, translate, compose, applyToPoint } from 'transformation-matrix';
+import { arcBoundary, arcDirection, arcIsClosed, arcSample, arcTransform } from "./arc.function";
+import { GeometryTypeEnum } from "../geometry/geometry.enum";
+import { Boundary } from "../boundary/boundary";
+import type { Geometry } from "../geometry/geometry";
 
 export class Arc implements ArcData, Shape {
 
+    type = GeometryTypeEnum.ARC;
     origin: Point;
     radius: number; 
     startAngle: number;
@@ -20,6 +23,20 @@ export class Arc implements ArcData, Shape {
         this.startAngle = data.startAngle;
         this.endAngle = data.endAngle;
         this._direction = data.direction;
+    }
+
+    get isClosed(): boolean {
+        return arcIsClosed(this);
+    }
+
+    get boundary(): Boundary {
+        return new Boundary(arcBoundary(
+            this.origin.x,
+            this.origin.y,
+            this.radius,
+            this.startAngle,
+            this.endAngle
+        ));
     }
 
     get startPoint(): Point {
@@ -43,40 +60,25 @@ export class Arc implements ArcData, Shape {
             return arcDirection(this.startAngle, this.endAngle);
     }
 
-    // transform(transform: TransformData): void {
-    //     // Create transformation matrix
-    //     const matrix = compose(
-    //         translate(transform.translateX || 0, transform.translateY || 0),
-    //         rotate(transform.rotateAngle || 0),
-    //         scale(transform.scaleX || 1, transform.scaleY || 1)
-    //     );
-
-    //     // Transform origin point
-    //     const newOrigin = applyToPoint(matrix, this.origin);
-    //     this.origin.x = newOrigin.x;
-    //     this.origin.y = newOrigin.y;
-
-    //     // Scale radius (use average of X and Y scale since circle should stay circular)
-    //     const scaleX = transform.scaleX || 1;
-    //     const scaleY = transform.scaleY || 1;
-    //     this.radius *= (scaleX + scaleY) / 2;
-
-    //     // Add rotation to angles
-    //     const rotation = transform.rotateAngle || 0;
-    //     // Normalize angles to [0, 2π]
-    //     const TWO_PI = Math.PI * 2;
-    //     this.startAngle = ((this.startAngle + rotation) % TWO_PI + TWO_PI) % TWO_PI;
-    //     this.endAngle = ((this.endAngle + rotation) % TWO_PI + TWO_PI) % TWO_PI;
-    // }
-
     transform(transform: TransformData): void {
-        console.log('arc transform', transform);
         const arcData = arcTransform(transform, this);
-        this.origin.x = arcData.x;
-        this.origin.y = arcData.y;
+        this.origin.x = arcData.origin.x;
+        this.origin.y = arcData.origin.y;
         this.radius = arcData.radius;
         this.startAngle = arcData.startAngle;
         this.endAngle = arcData.endAngle;
+    }
+
+    contains(geometry: Geometry): boolean {
+        if (! this.isClosed)
+            return false;
+        else
+            throw new Error("Method not implemented.");
+    }
+
+    sample(samples: number = 20): Point[] {
+        // Convert to array of points for rendering/calculations
+        return arcSample(this, samples).map(p => new Point(p));
     }
 
 }
