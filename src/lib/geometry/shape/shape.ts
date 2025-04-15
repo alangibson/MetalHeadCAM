@@ -18,7 +18,8 @@ export interface Shape extends Geometry {
     // Null if isClosed==false
     area: number|null;
     contains(geometry: Geometry): boolean;
-    sample(samples?: number): Point[];
+    // Convert shape to array of points
+    tessellate(samples?: number): Point[];
     // Swap start and end points, at a minimum.
 	// Implementing classes must also take care of any points in between.
 	reverse(): void;

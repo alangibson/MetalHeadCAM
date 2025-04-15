@@ -3,11 +3,9 @@
     import ArcShape from "../shapes/arc/ArcShape.svelte";
     import {type Component } from "svelte";
     import CircleShape from "../shapes/circle/CircleShape.svelte";
-    import CubicCurveShape from "../shapes/cubic-curve/CubicCurveShape.svelte";
     import EllipseShape from "../shapes/ellipse/EllipseShape.svelte";
     import LineShape from "../shapes/line/LineShape.svelte";
     import PolyshapeShape from "../shapes/polyshape/PolyshapeShape.svelte";
-    import QuadraticCurveShape from "../shapes/quadratic-curve/QuadraticCurveShape.svelte";
     import SplineShape from "../shapes/spline/SplineShape.svelte";
     import { DrawingStageState } from "./state.svelte";
     
@@ -64,15 +62,6 @@
                         onmouseleave={DrawingStageState.onMouseLeave}
                         onclick={DrawingStageState.onClick}
                     ></CircleShape>
-                {:else if geometry.constructor.name == "CubicCurve"}
-                    <CubicCurveShape
-                        geometry={layer.geometries[i]}
-                        stageScaleBy={DrawingStageState.stageScaleBy}
-                        strokeWidth={DrawingStageState.strokeWidth}
-                        onmouseenter={DrawingStageState.onMouseEnter}
-                        onmouseleave={DrawingStageState.onMouseLeave}
-                        onclick={DrawingStageState.onClick}
-                    ></CubicCurveShape>
                 {:else if geometry.constructor.name == "Ellipse"}
                     <EllipseShape
                         geometry={layer.geometries[i]}
@@ -91,15 +80,6 @@
                         onmouseleave={DrawingStageState.onMouseLeave}
                         onclick={DrawingStageState.onClick}
                     ></PolyshapeShape>
-                {:else if geometry.constructor.name == "QuadraticCurve"}
-                    <QuadraticCurveShape
-                        geometry={layer.geometries[i]}
-                        stageScaleBy={DrawingStageState.stageScaleBy}
-                        strokeWidth={DrawingStageState.strokeWidth}
-                        onmouseenter={DrawingStageState.onMouseEnter}
-                        onmouseleave={DrawingStageState.onMouseLeave}
-                        onclick={DrawingStageState.onClick}
-                    ></QuadraticCurveShape>
                 {:else if geometry.constructor.name == "Spline"}
                     <SplineShape
                         geometry={layer.geometries[i]}

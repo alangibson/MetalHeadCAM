@@ -8,9 +8,7 @@ import { Point } from '../../geometry/point/point';
 import { Polyshape } from '../../geometry/polyshape/polyshape';
 import { Drawing } from '../../domain/drawing/drawing/drawing';
 import { Ellipse } from '../../geometry/ellipse/ellipse';
-import { QuadraticCurve } from '../../geometry/quadratic-curve/quadratic-curve';
-import { CubicCurve } from '../../geometry/cubic-curve/cubic-curve';
-import { dxfArcToArcData, dxfCircleToCircleData, dxfEllipseToEllipseData, dxfEntityTransformToTransformData, dxfLineToLineData, dxfMeasurementToPx, dxfPointsToPolyshapeData, dxfPointToPointData, dxfSplineToCubicCurveData, dxfSplineToQuadraticCurveData, dxfSplineToSplineData } from './dxf.function';
+import { dxfArcToArcData, dxfCircleToCircleData, dxfEllipseToEllipseData, dxfEntityTransformToTransformData, dxfLineToLineData, dxfMeasurementToPx, dxfPointsToPolyshapeData, dxfPointToPointData, dxfSplineToSplineData } from './dxf.function';
 import type { TransformData } from "$lib/geometry/transform/transform.data";
 import { Layer } from '$lib/domain/drawing/layer/layer';
 import type InsertEntityData from 'dxf/handlers/entity/insert';
@@ -64,7 +62,7 @@ export class DXFConverter {
                 switch (dxfEntity.type) {
                     case 'ARC':
                         console.log('Arc:', dxfEntity);
-                        const dxfArc: DxfArc = dxfEntity;
+                        const dxfArc: DxfArc = dxfEntity as DxfArc;
                         const arc: Arc = new Arc(dxfArcToArcData(dxfArc));
                         transformDatas.forEach((transformData) => arc.transform(transformData));
                         layer.add(arc);
@@ -78,7 +76,7 @@ export class DXFConverter {
                         break;
                     case 'ELLIPSE':
                         console.log('Ellipse:', dxfEntity);
-                        const dxfEllipse: DxfEllipse = dxfEntity;
+                        const dxfEllipse: DxfEllipse = dxfEntity as DxfEllipse;
                         const ellipse: Ellipse = new Ellipse(dxfEllipseToEllipseData(dxfEllipse));
                         transformDatas.forEach((transformData) => ellipse.transform(transformData));
                         layer.add(ellipse);
@@ -117,27 +115,11 @@ export class DXFConverter {
                         break;
                     case 'SPLINE':
                         console.log('Spline:', dxfEntity);
-                        const dxfSpline: DxfSpline = dxfEntity;
-                        if (dxfSpline.controlPoints.length < 3) {
-                            console.warn('SPLINE has too few control points. Discarding.');
-                            break;
-                        } else if (dxfSpline.controlPoints.length === 3) {
-                            const quadraticCurve: QuadraticCurve = new QuadraticCurve(dxfSplineToQuadraticCurveData(dxfSpline));
-                            transformDatas.forEach((transformData) => quadraticCurve.transform(transformData));
-                            layer.add(quadraticCurve);
-                            break;
-                        } else if (dxfSpline.controlPoints.length === 4) {
-                            console.log('CubicCurve:', dxfSpline);
-                            const cubicCurve: CubicCurve = new CubicCurve(dxfSplineToCubicCurveData(dxfSpline));
-                            transformDatas.forEach((transformData) => cubicCurve.transform(transformData));
-                            layer.add(cubicCurve);
-                            break;
-                        } else {
-                            const spline: Spline = new Spline(dxfSplineToSplineData(dxfSpline));
-                            transformDatas.forEach((transformData) => spline.transform(transformData));
-                            layer.add(spline);
-                            break;
-                        }
+                        const dxfSpline: DxfSpline = dxfEntity as DxfSpline;
+                        const spline: Spline = new Spline(dxfSplineToSplineData(dxfSpline));
+                        transformDatas.forEach((transformData) => spline.transform(transformData));
+                        layer.add(spline);
+                        break;
                     default:
                         console.warn('Unknown entity type:', dxfEntity.type);
                 }

@@ -64,7 +64,7 @@ export class Ellipse implements EllipseData, Shape {
             return Math.PI * (a + b) * (1 + (3*h)/(10 + Math.sqrt(4 - 3*h)));
         }
         // For partial ellipse, approximate with points
-        return shapeLengthFromPoints(this.sample(1000));
+        return shapeLengthFromPoints(this.tessellate(1000));
     }
 
     transform(transform: TransformData): void {
@@ -85,7 +85,7 @@ export class Ellipse implements EllipseData, Shape {
             throw new Error("Method not implemented.");
     }
 
-    sample(samples: number = 1000): Point[] {
+    tessellate(samples: number = 1000): Point[] {
         // HACK one sample per unit length
         samples = this.length
         return ellipseToPoints(this, samples).map(p => new Point(p));

@@ -10,9 +10,7 @@
     import { Spline } from "$lib/geometry/spline/spline";
     import { splineSvgPathCommand } from "../spline/spline.function";
     import { polyshapeSvgPathCommand } from "./polyshape.function";
-    import { QuadraticCurve } from "$lib/geometry/quadratic-curve/quadratic-curve";
-    import { quadraticCurveSvgPathCommand } from "../quadratic-curve/quadratic-curve.function";
-
+    
     let {
         geometry: polyshape = $bindable<Polyshape>(),
         stageScaleBy = $bindable(1),
@@ -42,8 +40,6 @@
                 pathData += splineSvgPathCommand(shape);
             } else if (shape instanceof Polyshape) {
                 pathData += polyshapeSvgPathCommand(shape);
-            } else if (shape instanceof QuadraticCurve) {
-                pathData += quadraticCurveSvgPathCommand(shape);
             } else {
                 throw new Error(`Shape not supported: ${shape.type}`);
             }

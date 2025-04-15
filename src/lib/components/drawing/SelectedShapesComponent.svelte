@@ -3,11 +3,9 @@
     import { SvelteSet } from "svelte/reactivity";
     import ArcProperties from "../shapes/arc/ArcProperties.svelte";
     import CircleProperties from "../shapes/circle/CircleProperties.svelte";
-    import CubicCurveProperties from "../shapes/cubic-curve/CubicCurveProperties.svelte";
     import EllipseProperties from "../shapes/ellipse/EllipseProperties.svelte";
     import LineProperties from "../shapes/line/LineProperties.svelte";
     import PolyshapeProperties from "../shapes/polyshape/PolyshapeProperties.svelte";
-    import QuadraticCurveProperties from "../shapes/quadratic-curve/QuadraticCurveProperties.svelte";
     import SplineProperties from "../shapes/spline/SplineProperties.svelte";
 
     let {
@@ -48,8 +46,6 @@
                         <CircleProperties {konvaShape} />
                     {:else if konvaShape.constructor.name === "Ellipse"}
                         <EllipseProperties {konvaShape} />
-                    {:else if konvaShape.constructor.name === "QuadraticCurve"}
-                        <QuadraticCurveProperties {konvaShape} />
                     {:else if konvaShape.constructor.name === "Spline"}
                         <SplineProperties {konvaShape} />
                     {/if}

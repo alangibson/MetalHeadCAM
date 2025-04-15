@@ -64,7 +64,7 @@ export class Circle implements CircleData, Shape {
         throw new Error("Method not implemented.");
     }
     
-    sample(samples: number = 1000): Point[] {
+    tessellate(samples: number = 1000): Point[] {
         // HACK one sample per unit length
         samples = this.length
         return circleSample(this, samples).map(p => new Point(p));

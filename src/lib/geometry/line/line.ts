@@ -57,7 +57,7 @@ export class Line implements LineData, Shape {
         return false;
     }
 
-    sample(samples: number = 1000): Point[] {
+    tessellate(samples: number = 1000): Point[] {
         // HACK one sample per unit length
         samples = this.length
         return lineSample(this, samples).map(p => new Point(p));

@@ -9,10 +9,7 @@ import { Arc } from '$lib/geometry/arc/arc';
 import { Line } from '$lib/geometry/line/line';
 import type { CircleData } from '$lib/geometry/circle/circle.data';
 import type { LineData } from '$lib/geometry/line/line.data';
-import type { CubicCurveData } from '$lib/geometry/cubic-curve/cubic-curve.data';
-import type { QuadraticCurveData } from '$lib/geometry/quadratic-curve/quadratic-curve.data';
 import type { SplineData } from '$lib/geometry/spline/spline.data';
-import type { Entity as DxfEntity } from 'dxf/handlers/entities';
 import type { TransformData } from "$lib/geometry/transform/transform.data";
 import { ArcDirectionEnum } from '$lib/geometry/arc/arc.enum';
 import { degreesToRadians } from "$lib/geometry/angle/angle.function";
@@ -106,25 +103,13 @@ export function dxfPointsToShape(startPoint: DxfPoint, endPoint: DxfPoint): Shap
     }
 }
 
-export function dxfSplineToQuadraticCurveData(dxfSpline: DxfSpline): QuadraticCurveData {
-    return {
-        startPoint: dxfSpline.controlPoints[0],
-        controlPoint: dxfSpline.controlPoints[1],
-        endPoint: dxfSpline.controlPoints[2]
-    }
-}
-
-export function dxfSplineToCubicCurveData(dxfSpline: DxfSpline): CubicCurveData {
-    return {
-        startPoint: dxfSpline.controlPoints[0],
-        control1Point: dxfSpline.controlPoints[1],
-        control2Point: dxfSpline.controlPoints[2],
-        endPoint: dxfSpline.controlPoints[3]
-    }
-}
-
 export function dxfSplineToSplineData(dxfSpline: DxfSpline): SplineData {
-    return { controlPoints: dxfSpline.controlPoints }
+    return { 
+        controlPoints: dxfSpline.controlPoints,
+        degree: dxfSpline.degree,
+        weights: dxfSpline.weights,
+        knots: dxfSpline.knots
+     }
 }
 
 export function dxfBulgeToArcData(startPoint: DxfPoint, endPoint: DxfPoint, bulge: number): ArcData {

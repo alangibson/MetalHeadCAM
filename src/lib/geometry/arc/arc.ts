@@ -100,7 +100,7 @@ export class Arc implements ArcData, Shape {
             throw new Error("Method not implemented.");
     }
 
-    sample(samples: number = 1000): Point[] {
+    tessellate(samples: number = 1000): Point[] {
         // HACK one sample per unit length
         samples = this.length
         // Convert to array of points for rendering/calculations

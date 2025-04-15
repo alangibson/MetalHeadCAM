@@ -4,8 +4,6 @@ import type { BoundaryData } from "../boundary/boundary.data";
 import { pointCoincident } from "../point/point.function";
 import type { TransformData } from "../transform/transform.data";
 import { scale, rotate, translate, compose, applyToPoint } from 'transformation-matrix';
-// import { CatmullRomCurve3, Vector3 } from 'three';
-// import verb from './verb.min';
 import nurbs from 'nurbs';
 
 /** Check if a spline is closed (start point equals end point) */

@@ -43,7 +43,7 @@ export function polyshapeSample(polyshape: PolyshapeData, samples: number = 1000
     // Collect points from all child shapes
     const points: PointData[] = [];
     polyshape.shapes.forEach(shape => {
-        points.push(...shape.sample(samples));
+        points.push(...shape.tessellate(samples));
     });
     return points;
 }

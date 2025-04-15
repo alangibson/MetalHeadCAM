@@ -53,7 +53,7 @@ export class Polyshape implements PolyshapeData, Shape {
 
     get area(): number | null {
         if (!this.isClosed) return null;
-        return shapeAreaFromPoints(this.sample(1000));
+        return shapeAreaFromPoints(this.tessellate(1000));
     }
 
     get length(): number {
@@ -85,8 +85,8 @@ export class Polyshape implements PolyshapeData, Shape {
             return false;
 
         // Sample points along both shapes
-        const innerPoints = innerPolyshape.sample(1000);
-        const outerPoints = outerPolyshape.sample(1000);
+        const innerPoints = innerPolyshape.tessellate(1000);
+        const outerPoints = outerPolyshape.tessellate(1000);
 
         // Ensure outer shape is closed for point-in-polygon test
         if (!pointCoincident(outerPoints[0], outerPoints[outerPoints.length - 1])) {
@@ -133,7 +133,7 @@ export class Polyshape implements PolyshapeData, Shape {
         return true;
     }
 
-    sample(sample: number = 1000): Point[] {
+    tessellate(sample: number = 1000): Point[] {
         if (!this._sample)
             this._sample = polyshapeSample(this, sample).map(p => new Point(p))
         return this._sample;
