@@ -17,6 +17,7 @@
         data: "",
     });
 
+    // TODO get rid of verb-nurbs here and replace with nurbs lib
     // Will hold the verb-nurbs module once loaded
     let verb: any;
     onMount(async () => {
@@ -24,6 +25,7 @@
             // Dynamic import to avoid SSR issues
             verb = (await import("verb-nurbs")).default;
 
+            // TODO move this into Spline class
             // Create NURBS curve from control points
             const degree = splineData.controlPoints.length - 1;
             // TODO get splineData.knots from DXF
@@ -36,6 +38,8 @@
                 0,
             ]);
             const weights = Array(controlPoints.length).fill(1);
+
+            // TODO don't use verb-nurbs
             const nurbsCurve =
                 new verb.geom.NurbsCurve.byKnotsControlPointsWeights(
                     degree,
@@ -43,7 +47,6 @@
                     controlPoints,
                     weights,
                 );
-
             // cubicCurves is a 1 element array of verb.core.NurbsCurveData
             const cubicCurves = verb.eval.Modify.decomposeCurveIntoBeziers(
                 nurbsCurve.asNurbs(),

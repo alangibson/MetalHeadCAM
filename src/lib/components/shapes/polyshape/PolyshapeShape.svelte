@@ -2,17 +2,24 @@
     import { Path as KonvaPath } from "svelte-konva";
     import { Arc } from "$lib/geometry/arc/arc";
     import { Line } from "$lib/geometry/line/line";
-    import type { Polyshape } from "$lib/geometry/polyshape/polyshape";
-    import { arcToSvgFlags } from "$lib/geometry/arc/arc.function";
+    import { Polyshape } from "$lib/geometry/polyshape/polyshape";
     import { Circle } from "$lib/geometry/circle/circle";
+    import { lineSvgPathCommand } from "../line/line.function";
+    import { arcSvgPathCommand } from "../arc/arc.function";
+    import { circleSvgPathCommand } from "../circle/circle.function";
+    import { Spline } from "$lib/geometry/spline/spline";
+    import { splineSvgPathCommand } from "../spline/spline.function";
+    import { polyshapeSvgPathCommand } from "./polyshape.function";
+    import { QuadraticCurve } from "$lib/geometry/quadratic-curve/quadratic-curve";
+    import { quadraticCurveSvgPathCommand } from "../quadratic-curve/quadratic-curve.function";
 
     let {
         geometry: polyshape = $bindable<Polyshape>(),
         stageScaleBy = $bindable(1),
         strokeWidth = $bindable(1),
-        onmouseenter: onMouseEnter,
-        onmouseleave: onMouseLeave,
-        onclick: onClick,
+        onmouseenter,
+        onmouseleave,
+        onclick,
     } = $props();
 
     function buildPathData(polyshape: Polyshape): string {
@@ -26,33 +33,17 @@
         // Add each shape to the path
         for (const shape of shapes) {
             if (shape instanceof Line) {
-                const pathLine = ` L ${shape.endPoint.x} ${shape.endPoint.y}`;
-                pathData += pathLine;
+                pathData += lineSvgPathCommand(shape);
             } else if (shape instanceof Arc) {
-                const rx = shape.radius;
-                const ry = shape.radius;
-                const xAxisRotation = 0;
-                let [largeArcFlag, sweepFlag] = arcToSvgFlags(
-                    shape.startAngle,
-                    shape.endAngle,
-                    shape.direction
-                );
-                const pathArc = ` A ${rx} ${ry} ${xAxisRotation} ${largeArcFlag} ${sweepFlag} ${shape.endPoint.x} ${shape.endPoint.y}`;
-                pathData += pathArc;
+                pathData += arcSvgPathCommand(shape);
             } else if (shape instanceof Circle) {
-                // Draw circle using SVG path commands
-                // Move to start point (center + radius on x-axis)
-                const startX = shape.origin.x + shape.radius;
-                const startY = shape.origin.y;
-                pathData += ` M ${startX} ${startY}`;
-                // Draw circle using two arcs
-                // First arc: 180 degrees
-                pathData += ` A ${shape.radius} ${shape.radius} 0 1 1 ${shape.origin.x - shape.radius} ${shape.origin.y}`;
-                // Second arc: remaining 180 degrees
-                pathData += ` A ${shape.radius} ${shape.radius} 0 1 1 ${startX} ${startY}`;
-
-            // TODO Support Spline
-
+                pathData += circleSvgPathCommand(shape);
+            } else if (shape instanceof Spline) {
+                pathData += splineSvgPathCommand(shape);
+            } else if (shape instanceof Polyshape) {
+                pathData += polyshapeSvgPathCommand(shape);
+            } else if (shape instanceof QuadraticCurve) {
+                pathData += quadraticCurveSvgPathCommand(shape);
             } else {
                 throw new Error(`Shape not supported: ${shape.type}`);
             }
@@ -61,8 +52,6 @@
         if (polyshape.isClosed) {
             pathData += ' Z';
         }
-
-        console.log(pathData);
 
         return pathData;
     }
@@ -87,7 +76,7 @@
     {strokeWidth}
     lineCap="round"
     lineJoin="round"
-    onmouseenter={onMouseEnter}
-    onmouseleave={onMouseLeave}
-    onclick={onClick}
+    {onclick}
+    {onmouseenter}
+    {onmouseleave}
 /> 

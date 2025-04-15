@@ -1,4 +1,5 @@
 import type { Shape } from "./shape";
+import type { Point } from "./point";
 
 /**
  * Returns true if shapes start or end points are connected at some point.
@@ -41,4 +42,36 @@ export function shapeChains(shapes: Shape[], tolerance: number = 0.01): Shape[][
 	}
 
 	return chains;
+}
+
+/**
+ * Calculate area of a closed shape using the shoelace formula.
+ * Returns null if shape is not closed.
+ */
+export function shapeAreaFromPoints(points: Point[]): number | null {
+    // Must be closed shape
+    if (!points[0].coincident(points[points.length - 1])) {
+        return null;
+    }
+
+    let area = 0;
+    for (let i = 0; i < points.length - 1; i++) {
+        area += points[i].x * points[i + 1].y;
+        area -= points[i + 1].x * points[i].y;
+    }
+
+    return Math.abs(area) / 2;
+}
+
+/**
+ * Calculate approximate length of a curve by sampling points and summing distances
+ */
+export function shapeLengthFromPoints(points: Point[]): number {
+    let length = 0;
+    for (let i = 1; i < points.length; i++) {
+        const dx = points[i].x - points[i-1].x;
+        const dy = points[i].y - points[i-1].y;
+        length += Math.sqrt(dx * dx + dy * dy);
+    }
+    return length;
 }

@@ -5,7 +5,8 @@ import type { TransformData } from "../transform/transform.data";
 import { GeometryTypeEnum } from "../geometry/geometry.enum";
 import { Boundary } from "../boundary/boundary";
 import type { Geometry } from "../geometry/geometry";
-import { cubicCurveBoundary, cubicCurveIsClosed, cubicCurveReverse, cubicCurveSample, cubicCurveTransform } from "./cubic-curve.function";
+import { cubicCurveBoundary, cubicCurveIsClosed, cubicCurveMiddlePoint, cubicCurveReverse, cubicCurveSample, cubicCurveTransform } from "./cubic-curve.function";
+import { shapeAreaFromPoints, shapeLengthFromPoints } from "../shape/shape.function";
 
 export class CubicCurve implements CubicCurveData, Shape {
 
@@ -21,7 +22,7 @@ export class CubicCurve implements CubicCurveData, Shape {
         this.control2Point = new Point(data.control2Point);
         this.endPoint = new Point(data.endPoint);
     }
-    
+        
     get isClosed(): boolean {
         return cubicCurveIsClosed(this);
     }
@@ -32,6 +33,19 @@ export class CubicCurve implements CubicCurveData, Shape {
 
     get points(): Point[] {
         return [this.startPoint, this.control1Point, this.control2Point, this.endPoint];
+    }
+
+    get middlePoint(): Point {
+        return new Point(cubicCurveMiddlePoint(this));
+    }
+
+    get area(): number | null {
+        if (!this.isClosed) return null;
+        return shapeAreaFromPoints(cubicCurveSample(this, 1000));
+    }
+
+    get length(): number {
+        return shapeLengthFromPoints(cubicCurveSample(this, 1000));
     }
 
     transform(transform: TransformData): void {
@@ -53,7 +67,9 @@ export class CubicCurve implements CubicCurveData, Shape {
             throw new Error("Method not implemented.");
     }
     
-    sample(samples: number = 20): Point[] {
+    sample(samples: number = 1000): Point[] {
+        // HACK one sample per unit length
+        samples = this.length
         return cubicCurveSample(this, samples).map(p => new Point(p));
     }
 

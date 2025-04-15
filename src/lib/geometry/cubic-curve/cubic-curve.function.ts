@@ -8,7 +8,7 @@ import { scale, rotate, translate, compose, applyToPoint } from 'transformation-
 // Downsample a CubicCurve into an array of points
 export function cubicCurveSample(
 	curve: CubicCurveData,
-	samples: number = 20
+	samples: number = 1000
 ): PointData[] {
 	const points: PointData[] = [];
 	for (let i = 0; i <= samples; i++) {
@@ -104,6 +104,32 @@ export function cubicCurveReverse(cubicCurve: CubicCurveData): CubicCurveData {
 		endPoint: cubicCurve.startPoint // Start point becomes the new end point
 	};
 }
+
+/** 
+ * Approximate middle point of cubic curve.
+ * Dividing into arcs first would give a more accurate result.
+ */
+export function cubicCurveMiddlePoint(curve: CubicCurveData): PointData {
+	// Calculate the point at t = 0.5
+	const t = 0.5;
+	const oneMinusT = 1 - t;
+
+	const x =
+		oneMinusT ** 3 * curve.startPoint.x +
+		3 * oneMinusT ** 2 * t * curve.control1Point.x +
+		3 * oneMinusT * t ** 2 * curve.control2Point.x +
+		t ** 3 * curve.endPoint.x;
+
+	const y =
+		oneMinusT ** 3 * curve.startPoint.y +
+		3 * oneMinusT ** 2 * t * curve.control1Point.y +
+		3 * oneMinusT * t ** 2 * curve.control2Point.y +
+		t ** 3 * curve.endPoint.y;
+
+	// Return the point at t = 0.5
+	return { x, y };
+}
+
 
 // TODO is this one more accurate?
 // 

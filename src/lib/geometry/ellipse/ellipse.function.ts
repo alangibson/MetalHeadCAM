@@ -3,7 +3,7 @@ import type { TransformData } from '../transform/transform.data';
 import type { EllipseData } from './ellipse.data';
 import type { BoundaryData } from "../boundary/boundary.data";
 import { scale, rotate, translate, compose, applyToPoint } from 'transformation-matrix';
-import { rotateAngleNormalized } from '../arc/arc.function';
+import { rotateAngleNormalized } from "../angle/angle.function";
 
 /** Get point on ellipse at given angle */
 export function ellipsePointAtAngle(
@@ -94,7 +94,7 @@ export function ellipseBoundary(ellipse: EllipseData): BoundaryData {
 /** Convert ellipse to array of points */
 export function ellipseToPoints(
     ellipse: EllipseData,
-    samples: number = 20
+    samples: number = 1000
 ): PointData[] {
     const points: PointData[] = [];
     for (let i = 0; i <= samples; i++) {
@@ -104,3 +104,19 @@ export function ellipseToPoints(
     }
     return points;
 }
+
+/**
+ * Returns the middle point along an ellipse.
+ * Uses angle averaging to find a point between start and end angles.
+ */
+export function ellipseMiddlePoint(ellipse: EllipseData): PointData {
+    // Calculate the averaged angle
+    let midAngle = (ellipse.startAngle + ellipse.endAngle) / 2;
+
+    // Ensure angles are within 0 to 2π
+    midAngle = (midAngle + 2 * Math.PI) % (2 * Math.PI);
+
+    // Get point on ellipse at midAngle
+    return ellipsePointAtAngle(ellipse, midAngle);
+}
+

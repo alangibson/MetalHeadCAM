@@ -8,7 +8,7 @@ import { scale, rotate, translate, compose, applyToPoint } from 'transformation-
 // Downsample a QuadraticCurve into an array of points
 export function quadraticCurveSample(
 	curve: QuadraticCurveData,
-	samples: number = 20
+	samples: number = 1000
 ): PointData[] {
 	const points: PointData[] = [];
 	for (let i = 0; i <= samples; i++) {
@@ -76,3 +76,27 @@ export function quadraticCurveTransform(transform: TransformData, curve: Quadrat
 		endPoint
 	};
 }
+
+/** 
+ * Calculate middle point of quadratic curve.
+ * Uses t = 0.5 to find point halfway along curve.
+ */
+export function quadraticCurveMiddlePoint(curve: QuadraticCurveData): PointData {
+	// Calculate the point at t = 0.5
+	const t = 0.5;
+	const oneMinusT = 1 - t;
+
+	// Quadratic Bezier formula: P = (1-t)^2 * P0 + 2(1-t)t * P1 + t^2 * P2
+	const x = 
+		oneMinusT ** 2 * curve.startPoint.x + 
+		2 * oneMinusT * t * curve.controlPoint.x + 
+		t ** 2 * curve.endPoint.x;
+
+	const y = 
+		oneMinusT ** 2 * curve.startPoint.y + 
+		2 * oneMinusT * t * curve.controlPoint.y + 
+		t ** 2 * curve.endPoint.y;
+
+	return { x, y };
+}
+

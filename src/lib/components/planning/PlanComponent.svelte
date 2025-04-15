@@ -8,6 +8,8 @@
     import PolyshapeShape from "../shapes/polyshape/PolyshapeShape.svelte";
     import type { Component } from "svelte";
     import { PlanningStageState } from "./state.svelte";
+    import CutShape from "./shapes/CutShape.svelte";
+    import PartShape from "./shapes/PartShape.svelte";
     
     let { 
         plan,
@@ -33,24 +35,12 @@
     onwheel={PlanningStageState.onWheel}
 >
     <KonvaLayer>
-        {#each plan?.parts as part, part_i}
-            <KonvaGroup>
-                {#each part.cuts as cut, cut_i}
-                    <!-- TODO render rapid in -->
-                    <!-- TODO render lead in -->
-                    <PolyshapeShape
-                        geometry={cut.path}
-                        stageScaleBy={PlanningStageState.stageScaleBy}
-                        strokeWidth={PlanningStageState.strokeWidth}
-                        onmouseenter={PlanningStageState.onMouseEnter}
-                        onmouseleave={PlanningStageState.onMouseLeave}
-                        onclick={PlanningStageState.onClick}
-                    ></PolyshapeShape>
-                    <!-- TODO render offset -->
-                    <!-- TODO render lead out -->
-                    <!-- TODO render rapid out -->
+        {#each plan?.parts as part}
+            <PartShape {part} onclick={() => console.log('Part')}>
+                {#each part.cuts as cut}
+                    <CutShape {cut} onclick={() => console.log('Cut')}></CutShape>
                 {/each}
-            </KonvaGroup>
+            </PartShape>
         {/each}
     </KonvaLayer>
 </KonvaStage>

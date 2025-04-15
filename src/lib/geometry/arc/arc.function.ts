@@ -1,44 +1,10 @@
+import { rotateAngleNormalized, degreesToRadians } from "../angle/angle.function";
 import type { BoundaryData } from "../boundary/boundary.data";
 import type { PointData } from "../point/point.data";
 import type { TransformData } from "../transform/transform.data";
 import type { ArcData } from "./arc.data";
 import { ArcDirectionEnum } from "./arc.enum";
 import { scale, rotate, translate, compose, applyToPoint } from 'transformation-matrix';
-
-/**
- * Convert degrees to radians.
- * 
- * @param degrees - The angle in degrees to convert
- * @returns The angle in radians
- */
-export function degreesToRadians(degrees: number): number {
-    return degrees * (Math.PI / 180);
-}
-
-/**
- * Convert radians to degrees.
- * 
- * @param radians - The angle in radians to convert
- * @returns The angle in degrees
- */
-export function radiansToDegrees(radians: number): number {
-    return radians * (180 / Math.PI);
-}
-
-/**
- * Normalize angle to be between 0 and 2π
- */
-function normalizeAngle(angle: number): number {
-    const TWO_PI = 2 * Math.PI;
-    return ((angle % TWO_PI) + TWO_PI) % TWO_PI;
-}
-
-// In radians
-export function rotateAngleNormalized(angle: number, rotation: number) {
-    const TWO_PI = Math.PI * 2;
-    return ((angle + rotation) % TWO_PI + TWO_PI) % TWO_PI
-}
-
 
 /**
  * Calculate the clockwise or counterclockwise sweep of an arc between two angles.
@@ -97,45 +63,8 @@ export function arcTransform(transform: TransformData, arc: ArcData): ArcData {
     };
 }
 
-/**
- * Calculate SVG path arc flags for an Arc.
- * 
- * @param startAngle Start angle in radians
- * @param endAngle End angle in radians 
- * @param direction Arc direction (CW or CCW)
- * @returns [largeArcFlag, sweepFlag] where:
- *   - largeArcFlag: 1 for arc greater than 180 degrees, 0 for less
- *   - sweepFlag: 1 for clockwise, 0 for counterclockwise
- */
-export function arcToSvgFlags(startAngle: number, endAngle: number, direction: ArcDirectionEnum): [number, number] {
-    // Normalize angles to 0-2π range
-    const normalizedStart = normalizeAngle(startAngle);
-    const normalizedEnd = normalizeAngle(endAngle);
-
-    // Calculate angle difference based on direction
-    let angleDiff: number;
-    if (direction === ArcDirectionEnum.CCW) {
-        angleDiff = normalizedEnd >= normalizedStart
-            ? normalizedEnd - normalizedStart
-            : (normalizedEnd + 2 * Math.PI) - normalizedStart;
-    } else {
-        angleDiff = normalizedStart >= normalizedEnd
-            ? normalizedStart - normalizedEnd
-            : (normalizedStart + 2 * Math.PI) - normalizedEnd;
-    }
-
-    // Large arc flag is 1 if arc is greater than 180 degrees
-    const largeArcFlag = angleDiff > Math.PI ? 1 : 0;
-    // How dxf lib does it
-    // largeArcFlag = normalizedEnd - normalizedStart < Math.PI ? 0 : 1
-
-    const sweepFlag = direction === ArcDirectionEnum.CW ? 0 : 1;
-
-    return [largeArcFlag, sweepFlag];
-}
-
 // Downsample an Arc into an array of points
-export function arcSample(curve: ArcData, samples: number = 20): PointData[] {
+export function arcSample(curve: ArcData, samples: number = 1000): PointData[] {
     const points: PointData[] = [];
     for (let i = 0; i <= samples; i++) {
         const t = i / samples;
@@ -204,4 +133,43 @@ export function arcBoundary(cx: number, cy: number, radius: number, startAngle: 
 // An arc is closed if it forms a complete circle
 export function arcIsClosed(arc: ArcData) {
     return Math.abs(arc.endAngle - arc.startAngle) >= 2 * Math.PI;
+}
+
+
+/** Calculate midpoint of an arc */
+export function arcMiddlePoint(cx: number, cy: number, r: number, startAngle: number, endAngle: number, useLongArc: boolean = false) {
+    // Normalize the angles to be between 0 and 2*PI
+    startAngle = (startAngle + 2 * Math.PI) % (2 * Math.PI);
+    endAngle = (endAngle + 2 * Math.PI) % (2 * Math.PI);
+
+    // Calculate the angular difference
+    let deltaAngle = endAngle - startAngle;
+
+    // Adjust deltaAngle to be between -PI and PI
+    if (deltaAngle > Math.PI) {
+        deltaAngle -= 2 * Math.PI;
+    } else if (deltaAngle < -Math.PI) {
+        deltaAngle += 2 * Math.PI;
+    }
+
+    // If useLongArc is true, adjust deltaAngle to use the longer arc
+    if (useLongArc) {
+        if (deltaAngle > 0) {
+            deltaAngle -= 2 * Math.PI;
+        } else {
+            deltaAngle += 2 * Math.PI;
+        }
+    }
+
+    // Calculate the midpoint angle
+    let midAngle = startAngle + deltaAngle / 2;
+
+    // Ensure midAngle is between 0 and 2*PI
+    midAngle = (midAngle + 2 * Math.PI) % (2 * Math.PI);
+
+    // Calculate the midpoint coordinates
+    let mx = cx + r * Math.cos(midAngle);
+    let my = cy + r * Math.sin(midAngle);
+
+    return { x: mx, y: my };
 }

@@ -1,7 +1,6 @@
 <script lang="ts">
-    import { inchesToPixels, mmToInches } from "$lib/components/stage.function";
+    import { radiansToDegrees } from "$lib/geometry/angle/angle.function";
     import type { ArcData } from "$lib/geometry/arc/arc.data";
-    import { radiansToDegrees } from "$lib/geometry/arc/arc.function";
     import { Arc as KonvaArc } from "svelte-konva";
 
     let {

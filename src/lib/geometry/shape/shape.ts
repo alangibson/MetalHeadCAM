@@ -14,8 +14,11 @@ export interface Shape extends Geometry {
     endPoint: Point;
     isClosed: boolean;
     boundary: Boundary;
+    length: number;
+    // Null if isClosed==false
+    area: number|null;
     contains(geometry: Geometry): boolean;
-    sample(samples: number): Point[];
+    sample(samples?: number): Point[];
     // Swap start and end points, at a minimum.
 	// Implementing classes must also take care of any points in between.
 	reverse(): void;

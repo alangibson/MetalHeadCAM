@@ -6,6 +6,7 @@ import { circleBoundary, circleSample, circleTransform } from "./circle.function
 import { GeometryTypeEnum } from "../geometry/geometry.enum";
 import { Boundary } from "../boundary/boundary";
 import type { Geometry } from "../geometry/geometry";
+import { circleMiddlePoint } from "./circle.function";
 
 export class Circle implements CircleData, Shape {
 
@@ -17,7 +18,7 @@ export class Circle implements CircleData, Shape {
         this.origin = new Point(data.origin);
         this.radius = data.radius;
     }
-    
+
     get isClosed(): boolean {
         return true;
     }
@@ -40,6 +41,18 @@ export class Circle implements CircleData, Shape {
         }); 
     }
 
+    get middlePoint(): Point {
+        return new Point(circleMiddlePoint(this));
+    }
+
+    get area(): number | null {
+        return Math.PI * this.radius * this.radius;
+    }
+
+    get length(): number {
+        return 2 * Math.PI * this.radius;
+    }
+
     transform(transform: TransformData): void {
         const circleData = circleTransform(transform, this);
         this.origin.x = circleData.origin.x;
@@ -51,11 +64,14 @@ export class Circle implements CircleData, Shape {
         throw new Error("Method not implemented.");
     }
     
-    sample(samples: number = 20): Point[] {
+    sample(samples: number = 1000): Point[] {
+        // HACK one sample per unit length
+        samples = this.length
         return circleSample(this, samples).map(p => new Point(p));
     }
 
     reverse(): void {
 		// Noop
 	}
+
 }

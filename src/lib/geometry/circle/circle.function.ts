@@ -29,7 +29,7 @@ export function circleTransform(transform: TransformData, circle: CircleData): C
 }
 
 /** Sample Circle to an array of Points */
-export function circleSample(circle: CircleData, samples: number = 20): PointData[] {
+export function circleSample(circle: CircleData, samples: number = 1000): PointData[] {
 	const points: PointData[] = [];
 	for (let i = 0; i <= samples; i++) {
 		const theta = (i / samples) * 2 * Math.PI;
@@ -53,5 +53,17 @@ export function circleBoundary(circle: CircleData): BoundaryData {
             x: circle.origin.x + circle.radius,
             y: circle.origin.y + circle.radius
         }
+    };
+}
+
+/**
+ * Returns the middle point along a circle.
+ * For a circle, this is a point on the right side (0 degrees).
+ * Kind of nonsensical, but all the other shapes have this function.
+ */
+export function circleMiddlePoint(circle: CircleData): PointData {
+    return {
+        x: circle.origin.x + circle.radius,
+        y: circle.origin.y
     };
 }

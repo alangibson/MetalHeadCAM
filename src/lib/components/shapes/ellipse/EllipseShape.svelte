@@ -1,7 +1,7 @@
 <script lang="ts">
     import type { EllipseData } from "$lib/geometry/ellipse/ellipse.data";
     import { Ellipse as KonvaEllipse } from "svelte-konva";
-    import { degreesToRadians, radiansToDegrees } from "$lib/geometry/arc/arc.function";
+        import { degreesToRadians, radiansToDegrees } from "$lib/geometry/angle/angle.function";
 
     let {
         geometry: ellipseData = $bindable<EllipseData>(),

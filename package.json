@@ -16,6 +16,7 @@
 		"@sveltejs/adapter-auto": "^4.0.0",
 		"@sveltejs/kit": "^2.16.0",
 		"@sveltejs/vite-plugin-svelte": "^5.0.0",
+		"@types/three": "^0.175.0",
 		"svelte": "^5.0.0",
 		"svelte-check": "^4.0.0",
 		"typescript": "^5.0.0",
@@ -27,11 +28,14 @@
 		"canvas": "^3.1.0",
 		"dxf": "^5.2.0",
 		"konva": "^9.3.19",
+		"nurbs": "^1.1.1",
 		"panzoom": "^9.4.3",
 		"split-grid": "^1.0.11",
 		"svelte-konva": "^1.0.0-next.0",
+		"three": "^0.175.0",
 		"transformation-matrix": "^3.0.0",
 		"vecks": "^3.9.2",
-		"verb-nurbs": "^3.0.2"
+		"verb-nurbs": "^3.0.2",
+		"window": "^4.2.7"
 	}
 }

@@ -5,7 +5,8 @@ import type { TransformData } from "../transform/transform.data";
 import { GeometryTypeEnum } from "../geometry/geometry.enum";
 import { Boundary } from "../boundary/boundary";
 import type { Geometry } from "../geometry/geometry";
-import { splineBoundary, splineIsClosed, splineSample, splineTransform } from "./spline.function";
+import { splineBoundary, splineIsClosed, splineSample, splineTransform, splineMiddlePoint } from "./spline.function";
+import { shapeAreaFromPoints, shapeLengthFromPoints } from "../shape/shape.function";
 
 /**
  * A NURBS.
@@ -39,6 +40,19 @@ export class Spline implements SplineData, Shape {
         return this.controlPoints;
     }
 
+    get middlePoint(): Point {
+        return new Point(splineMiddlePoint(this));
+    }
+
+    get area(): number | null {
+        if (!this.isClosed) return null;
+        return shapeAreaFromPoints(splineSample(this, 1000));
+    }
+    
+    get length(): number {
+        return shapeLengthFromPoints(splineSample(this, 1000));
+    }
+    
     transform(transform: TransformData): void {
         const transformed = splineTransform(transform, this);
         this.controlPoints.forEach((point, i) => {
@@ -54,8 +68,14 @@ export class Spline implements SplineData, Shape {
             throw new Error("Method not implemented.");
     }
 
-    sample(samples: number = 100): Point[] {
+    sample(samples: number = 1000): Point[] {
+        // HACK one sample per unit length
+        samples = this.length
         return splineSample(this, samples).map(p => new Point(p));
+    }
+
+    reverse(): void {
+        throw new Error("Method not implemented.");
     }
 
 }

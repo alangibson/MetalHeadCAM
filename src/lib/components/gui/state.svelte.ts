@@ -1,7 +1,9 @@
 import type Konva from "konva";
 import { inchesToPixels, mmToInches } from "../stage.function";
-import type { KonvaPointerEvent, KonvaWheelEvent } from "svelte-konva";
+import type { KonvaMouseEvent, KonvaPointerEvent, KonvaWheelEvent } from "svelte-konva";
 import { SvelteSet } from "svelte/reactivity";
+import type { Cut } from "$lib/domain/planning/cut/cut";
+import type { Part } from "$lib/domain/planning/part/part";
 
 /**
  * Add a lot of useful features to Konva.Stage.
@@ -39,6 +41,7 @@ export class StageState {
     selectedKonvaShapes = $state<SvelteSet<Konva.Shape>>(
         new SvelteSet(),
     );
+    selectedEntities = $state(new SvelteSet<Part|Cut>());
 
     konvaStagePointerX = $state(0);
     konvaStagePointerY = $state(0);
@@ -96,7 +99,7 @@ export class StageState {
 
     // Highlight shape on mouseover.
     // Defined as arrow function since it's passed as a callback.
-    onMouseEnter = (e: MouseEvent) => {
+    onMouseEnter = (e: KonvaMouseEvent) => {
         this.activeShape = e.target;
         if (!this.activeShape?.getAttr("strokeLocked")) {
             this.activeShape?.setAttr("lastStroke", this.activeShape.getAttr("stroke"));
@@ -114,16 +117,31 @@ export class StageState {
 
     // Select shape.
     // Defined as arrow function since it's passed as a callback.
-    onClick = () => {
+    onClick = (e) => {
+        console.log('onClick', e.target);
+
+        // Add to selected shape list
+        if (!this.selectedKonvaShapes.has(this.activeShape))
+            this.selectedKonvaShapes.add(this.activeShape);
+        else
+            this.selectedKonvaShapes.delete(this.activeShape);
+        
         // Lock highlight
         this.activeShape.setAttr(
             "strokeLocked",
             !this.activeShape.getAttr("strokeLocked"),
         );
-        // Add to selected shape list
-        if (!this.selectedKonvaShapes.has(this.activeShape))
-            this.selectedKonvaShapes.add(this.activeShape);
-        else this.selectedKonvaShapes.delete(this.activeShape);
+        
+    }
+
+    onClickEntity = (e, entity: Part|Cut) => {
+        console.log('onClickEntity', e, entity);
+
+        // Add to selected entity list
+        if (!this.selectedEntities.has(entity))
+            this.selectedEntities.add(entity);
+        else
+            this.selectedEntities.delete(entity);
     }
 
 }

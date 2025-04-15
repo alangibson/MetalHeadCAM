@@ -17,6 +17,7 @@ export namespace Planning {
             return undefined;
 
         for (const layer of drawing.layers) {
+
             // Find chains of Shapes that are connected by overlapping start and end points
             const shapeChain: Shape[][] = shapeChains(layer.geometries, 0.05);
 

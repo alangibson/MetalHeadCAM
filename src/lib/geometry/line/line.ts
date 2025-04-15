@@ -5,7 +5,7 @@ import type { TransformData } from "../transform/transform.data";
 import { GeometryTypeEnum } from "../geometry/geometry.enum";
 import { Boundary } from "../boundary/boundary";
 import type { Geometry } from "../geometry/geometry";
-import { lineTransform } from "./line.function";
+import { lineMiddlePoint, lineSample, lineTransform } from "./line.function";
 
 export class Line implements LineData, Shape {
 
@@ -30,6 +30,21 @@ export class Line implements LineData, Shape {
         return [this.startPoint, this.endPoint];
     }
 
+    get middlePoint(): Point {
+        return new Point(lineMiddlePoint(this));
+    }
+
+    get area(): number | null {
+        // A line is never closed
+        return null;
+    }
+
+    get length(): number {
+        const dx = this.endPoint.x - this.startPoint.x;
+        const dy = this.endPoint.y - this.startPoint.y;
+        return Math.sqrt(dx * dx + dy * dy);
+    }
+
     transform(transform: TransformData): void {
         const transformed = lineTransform(transform, this);
         this.startPoint.x = transformed.startPoint.x;
@@ -42,8 +57,10 @@ export class Line implements LineData, Shape {
         return false;
     }
 
-    sample(samples: number = 2): Point[] {
-        return [this.startPoint, this.endPoint];
+    sample(samples: number = 1000): Point[] {
+        // HACK one sample per unit length
+        samples = this.length
+        return lineSample(this, samples).map(p => new Point(p));
     }
 
     reverse(): void {

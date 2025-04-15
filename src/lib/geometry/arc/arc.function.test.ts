@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest';
-import { arcDirection, arcTransform, degreesToRadians, arcToSvgFlags } from './arc.function';
+import { arcDirection, arcTransform } from './arc.function';
+import { degreesToRadians } from "../angle/angle.function";
 import { ArcDirectionEnum } from './arc.enum';
 import type { ArcData } from './arc.data';
 import type { TransformData } from '../transform/transform.data';

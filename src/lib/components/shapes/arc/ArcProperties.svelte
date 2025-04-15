@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { degreesToRadians } from "$lib/geometry/arc/arc.function";
+        import { degreesToRadians } from "$lib/geometry/angle/angle.function";
     import type Konva from "konva";
     import { shapes } from "konva/lib/Shape";
 

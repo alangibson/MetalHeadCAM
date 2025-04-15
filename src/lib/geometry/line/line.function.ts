@@ -64,3 +64,27 @@ export function lineTransform(transform: TransformData, line: LineData): LineDat
 		endPoint
 	};
 }
+
+export function lineMiddlePoint(line: LineData): PointData {
+	// Calculate the midpoint coordinates
+	const midX = (line.startPoint.x + line.endPoint.x) / 2;
+	const midY = (line.startPoint.y + line.endPoint.y) / 2;
+	// Return the midpoint as an object
+	return { x: midX, y: midY };
+}
+
+/**
+ * Sample points along a line at regular intervals
+ */
+export function lineSample(line: LineData, samples: number = 1000): PointData[] {
+	const points: PointData[] = [];
+	for (let i = 0; i <= samples; i++) {
+		const t = i / samples;
+		const point = {
+			x: line.startPoint.x + t * (line.endPoint.x - line.startPoint.x),
+			y: line.startPoint.y + t * (line.endPoint.y - line.startPoint.y)
+		};
+		points.push(point);
+	}
+	return points;
+}

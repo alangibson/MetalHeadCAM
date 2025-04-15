@@ -15,7 +15,7 @@ import type { SplineData } from '$lib/geometry/spline/spline.data';
 import type { Entity as DxfEntity } from 'dxf/handlers/entities';
 import type { TransformData } from "$lib/geometry/transform/transform.data";
 import { ArcDirectionEnum } from '$lib/geometry/arc/arc.enum';
-import { degreesToRadians } from '$lib/geometry/arc/arc.function';
+import { degreesToRadians } from "$lib/geometry/angle/angle.function";
 import type InsertEntityData from 'dxf/handlers/entity/insert';
 
 export function dxfArcToArcData(dxfArc: DxfArc): ArcData {

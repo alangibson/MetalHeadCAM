@@ -1,7 +1,7 @@
 <script lang="ts">
     import type { Plan } from "$lib/domain/planning/plan/plan";
     import type { Part } from "$lib/domain/planning/part/part";
-    import type { Cut } from "$lib/domain/planning/cut/cut";
+    import { PlanningStageState } from "./state.svelte";
 
     let { plan }: { plan: Plan|undefined } = $props();
 
@@ -15,6 +15,12 @@
             expandedParts.add(part);
         }
     }
+
+    // Check if any shape in the part is selected
+    function isPartSelected(part: Part): boolean {
+        return PlanningStageState.selectedEntities.has(part) || 
+               part.cuts.some(cut => PlanningStageState.selectedEntities.has(cut));
+    }
 </script>
 
 <div class="plan-panel">
@@ -26,10 +32,12 @@
                 <!-- svelte-ignore event_directive_deprecated -->
                 <!-- svelte-ignore a11y_click_events_have_key_events -->
                 <!-- svelte-ignore a11y_no_static_element_interactions -->
-                <div class="part-header" on:click={() => togglePart(part)}>
-                    <span class="expand-icon"
-                        >{expandedParts.has(part) ? "▼" : "▶"}</span
-                    >
+                <div 
+                    class="part-header" 
+                    class:selected={isPartSelected(part)}
+                    on:click={() => togglePart(part)}
+                >
+                    <span class="expand-icon">{expandedParts.has(part) ? "▼" : "▶"}</span>
                     <span class="part-name">Part</span>
                     <span class="cut-count">({part?.cuts?.length} cuts)</span>
                 </div>
@@ -44,7 +52,6 @@
                                             {shape.type}
                                         </li>
                                     {/each}
-                                    
                                 </ul>
                             </div>
                         </li>
@@ -117,5 +124,9 @@
     
     .shape-list {
         list-style: none;
+    }
+
+    .part-header.selected {
+        background-color: #ffeb3b40;
     }
 </style>

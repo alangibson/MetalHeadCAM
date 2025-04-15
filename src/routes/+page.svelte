@@ -20,6 +20,7 @@
 
     // 1 = Project, 2 = Import, 3 = Drawing, 4 = Program
     let activeStage = $state(2);
+
 </script>
 
 <div class="canvas-container">
