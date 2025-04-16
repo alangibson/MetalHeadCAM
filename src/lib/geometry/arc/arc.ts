@@ -3,8 +3,8 @@ import { Point } from "../point/point";
 import type { Shape } from "../shape/shape";
 import type { ArcData } from "./arc.data";
 import { ArcDirectionEnum } from "./arc.enum";
-import { arcBoundary, arcDirection, arcIsClosed, arcMiddlePoint, arcSample, arcTransform } from "./arc.function";
-import { GeometryTypeEnum } from "../geometry/geometry.enum";
+import { arcBoundary, arcDirection, arcEndPoint, arcIsClosed, arcMiddlePoint, arcSample, arcStartPoint, arcTransform } from "./arc.function";
+import { GeometryTypeEnum, OrientationEnum } from "../geometry/geometry.enum";
 import { Boundary } from "../boundary/boundary";
 import type { Geometry } from "../geometry/geometry";
 import { shapeAreaFromPoints } from "../shape/shape.function";
@@ -13,11 +13,11 @@ export class Arc implements ArcData, Shape {
 
     type = GeometryTypeEnum.ARC;
     origin: Point;
-    radius: number; 
+    radius: number;
     startAngle: number;
     endAngle: number;
     _direction?: ArcDirectionEnum;
-    
+
     constructor(data: ArcData) {
         this.origin = new Point(data.origin);
         this.radius = data.radius;
@@ -41,29 +41,22 @@ export class Arc implements ArcData, Shape {
     }
 
     get startPoint(): Point {
-        return new Point({
-            x: this.origin.x + this.radius * Math.cos(this.startAngle),
-            y: this.origin.y + this.radius * Math.sin(this.startAngle)
-        });
+        return new Point(arcStartPoint(this));
     }
 
     get endPoint(): Point {
-        return new Point({
-            x: this.origin.x + this.radius * Math.cos(this.endAngle),
-            y: this.origin.y + this.radius * Math.sin(this.endAngle)
-        });
+        return new Point(arcEndPoint(this));
     }
 
-	get middlePoint(): Point {
-		const { x, y } = arcMiddlePoint(
-			this.origin.x,
-			this.origin.y,
-			this.radius,
-			this.startAngle,
-			this.endAngle
-		);
-		return new Point({ x, y });
-	}
+    get middlePoint(): Point {
+        return new Point(arcMiddlePoint(
+            this.origin.x,
+            this.origin.y,
+            this.radius,
+            this.startAngle,
+            this.endAngle
+        ));
+    }
 
     get direction(): ArcDirectionEnum {
         if (this._direction)
@@ -84,6 +77,10 @@ export class Arc implements ArcData, Shape {
         return Math.abs(this.radius * angle);
     }
 
+    get orientation(): OrientationEnum {
+
+    }
+
     transform(transform: TransformData): void {
         const arcData = arcTransform(transform, this);
         this.origin.x = arcData.origin.x;
@@ -94,7 +91,7 @@ export class Arc implements ArcData, Shape {
     }
 
     contains(geometry: Geometry): boolean {
-        if (! this.isClosed)
+        if (!this.isClosed)
             return false;
         else
             throw new Error("Method not implemented.");
@@ -107,11 +104,11 @@ export class Arc implements ArcData, Shape {
         return arcSample(this, samples).map(p => new Point(p));
     }
 
-	reverse(): void {
-		const start_angle = this.startAngle;
-		this.startAngle = this.endAngle;
-		this.endAngle = start_angle;
-		this._direction = this._direction == ArcDirectionEnum.CW ? ArcDirectionEnum.CCW : ArcDirectionEnum.CW;
-	}
+    reverse(): void {
+        const start_angle = this.startAngle;
+        this.startAngle = this.endAngle;
+        this.endAngle = start_angle;
+        this._direction = this._direction == ArcDirectionEnum.CW ? ArcDirectionEnum.CCW : ArcDirectionEnum.CW;
+    }
 
 }

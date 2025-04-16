@@ -28,9 +28,23 @@ export function circleTransform(transform: TransformData, circle: CircleData): C
     };
 }
 
+export function circleStartPoint(circle: CircleData): PointData {
+    return {
+        x: circle.origin.x + circle.radius,
+        y: circle.origin.y
+    };
+}
+
+export function circleEndPoint(circle: CircleData): PointData {
+    return {
+        x: circle.origin.x + circle.radius,
+        y: circle.origin.y
+    };
+}
+
 /** Sample Circle to an array of Points */
 export function circleSample(circle: CircleData, samples: number = 1000): PointData[] {
-	const points: PointData[] = [];
+	const points: PointData[] = [circleStartPoint(circle)];
 	for (let i = 0; i <= samples; i++) {
 		const theta = (i / samples) * 2 * Math.PI;
 		const point = {
@@ -39,6 +53,7 @@ export function circleSample(circle: CircleData, samples: number = 1000): PointD
 		};
 		points.push(point);
 	}
+    points.push(circleEndPoint(circle));
 	return points;
 }
 

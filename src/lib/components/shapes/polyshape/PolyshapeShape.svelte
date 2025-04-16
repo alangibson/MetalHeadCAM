@@ -30,6 +30,7 @@
 
         // Add each shape to the path
         for (const shape of shapes) {
+            // TODO ellipse
             if (shape instanceof Line) {
                 pathData += lineSvgPathCommand(shape);
             } else if (shape instanceof Arc) {
@@ -41,7 +42,7 @@
             } else if (shape instanceof Polyshape) {
                 pathData += polyshapeSvgPathCommand(shape);
             } else {
-                throw new Error(`Shape not supported: ${shape.type}`);
+                throw new Error(`Shape not supported: ${shape.type} ${shape.constructor.name}`);
             }
         }
 

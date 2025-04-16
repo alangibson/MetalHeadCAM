@@ -6,7 +6,7 @@ import type { TransformData } from "../transform/transform.data";
 import { GeometryTypeEnum } from "../geometry/geometry.enum";
 import { Boundary } from "../boundary/boundary";
 import type { Geometry } from "../geometry/geometry";
-import { splineBoundary, splineIsClosed, splineSample, splineTransform, splineMiddlePoint } from "./spline.function";
+import { splineBoundary, splineIsClosed, splineSample, splineTransform, splineMiddlePoint, splineStartPoint, splineEndPoint } from "./spline.function";
 import { shapeAreaFromPoints, shapeLengthFromPoints } from "../shape/shape.function";
 
 /**
@@ -66,11 +66,11 @@ export class Spline implements SplineData, Shape {
     }
 
     get startPoint(): Point {
-        return this.controlPoints[0];
+        return new Point(splineStartPoint(this));
     }
 
     get endPoint(): Point {
-        return this.controlPoints[this.controlPoints.length - 1];
+        return new Point(splineEndPoint(this));
     }
 
     get middlePoint(): Point {
@@ -109,13 +109,16 @@ export class Spline implements SplineData, Shape {
     }
 
     tessellate(samples: number = 1000): Point[] {
-        // HACK one sample per unit length
-        samples = this.length
+        // HACK 10 samples per unit length
+        samples = this.length * 10;
         return splineSample(this, samples).map(p => new Point(p));
     }
 
     reverse(): void {
-        throw new Error("Method not implemented.");
+        this.controlPoints.reverse();
+        this.knots.reverse();
+        this.weights.reverse();
+        // this.clearCache();
     }
 
     /** Decompose NURBS into one or more cubic bezier curves */

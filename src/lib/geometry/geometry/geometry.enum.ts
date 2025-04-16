@@ -10,3 +10,9 @@ export enum GeometryTypeEnum {
 	ELLIPSE = 'ellipse',
 	RECTANGLE = 'rectangle'
 }
+
+export enum OrientationEnum {
+	CLOCKWISE = 'cw',
+	COUNTERCLOCKWISE = 'ccw',
+	COLINEAR = 'cl'
+}

@@ -40,35 +40,39 @@ export function splineBoundary(spline: SplineData, samples: number = 100): Bound
     };
 }
 
+export function splineStartPoint(spline: SplineData): PointData {
+    return spline.controlPoints[0];
+}
+
+export function splineEndPoint(spline: SplineData): PointData {
+    return spline.controlPoints[spline.controlPoints.length - 1];
+}
+
 /**
  * Sample points along a spline curve using Three.js
  */
 export function splineSample(spline: SplineData, samples: number = 1000): PointData[] {
-    const points = spline.controlPoints;
-    
-    if (points.length < 2) {
+    if (spline.controlPoints.length < 2) {
         return [];
     }
 
-    // Convert points to Three.js Vector3 format
-    // const threePoints = points.map(p => new Vector3(p.x, p.y, 0));
-    
-    // Create curve
-    // const curve = new CatmullRomCurve3(threePoints, false); // false = don't close the curve
-    
+    if (samples < 4) {
+        console.warn('samples', samples, spline);
+    }
+
     const curve = nurbs({
-        points: points.map(p => [p.x, p.y]),
+        points: spline.controlPoints.map(p => [p.x, p.y]),
         boundary: 'clamped'
     });
 
     // Sample points along the curve
-    const sampledPoints: PointData[] = [];
+    const sampledPoints: PointData[] = [splineStartPoint(spline)];
     for (let i = 0; i <= samples; i++) {
         const t = i / samples;
         const point = curve.evaluate([], t);
         sampledPoints.push({ x: point[0], y: point[1] });
     }
-
+    sampledPoints.push(splineEndPoint(spline));
     return sampledPoints;
 }
 

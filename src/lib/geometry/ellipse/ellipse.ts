@@ -2,7 +2,7 @@ import { Point } from "../point/point";
 import type { PointData } from "../point/point.data";
 import type { Shape } from "../shape/shape";
 import type { EllipseData } from "./ellipse.data";
-import { ellipseBoundary, ellipseIsClosed, ellipseToPoints, ellipseTransform, ellipsePointAtAngle, ellipseMiddlePoint } from "./ellipse.function";
+import { ellipseBoundary, ellipseIsClosed, ellipseToPoints, ellipseTransform, ellipsePointAtAngle, ellipseMiddlePoint, ellipseStartPoint, ellipseEndPoint } from "./ellipse.function";
 import type { TransformData } from "../transform/transform.data";
 import { GeometryTypeEnum } from "../geometry/geometry.enum";
 import { Boundary } from "../boundary/boundary";
@@ -37,11 +37,11 @@ export class Ellipse implements EllipseData, Shape {
     }
 
     get startPoint(): Point {
-        return new Point(ellipsePointAtAngle(this, this.startAngle));
+        return new Point(ellipseStartPoint(this));
     }
 
     get endPoint(): Point {
-        return new Point(ellipsePointAtAngle(this, this.endAngle));
+        return new Point(ellipseEndPoint(this));
     }
 
     get middlePoint(): Point {

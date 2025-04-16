@@ -1,5 +1,6 @@
 import type { Boundary } from "../boundary/boundary";
 import type { Geometry } from "../geometry/geometry";
+import type { OrientationEnum } from "../geometry/geometry.enum";
 import type { Point } from "../point/point";
 import type { PointData } from "../point/point.data";
 
@@ -17,6 +18,7 @@ export interface Shape extends Geometry {
     length: number;
     // Null if isClosed==false
     area: number|null;
+    orientation: OrientationEnum;
     contains(geometry: Geometry): boolean;
     // Convert shape to array of points
     tessellate(samples?: number): Point[];

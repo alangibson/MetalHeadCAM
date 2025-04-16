@@ -5,6 +5,10 @@ import { cutNesting, type CutNestingNode } from "../cut/cut.function";
 import { Part } from "../part/part";
 
 export function reorientShapes(shapes: Shape[], tolerance: number = 0.05) {
+
+    // TODO Blindly calling reverse() on a polyshape does not guarantee that shapes will be 
+    // oriented in the same direction
+
 	for (let i = 1; i < shapes.length; i++) {
 		const prevShape: Shape = shapes[i - 1];
 		const currentShape: Shape = shapes[i];
@@ -44,7 +48,7 @@ export function geometriesToPolyshapes(shapeChains: Shape[][]): Polyshape[] {
  * Group one or more Cut(s) it one or more Part(s).
  * This is many-to-many since groupings are unpredictable.
  */
-export function cutsToParts(cuts: Cut[]): Part[] {
+export function cutsRootsToParts(roots: CutNestingNode[]): Part[] {
     // Create nodes for each polygon with properties for parent and children
     // interface Node {
     //     cut: Cut;
@@ -80,7 +84,7 @@ export function cutsToParts(cuts: Cut[]): Part[] {
     // Find all outermost polygons (roots of containment trees)
     // let roots = nodes.filter((node) => node.parent === null);
 
-    const roots: CutNestingNode[] = cutNesting(cuts);
+    // const roots: CutNestingNode[] = cutNesting(cuts);
 
     // Recursive function to process into Parts
     let parts: Part[] = [];

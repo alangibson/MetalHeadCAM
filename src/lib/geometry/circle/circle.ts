@@ -2,7 +2,7 @@ import { Point } from "../point/point";
 import type { Shape } from "../shape/shape";
 import type { CircleData } from "./circle.data";
 import type { TransformData } from "../transform/transform.data";
-import { circleBoundary, circleSample, circleTransform } from "./circle.function";
+import { circleBoundary, circleEndPoint, circleSample, circleStartPoint, circleTransform } from "./circle.function";
 import { GeometryTypeEnum } from "../geometry/geometry.enum";
 import { Boundary } from "../boundary/boundary";
 import type { Geometry } from "../geometry/geometry";
@@ -28,17 +28,11 @@ export class Circle implements CircleData, Shape {
     }
 
     get startPoint(): Point {
-        return new Point({
-            x: this.origin.x + this.radius,
-            y: this.origin.y
-        });
+        return new Point(circleStartPoint(this));
     }
 
     get endPoint(): Point {
-        return new Point({
-            x: this.origin.x + this.radius,
-            y: this.origin.y
-        }); 
+        return new Point(circleEndPoint(this)); 
     }
 
     get middlePoint(): Point {

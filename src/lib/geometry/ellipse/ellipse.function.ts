@@ -25,6 +25,14 @@ export function ellipsePointAtAngle(
     };
 }
 
+export function ellipseStartPoint(ellipse: EllipseData): PointData {
+    return ellipsePointAtAngle(ellipse, ellipse.startAngle);
+}
+
+export function ellipseEndPoint(ellipse: EllipseData): PointData {
+    return ellipsePointAtAngle(ellipse, ellipse.endAngle);
+}
+
 export function ellipseTransform(transform: TransformData, ellipse: EllipseData): EllipseData {
     // Create transformation matrix
     const matrix = compose(

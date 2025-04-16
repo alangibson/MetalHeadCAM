@@ -9,7 +9,6 @@ export function splineSvgPathCommand(spline: Spline): string {
     if (spline.controlPoints.length < 2) {
         return '';
     } else if (spline.controlPoints.length == 3) {
-        // TODO quadratic curve
         const [p0, p1, p2] = spline.controlPoints;
         pathData += `M ${p0.x} ${p0.y} Q ${p1.x} ${p1.y}, ${p2.x} ${p2.y} `;
     } else if (spline.controlPoints.length == 4) {
@@ -22,7 +21,6 @@ export function splineSvgPathCommand(spline: Spline): string {
         // TODO Should we Spline.decompose() and then render as bezier curves instead?
         const points = splineSample(spline, 1000);
         // Skip first point since it's handled by parent PolyshapeShape
-        let pathData = '';
         for (let i = 1; i < points.length; i++) {
             pathData += ` L ${points[i].x} ${points[i].y}`;
         }

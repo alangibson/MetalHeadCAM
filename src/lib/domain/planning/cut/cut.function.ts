@@ -9,7 +9,6 @@ export interface CutNestingNode {
 
 /**
  * Build hierarchy of parent-child containment relationships.
- * Uses spatial indexing for O(n log n) average performance.
  * Open paths can be contained within closed paths.
  */
 export function cutNesting(cuts: Cut[]): CutNestingNode[] {
@@ -23,6 +22,9 @@ export function cutNesting(cuts: Cut[]): CutNestingNode[] {
     // Separate closed and open paths
     const closedNodes = nodes.filter(node => node.cut.path.isClosed);
     const openNodes = nodes.filter(node => !node.cut.path.isClosed);
+
+    console.log('closedNodes', closedNodes);
+    console.log('openNodes', openNodes);
 
     // Sort closed nodes by area (largest first)
     closedNodes.sort((a, b) => {
@@ -48,6 +50,9 @@ export function cutNesting(cuts: Cut[]): CutNestingNode[] {
 
             // Do full containment check
             if (potential.cut.path.contains(closedNode.cut.path)) {
+
+                console.log('containment found', potential.cut, 'contains', closedNode.cut);
+
                 const area = potential.cut.path.area;
                 if (area < smallestArea) {
                     smallestArea = area;
@@ -63,35 +68,35 @@ export function cutNesting(cuts: Cut[]): CutNestingNode[] {
         }
     }
 
-    // For each open node, find its smallest containing closed path
-    for (const openNode of openNodes) {
-        let bestParent: CutNestingNode | null = null;
-        let smallestArea = Infinity;
+    // // For each open node, find its smallest containing closed path
+    // for (const openNode of openNodes) {
+    //     let bestParent: CutNestingNode | null = null;
+    //     let smallestArea = Infinity;
 
-        // Check all closed nodes as potential parents
-        for (const closedNode of closedNodes) {
+    //     // Check all closed nodes as potential parents
+    //     for (const closedNode of closedNodes) {
 
-            // Quick reject if boundary doesn't contain open path's boundary
-            // if (!closedNode.cut.path.boundary.contains(openNode.cut.path.boundary)) {
-            //     continue;
-            // }
+    //         // Quick reject if boundary doesn't contain open path's boundary
+    //         // if (!closedNode.cut.path.boundary.contains(openNode.cut.path.boundary)) {
+    //         //     continue;
+    //         // }
 
-            // Check if all points of open path are inside closed path
-            if (closedNode.cut.path.contains(openNode.cut.path)) {
-                const area = closedNode.cut.path.area;
-                if (area < smallestArea) {
-                    smallestArea = area;
-                    bestParent = closedNode;
-                }
-            }
-        }
+    //         // Check if all points of open path are inside closed path
+    //         if (closedNode.cut.path.contains(openNode.cut.path)) {
+    //             const area = closedNode.cut.path.area;
+    //             if (area < smallestArea) {
+    //                 smallestArea = area;
+    //                 bestParent = closedNode;
+    //             }
+    //         }
+    //     }
 
-        // If we found a parent, update relationships
-        if (bestParent) {
-            openNode.parent = bestParent;
-            bestParent.children.push(openNode);
-        }
-    }
+    //     // If we found a parent, update relationships
+    //     if (bestParent) {
+    //         openNode.parent = bestParent;
+    //         bestParent.children.push(openNode);
+    //     }
+    // }
 
     // Return only root nodes (those without parents)
     return nodes.filter(node => node.parent === null);

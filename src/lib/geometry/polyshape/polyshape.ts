@@ -1,3 +1,4 @@
+// import polygonClipping from 'polygon-clipping';
 import { Point } from "../point/point";
 import type { Shape } from "../shape/shape";
 import type { PolyshapeData } from "./polyshape.data";
@@ -5,13 +6,10 @@ import { polyshapeIsClosed } from "./polyshape.function";
 import type { TransformData } from "../transform/transform.data";
 import { GeometryTypeEnum } from "../geometry/geometry.enum";
 import { Boundary } from "../boundary/boundary";
-import type { Geometry } from "../geometry/geometry";
 import { polyshapeSample, polyshapeMiddlePoint } from "./polyshape.function";
-import { boundaryJoin } from "../boundary/boundary.function";
-import { pointCoincident } from "../point/point.function";
-import { SpatialIndex } from "./spatial-index";
-import { lineIntersects } from "../line/line.function";
 import { shapeAreaFromPoints } from "../shape/shape.function";
+import { GeometryFactory, Coordinate } from 'jsts/org/locationtech/jts/geom';
+import { RelateOp } from 'jsts/org/locationtech/jts/operation/relate';
 
 export class Polyshape implements PolyshapeData, Shape {
 
@@ -19,7 +17,6 @@ export class Polyshape implements PolyshapeData, Shape {
     shapes: Shape[];
     _sample: Point[] | undefined;
     _boundary: Boundary | undefined;
-    _spatialIndex: SpatialIndex|undefined;
 
     constructor(data: PolyshapeData) {
         this.shapes = data.shapes;
@@ -69,68 +66,37 @@ export class Polyshape implements PolyshapeData, Shape {
         this.shapes.forEach(shape => shape.transform(transform));
         this.clearCache();
     }
-
+    
+    reverse(): void {
+        this.shapes.forEach(shape => shape.reverse());
+        this.clearCache();
+        // throw new Error('not implemented');
+    }
     /**
      * Test if inner polyshape is fully contained within outer polyshape.
-     * Uses bounding box optimization and ray casting.
-     * Time complexity: O(n log n) where n is total number of points
      */
     contains(innerPolyshape: Polyshape): boolean {
+        // Convert both polyshapes to JSTS geometries
+        const geometryFactory = new GeometryFactory();
+        
+        // Convert self (outer) to JSTS geometry
+        const outerPoints = this.tessellate(1000);
+        const outerCoords = outerPoints.map(p => new Coordinate(p.x, p.y));
+        const outerLinearRing = geometryFactory.createLinearRing(outerCoords);
+        const outerPolygon = geometryFactory.createPolygon(outerLinearRing);
 
-        const outerPolyshape: Polyshape = this;
-
-        // Quick reject: if inner's bounding box isn't inside outer's, 
-        // it can't be contained
-        if (! outerPolyshape.boundary.contains(innerPolyshape.boundary))
-            return false;
-
-        // Sample points along both shapes
+        // Convert inner polyshape to JSTS geometry
         const innerPoints = innerPolyshape.tessellate(1000);
-        const outerPoints = outerPolyshape.tessellate(1000);
-
-        // Ensure outer shape is closed for point-in-polygon test
-        if (!pointCoincident(outerPoints[0], outerPoints[outerPoints.length - 1])) {
-            outerPoints.push(outerPoints[0]);
+        const innerCoords = innerPoints.map(p => new Coordinate(p.x, p.y));
+        if (innerCoords.length < 4) {
+            console.warn(innerPolyshape);
+            return false;
         }
+        const innerLinearRing = geometryFactory.createLinearRing(innerCoords);
+        const innerPolygon = geometryFactory.createPolygon(innerLinearRing);
 
-        // Test sample points from inner shape using ray casting
-        // TODO don't test every 3rd point for speed. Just sample fewer points
-        // for (let i = 0; i < innerPoints.length; i += 3) { // Test every 3rd point for speed
-        //     const point = innerPoints[i];
-        //     // Ray casting test
-        //     if (!pointEnclosedByPolygon(point, outerPoints)) {
-        //         return false;
-        //     }
-        // }
-
-        // Build spatial index for outer points to speed up intersection tests
-
-        // const outerSegments = new SpatialIndex(outerPoints);
-        if (! this._spatialIndex)
-            this._spatialIndex = new SpatialIndex(outerPoints);
-        // Test for intersections using spatial index
-        for (let i = 0; i < innerPoints.length - 1; i++) {
-            const p1 = innerPoints[i];
-            const p2 = innerPoints[i + 1];
-
-            // Quick reject using bounding box of line segment
-            const minX = Math.min(p1.x, p2.x);
-            const maxX = Math.max(p1.x, p2.x);
-            const minY = Math.min(p1.y, p2.y);
-            const maxY = Math.max(p1.y, p2.y);
-
-            // Get potentially intersecting segments from spatial index
-            const potentialSegments = this._spatialIndex.query(minX, minY, maxX, maxY);
-
-            // Test against potential segments
-            for (const segment of potentialSegments) {
-                if (lineIntersects(p1, p2, segment.startPoint, segment.endPoint)) {
-                    return false;
-                }
-            }
-        }
-
-        return true;
+        // Use JSTS RelateOp to check containment
+        return RelateOp.contains(outerPolygon, innerPolygon);
     }
 
     tessellate(sample: number = 1000): Point[] {

@@ -7,7 +7,6 @@ import { pointCoincident, pointEnclosedByPolygon } from "../point/point.function
 import type { Shape } from "../shape/shape";
 import { Polyshape } from "./polyshape";
 import type { PolyshapeData } from "./polyshape.data";
-import { SpatialIndex } from "./spatial-index";
 
 export function polyshapeIsClosed(polyshape: PolyshapeData): boolean {
     const startPoint: PointData = polyshape.shapes[0].startPoint;
@@ -40,8 +39,8 @@ export function polyshapeIntersects(chainA: PointData[], chainB: PointData[]) {
 
 /** Convert polyshape to array of points */
 export function polyshapeSample(polyshape: PolyshapeData, samples: number = 1000): PointData[] {
-    // Collect points from all child shapes
     const points: PointData[] = [];
+    // Collect points from all child shapes
     polyshape.shapes.forEach(shape => {
         points.push(...shape.tessellate(samples));
     });

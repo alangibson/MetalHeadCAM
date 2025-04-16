@@ -25,8 +25,10 @@
 	},
 	"dependencies": {
 		"@types/dxf": "^4.6.9",
+		"@types/jsts": "^0.17.24",
 		"canvas": "^3.1.0",
 		"dxf": "^5.2.0",
+		"jsts": "^2.12.1",
 		"konva": "^9.3.19",
 		"nurbs": "^1.1.1",
 		"panzoom": "^9.4.3",

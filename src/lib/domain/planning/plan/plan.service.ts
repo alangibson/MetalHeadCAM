@@ -1,11 +1,13 @@
 import type { Drawing } from "$lib/domain/drawing/drawing/drawing";
+import { ArcDirectionEnum } from "$lib/geometry/arc/arc.enum";
 import type { Polyshape } from "$lib/geometry/polyshape/polyshape";
 import type { Shape } from "$lib/geometry/shape/shape";
 import { shapeChains } from "$lib/geometry/shape/shape.function";
 import { Cut } from "../cut/cut";
+import { cutNesting, type CutNestingNode } from "../cut/cut.function";
 import type { Part } from "../part/part";
 import { Plan } from "./plan";
-import { cutsToParts, reorientShapes, geometriesToPolyshapes as shapeChainsToPolyshapes } from "./plan.function";
+import { cutsRootsToParts, reorientShapes, geometriesToPolyshapes as shapeChainsToPolyshapes } from "./plan.function";
 
 export namespace Planning {
     
@@ -19,20 +21,39 @@ export namespace Planning {
         for (const layer of drawing.layers) {
 
             // Find chains of Shapes that are connected by overlapping start and end points
+            // We find all possible connections, not just end to start points.
             const shapeChain: Shape[][] = shapeChains(layer.geometries, 0.05);
 
-            // Shape chains are not necessarily sorted end-to-start, 
-            // so reverse shapes a needed so that they are.
-            shapeChain.forEach((shapeChain: Shape[]) => reorientShapes(shapeChain, 0.05));
+            // This isn't intelligent enough
+            // shapeChain.forEach((shapeChain: Shape[]) => reorientShapes(shapeChain, 0.05));
 
             // Transform Layer geometries to connected Polyshapes
             const polyshapes: Polyshape[] = shapeChainsToPolyshapes(shapeChain);
 
+            // TODO link together all shapes where start/end points are nearly, but not
+            //  exactly the same. We should be able to simply iterate over shapeChain: Shape[][]
+            //  and make sure all shapes are forward connected.
+            // Maybe move this to Polyshape.
+            //      Polyshape.link()
+            
+            // TODO Make sure winding direction of all shapes is the same.
+            // Shape chains are not necessarily sorted in any particular direction, 
+            // so reverse shapes as needed so that they are.
+            // Maybe move this to Polyshape.
+            //      Polyshape.direction=CCW
+            for (const polyshape of polyshapes) {
+                polyshape.direction = ArcDirectionEnum.CCW
+            }
+
             // Build up a list of Cuts. Each Polyshape is a Cut path.
             const cuts: Cut[] = polyshapes.map((path: Polyshape) => new Cut({path}));
 
+            // Group cuts into nesting hierarchy
+            const cutRoots: CutNestingNode[] = cutNesting(cuts);
+            console.log('cutRoots', cutRoots);
+
             // Group Cut(s) into Part(s)
-            const parts: Part[] = cutsToParts(cuts);
+            const parts: Part[] = cutsRootsToParts(cutRoots);
 
             // TODO Add Leads if needed 
 

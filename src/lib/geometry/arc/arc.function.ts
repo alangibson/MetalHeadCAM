@@ -29,6 +29,20 @@ export function arcDirection(startAngle: number, endAngle: number): ArcDirection
     return angleDiff >= 0 ? ArcDirectionEnum.CCW : ArcDirectionEnum.CW;
 }
 
+export function arcStartPoint(arc: ArcData) {
+    return {
+        x: arc.origin.x + arc.radius * Math.cos(arc.startAngle),
+        y: arc.origin.y + arc.radius * Math.sin(arc.startAngle)
+    }
+}
+
+export function arcEndPoint(arc: ArcData) {
+    return {
+        x: arc.origin.x + arc.radius * Math.cos(arc.endAngle),
+        y: arc.origin.y + arc.radius * Math.sin(arc.endAngle)
+    }
+}
+
 export function arcTransform(transform: TransformData, arc: ArcData): ArcData {
     // Create transformation matrix
     const matrix = compose(
@@ -65,7 +79,7 @@ export function arcTransform(transform: TransformData, arc: ArcData): ArcData {
 
 // Downsample an Arc into an array of points
 export function arcSample(curve: ArcData, samples: number = 1000): PointData[] {
-    const points: PointData[] = [];
+    const points: PointData[] = [arcStartPoint(curve)];
     for (let i = 0; i <= samples; i++) {
         const t = i / samples;
         // Arc approximation using circle parameterization
@@ -76,6 +90,7 @@ export function arcSample(curve: ArcData, samples: number = 1000): PointData[] {
         };
         points.push(point);
     }
+    points.push(arcEndPoint(curve));
     return points;
 }
 

@@ -77,7 +77,7 @@ export function lineMiddlePoint(line: LineData): PointData {
  * Sample points along a line at regular intervals
  */
 export function lineSample(line: LineData, samples: number = 1000): PointData[] {
-	const points: PointData[] = [];
+	const points: PointData[] = [line.startPoint];
 	for (let i = 0; i <= samples; i++) {
 		const t = i / samples;
 		const point = {
@@ -86,5 +86,6 @@ export function lineSample(line: LineData, samples: number = 1000): PointData[] 
 		};
 		points.push(point);
 	}
+	points.push(line.endPoint);
 	return points;
 }
