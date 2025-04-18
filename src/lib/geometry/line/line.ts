@@ -2,16 +2,17 @@ import { Point } from "../point/point";
 import type { Shape } from "../shape/shape";
 import type { LineData } from "./line.data";
 import type { TransformData } from "../transform/transform.data";
-import { GeometryTypeEnum } from "../geometry/geometry.enum";
+import { GeometryTypeEnum, OrientationEnum } from "../geometry/geometry.enum";
 import { Boundary } from "../boundary/boundary";
 import type { Geometry } from "../geometry/geometry";
-import { lineMiddlePoint, lineSample, lineTransform } from "./line.function";
+import { lineMiddlePoint, lineOrientation, lineSample, lineTransform } from "./line.function";
 
 export class Line implements LineData, Shape {
 
     type = GeometryTypeEnum.LINE;
     startPoint: Point;
     endPoint: Point;
+    private _orientation?: OrientationEnum;
 
     constructor(data: LineData) {
         this.startPoint = new Point(data.startPoint);
@@ -20,6 +21,12 @@ export class Line implements LineData, Shape {
 
     get isClosed(): boolean {
         return false;
+    }
+
+    get orientation(): OrientationEnum {
+        if (! this._orientation)
+            this._orientation = lineOrientation(this.startPoint, this.endPoint);
+        return this._orientation;
     }
 
     get boundary(): Boundary {
@@ -67,6 +74,7 @@ export class Line implements LineData, Shape {
 		const startPoint = this.startPoint;
 		this.startPoint = this.endPoint;
 		this.endPoint = startPoint;
+        this._orientation = this._orientation == OrientationEnum.CLOCKWISE ? OrientationEnum.COUNTERCLOCKWISE : OrientationEnum.CLOCKWISE;
 	}
 
 }

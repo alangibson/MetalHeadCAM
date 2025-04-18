@@ -1,13 +1,36 @@
+import { OrientationEnum } from "../geometry/geometry.enum";
 import type { PointData } from "../point/point.data";
 import type { TransformData } from "../transform/transform.data";
 import type { LineData } from "./line.data";
 import { scale, rotate, translate, compose, applyToPoint } from 'transformation-matrix';
 
-// Helper function to calculate orientation
-export function lineOrientation(a: PointData, b: PointData, c: PointData) {
+// Helper function to calculate orientation of two lines against each other
+export function lineMutualOrientation(a: PointData, b: PointData, c: PointData): OrientationEnum {
 	const val = (b.y - a.y) * (c.x - b.x) - (b.x - a.x) * (c.y - b.y);
-	if (val === 0) return 0; // Colinear
-	return val > 0 ? 1 : 2; // Clockwise or Counterclockwise
+	if (val === 0) return OrientationEnum.COLINEAR;
+	return val > 0 ? OrientationEnum.CLOCKWISE : OrientationEnum.COUNTERCLOCKWISE;
+}
+
+export function lineOrientation(start: PointData, end: PointData): OrientationEnum {
+	// const deltaX = end.x - start.x;
+	// const deltaY = end.y - start.y;
+	// const angle = Math.atan2(deltaY, deltaX); // Angle in radians between -π and π
+	// if (angle >= 0) {
+	// 	return OrientationEnum.CLOCKWISE;
+	// } else {
+	// 	return OrientationEnum.COUNTERCLOCKWISE;
+	// }
+
+	const deltaX = end.x - start.x;
+	const deltaY = end.y - start.y;
+	
+	if (Math.abs(deltaX) < 0.0001 && Math.abs(deltaY) < 0.0001) {
+		return OrientationEnum.COLINEAR;
+	}
+	
+	const angle = Math.atan2(deltaY, deltaX);
+	return angle >= 0 ? OrientationEnum.CLOCKWISE : OrientationEnum.COUNTERCLOCKWISE;
+
 }
 
 // Helper function to check if point q lies on segment pr

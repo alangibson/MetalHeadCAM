@@ -3,10 +3,10 @@ import { Point } from "../point/point";
 import type { Shape } from "../shape/shape";
 import type { SplineData } from "./spline.data";
 import type { TransformData } from "../transform/transform.data";
-import { GeometryTypeEnum } from "../geometry/geometry.enum";
+import { GeometryTypeEnum, OrientationEnum } from "../geometry/geometry.enum";
 import { Boundary } from "../boundary/boundary";
 import type { Geometry } from "../geometry/geometry";
-import { splineBoundary, splineIsClosed, splineSample, splineTransform, splineMiddlePoint, splineStartPoint, splineEndPoint } from "./spline.function";
+import { splineBoundary, splineIsClosed, splineSample, splineTransform, splineMiddlePoint, splineStartPoint, splineEndPoint, splineOrientation } from "./spline.function";
 import { shapeAreaFromPoints, shapeLengthFromPoints } from "../shape/shape.function";
 
 /**
@@ -16,9 +16,10 @@ export class Spline implements SplineData, Shape {
 
     type = GeometryTypeEnum.SPLINE;
     controlPoints: Point[];
-    _knots: number[] | undefined;
-    _weights: number[] | undefined;
-    _degree: number | undefined;
+    private _knots?: number[];
+    private _weights?: number[];
+    private _degree?: number;
+    private _orientation?: OrientationEnum;
 
     constructor(data: SplineData) {
         this.controlPoints = data.controlPoints.map(p => new Point(p));
@@ -35,6 +36,12 @@ export class Spline implements SplineData, Shape {
                 );
             }
         }
+    }
+    
+    get orientation(): OrientationEnum {
+        if (! this._orientation)
+            this._orientation = splineOrientation(this);
+        return this._orientation;
     }
 
     get degree(): number {
@@ -91,6 +98,7 @@ export class Spline implements SplineData, Shape {
         this._knots = undefined;
         this._degree = undefined;
         this._weights = undefined;
+        this._orientation = undefined;
     }
 
     transform(transform: TransformData): void {

@@ -4,10 +4,14 @@ import { Cut } from "../cut/cut";
 import { cutNesting, type CutNestingNode } from "../cut/cut.function";
 import { Part } from "../part/part";
 
+/**
+ * Ensures all shapes are connected endPoint-to-startPoint
+ */
 export function reorientShapes(shapes: Shape[], tolerance: number = 0.05) {
-
+    
     // TODO Blindly calling reverse() on a polyshape does not guarantee that shapes will be 
     // oriented in the same direction
+    // Polyshapes can contain polyshapes, so we need a way to 
 
 	for (let i = 1; i < shapes.length; i++) {
 		const prevShape: Shape = shapes[i - 1];

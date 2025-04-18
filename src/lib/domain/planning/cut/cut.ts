@@ -1,4 +1,4 @@
-import { ArcDirectionEnum } from "$lib/geometry/arc/arc.enum";
+import { OrientationEnum } from "$lib/geometry/geometry/geometry.enum";
 import type { Point } from "$lib/geometry/point/point";
 import { Polyshape } from "$lib/geometry/polyshape/polyshape";
 import { Lead } from "../lead/lead";
@@ -21,7 +21,7 @@ export class Cut {
 	path: Polyshape;
 	leadOut?: Lead;
     // Direction the Path is cut
-    direction: ArcDirectionEnum = ArcDirectionEnum.CCW;
+    orientation: OrientationEnum = OrientationEnum.COUNTERCLOCKWISE;
 
 	constructor({ path, leadIn, leadOut, rapidIn }: CutData) {
 		this.rapidIn = new Rapid(rapidIn);

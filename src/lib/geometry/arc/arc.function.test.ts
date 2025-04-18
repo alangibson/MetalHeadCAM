@@ -1,21 +1,21 @@
 import { describe, it, expect } from 'vitest';
-import { arcDirection, arcTransform } from './arc.function';
+import { arcOrientation, arcTransform } from './arc.function';
 import { degreesToRadians } from "../angle/angle.function";
-import { ArcDirectionEnum } from './arc.enum';
 import type { ArcData } from './arc.data';
 import type { TransformData } from '../transform/transform.data';
+import { OrientationEnum } from '../geometry/geometry.enum';
 
-describe('arcDirection', () => {
+describe('arcOrientation', () => {
     it('small positive angle difference', () => {
         // Arrange
         const startAngle = 0;
         const endAngle = degreesToRadians(90);
 
         // Act
-        const direction = arcDirection(startAngle, endAngle);
+        const orientation = arcOrientation(startAngle, endAngle);
 
         // Assert
-        expect(direction).toBe(ArcDirectionEnum.CCW);
+        expect(orientation).toBe(OrientationEnum.COUNTERCLOCKWISE);
     });
 
     it('half circle positive angle difference', () => {
@@ -24,10 +24,10 @@ describe('arcDirection', () => {
         const endAngle = degreesToRadians(180);
 
         // Act
-        const direction = arcDirection(startAngle, endAngle);
+        const orientation = arcOrientation(startAngle, endAngle);
 
         // Assert
-        expect(direction).toBe(ArcDirectionEnum.CCW);
+        expect(orientation).toBe(OrientationEnum.COUNTERCLOCKWISE);
     });
 
     it('large positive angle difference', () => {
@@ -36,10 +36,10 @@ describe('arcDirection', () => {
         const endAngle = degreesToRadians(270);
 
         // Act
-        const direction = arcDirection(startAngle, endAngle);
+        const orientation = arcOrientation(startAngle, endAngle);
 
         // Assert
-        expect(direction).toBe(ArcDirectionEnum.CCW);
+        expect(orientation).toBe(OrientationEnum.COUNTERCLOCKWISE);
     });
 
     it('should handle full circle', () => {
@@ -48,10 +48,10 @@ describe('arcDirection', () => {
         const endAngle = degreesToRadians(360);
 
         // Act
-        const direction = arcDirection(startAngle, endAngle);
+        const orientation = arcOrientation(startAngle, endAngle);
 
         // Assert
-        expect(direction).toBe(ArcDirectionEnum.CCW);
+        expect(orientation).toBe(OrientationEnum.COUNTERCLOCKWISE);
     });
 
     it('should handle negative angles increasing in size (positive difference)', () => {
@@ -60,10 +60,10 @@ describe('arcDirection', () => {
         const endAngle = degreesToRadians(90);
 
         // Act
-        const direction = arcDirection(startAngle, endAngle);
+        const orientation = arcOrientation(startAngle, endAngle);
 
         // Assert
-        expect(direction).toBe(ArcDirectionEnum.CCW);
+        expect(orientation).toBe(OrientationEnum.COUNTERCLOCKWISE);
     });
 
     it('should handle reverse large CW sweep > π', () => {
@@ -72,10 +72,10 @@ describe('arcDirection', () => {
         const endAngle = degreesToRadians(60);
 
         // Act
-        const direction = arcDirection(startAngle, endAngle);
+        const orientation = arcOrientation(startAngle, endAngle);
 
         // Assert
-        expect(direction).toBe(ArcDirectionEnum.CW);
+        expect(orientation).toBe(OrientationEnum.CW);
     });
 
     it('should handle negative angles decreasing in size (negative difference)', () => {
@@ -84,10 +84,10 @@ describe('arcDirection', () => {
         const endAngle = degreesToRadians(-90);
 
         // Act
-        const direction = arcDirection(startAngle, endAngle);
+        const orientation = arcOrientation(startAngle, endAngle);
 
         // Assert
-        expect(direction).toBe(ArcDirectionEnum.CW);
+        expect(orientation).toBe(OrientationEnum.CW);
     });
 
     it('should handle small negative angles', () => {
@@ -96,10 +96,10 @@ describe('arcDirection', () => {
         const endAngle = degreesToRadians(-90);
 
         // Act
-        const direction = arcDirection(startAngle, endAngle);
+        const orientation = arcOrientation(startAngle, endAngle);
 
         // Assert
-        expect(direction).toBe(ArcDirectionEnum.CW);
+        expect(orientation).toBe(OrientationEnum.CW);
     });
 
     it('should handle reverse half circle', () => {
@@ -108,10 +108,10 @@ describe('arcDirection', () => {
         const endAngle = 0; // 0
 
         // Act
-        const direction = arcDirection(startAngle, endAngle);
+        const orientation = arcOrientation(startAngle, endAngle);
 
         // Assert
-        expect(direction).toBe(ArcDirectionEnum.CW);
+        expect(orientation).toBe(OrientationEnum.CW);
     });
 });
 
@@ -252,42 +252,42 @@ describe('arcTransform', () => {
 // describe('arcToSvgFlags', () => {
 //     it('should handle CCW small arc', () => {
 //         // 90 degree arc from 0 to π/2
-//         const [largeArc, sweep] = arcToSvgFlags(0, Math.PI / 2, ArcDirectionEnum.CCW);
+//         const [largeArc, sweep] = arcToSvgFlags(0, Math.PI / 2, OrientationEnum.COUNTERCLOCKWISE);
 //         expect(largeArc).toBe(0); // Less than 180 degrees
 //         expect(sweep).toBe(0);    // CCW = 0
 //     });
 
 //     it('should handle CCW large arc', () => {
 //         // 270 degree arc from 0 to 3π/2
-//         const [largeArc, sweep] = arcToSvgFlags(0, 3 * Math.PI / 2, ArcDirectionEnum.CCW);
+//         const [largeArc, sweep] = arcToSvgFlags(0, 3 * Math.PI / 2, OrientationEnum.COUNTERCLOCKWISE);
 //         expect(largeArc).toBe(1); // Greater than 180 degrees
 //         expect(sweep).toBe(0);    // CCW = 0
 //     });
 
 //     it('should handle CW small arc', () => {
 //         // 90 degree arc from π/2 to 0
-//         const [largeArc, sweep] = arcToSvgFlags(Math.PI / 2, 0, ArcDirectionEnum.CW);
+//         const [largeArc, sweep] = arcToSvgFlags(Math.PI / 2, 0, OrientationEnum.CW);
 //         expect(largeArc).toBe(0); // Less than 180 degrees
 //         expect(sweep).toBe(1);    // CW = 1
 //     });
 
 //     it('should handle CW large arc', () => {
 //         // 270 degree arc from 3π/2 to 0
-//         const [largeArc, sweep] = arcToSvgFlags(3 * Math.PI / 2, 0, ArcDirectionEnum.CW);
+//         const [largeArc, sweep] = arcToSvgFlags(3 * Math.PI / 2, 0, OrientationEnum.CW);
 //         expect(largeArc).toBe(1); // Greater than 180 degrees
 //         expect(sweep).toBe(1);    // CW = 1
 //     });
 
 //     it('should handle angles crossing 0/2π boundary CCW', () => {
 //         // Arc from 3π/2 to π/2 going CCW
-//         const [largeArc, sweep] = arcToSvgFlags(3 * Math.PI / 2, Math.PI / 2, ArcDirectionEnum.CCW);
+//         const [largeArc, sweep] = arcToSvgFlags(3 * Math.PI / 2, Math.PI / 2, OrientationEnum.COUNTERCLOCKWISE);
 //         expect(largeArc).toBe(0); // Less than 180 degrees
 //         expect(sweep).toBe(0);    // CCW = 0
 //     });
 
 //     it('should handle angles crossing 0/2π boundary CW', () => {
 //         // Arc from π/2 to 3π/2 going CW
-//         const [largeArc, sweep] = arcToSvgFlags(Math.PI / 2, 3 * Math.PI / 2, ArcDirectionEnum.CW);
+//         const [largeArc, sweep] = arcToSvgFlags(Math.PI / 2, 3 * Math.PI / 2, OrientationEnum.CW);
 //         expect(largeArc).toBe(0); // Less than 180 degrees
 //         expect(sweep).toBe(1);    // CW = 1
 //     });
@@ -299,10 +299,10 @@ describe('arcTransform', () => {
 //             radius: 47.48036673367937,
 //             startAngle: 0.6202494859826058,
 //             endAngle: -2.0375020302379463,
-//             direction: 'cw'
+//             orientation: 'cw'
 //         };
 //         // When
-//         const [largeArc, sweep] = arcToSvgFlags(arc.startAngle, arc.endAngle, arc.direction);
+//         const [largeArc, sweep] = arcToSvgFlags(arc.startAngle, arc.endAngle, arc.orientation);
 //         // Then
 //         expect(largeArc).toBe(0);
 //         expect(sweep).toBe(0);
@@ -316,10 +316,10 @@ describe('arcTransform', () => {
 //             radius: 72.23077066922308,
 //             startAngle: 1.1040906233509769,
 //             endAngle: 2.0375020302388167,
-//             direction: 'ccw'
+//             orientation: 'ccw'
 //         };
 //         // When
-//         const [largeArc, sweep] = arcToSvgFlags(arc.startAngle, arc.endAngle, arc.direction);
+//         const [largeArc, sweep] = arcToSvgFlags(arc.startAngle, arc.endAngle, arc.orientation);
 //         // Then
 //         expect(largeArc).toBe(0);
 //         expect(sweep).toBe(1);

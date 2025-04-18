@@ -8,6 +8,7 @@ import type { Shape } from "../shape/shape";
 import { Polyshape } from "./polyshape";
 import type { PolyshapeData } from "./polyshape.data";
 
+// TODO look for gaps between start and end points of child shapes
 export function polyshapeIsClosed(polyshape: PolyshapeData): boolean {
     const startPoint: PointData = polyshape.shapes[0].startPoint;
     const endPoint: PointData = polyshape.shapes[polyshape.shapes.length - 1].endPoint;
@@ -63,5 +64,27 @@ export function polyshapeMiddlePoint(polyshape: PolyshapeData): PointData {
     // Get middle point (round down for even number of points)
     const midIndex = Math.floor((points.length - 1) / 2);
     return points[midIndex];
+}
+
+/**
+ * Calculate the signed area of a polyshape.
+ * Positive area indicates clockwise orientation, negative indicates counterclockwise.
+ */
+export function polyshapeArea(polyshape: PolyshapeData): number {
+    const points = polyshapeSample(polyshape, 1000);
+    let area = 0;
+    
+    for (let i = 0; i < points.length - 1; i++) {
+        const current = points[i];
+        const next = points[i + 1];
+        area += (next.x - current.x) * (next.y + current.y);
+    }
+    
+    // Add the last segment
+    const last = points[points.length - 1];
+    const first = points[0];
+    area += (first.x - last.x) * (first.y + last.y);
+    
+    return area;
 }
 

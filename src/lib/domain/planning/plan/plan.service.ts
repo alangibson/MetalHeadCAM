@@ -1,5 +1,5 @@
 import type { Drawing } from "$lib/domain/drawing/drawing/drawing";
-import { ArcDirectionEnum } from "$lib/geometry/arc/arc.enum";
+import { OrientationEnum } from "$lib/geometry/geometry/geometry.enum";
 import type { Polyshape } from "$lib/geometry/polyshape/polyshape";
 import type { Shape } from "$lib/geometry/shape/shape";
 import { shapeChains } from "$lib/geometry/shape/shape.function";
@@ -24,26 +24,20 @@ export namespace Planning {
             // We find all possible connections, not just end to start points.
             const shapeChain: Shape[][] = shapeChains(layer.geometries, 0.05);
 
-            // This isn't intelligent enough
-            // shapeChain.forEach((shapeChain: Shape[]) => reorientShapes(shapeChain, 0.05));
-
             // Transform Layer geometries to connected Polyshapes
             const polyshapes: Polyshape[] = shapeChainsToPolyshapes(shapeChain);
 
             // TODO link together all shapes where start/end points are nearly, but not
             //  exactly the same. We should be able to simply iterate over shapeChain: Shape[][]
             //  and make sure all shapes are forward connected.
-            // Maybe move this to Polyshape.
-            //      Polyshape.link()
+            // Should be done in Polyshape.orient()
+            //      polyshapes.forEach(ps => ps.orient());
+            // This isn't intelligent enough
+            //      shapeChain.forEach((shapeChain: Shape[]) => reorientShapes(shapeChain, 0.05));
             
             // TODO Make sure winding direction of all shapes is the same.
             // Shape chains are not necessarily sorted in any particular direction, 
             // so reverse shapes as needed so that they are.
-            // Maybe move this to Polyshape.
-            //      Polyshape.direction=CCW
-            for (const polyshape of polyshapes) {
-                polyshape.direction = ArcDirectionEnum.CCW
-            }
 
             // Build up a list of Cuts. Each Polyshape is a Cut path.
             const cuts: Cut[] = polyshapes.map((path: Polyshape) => new Cut({path}));

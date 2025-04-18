@@ -3,7 +3,7 @@ import type { Shape } from "../shape/shape";
 import type { CircleData } from "./circle.data";
 import type { TransformData } from "../transform/transform.data";
 import { circleBoundary, circleEndPoint, circleSample, circleStartPoint, circleTransform } from "./circle.function";
-import { GeometryTypeEnum } from "../geometry/geometry.enum";
+import { GeometryTypeEnum, OrientationEnum } from "../geometry/geometry.enum";
 import { Boundary } from "../boundary/boundary";
 import type { Geometry } from "../geometry/geometry";
 import { circleMiddlePoint } from "./circle.function";
@@ -13,14 +13,19 @@ export class Circle implements CircleData, Shape {
     type = GeometryTypeEnum.CIRCLE;
     origin: Point;
     radius: number;
+    private _orientation: OrientationEnum = OrientationEnum.CLOCKWISE;
 
     constructor(data: CircleData) {
         this.origin = new Point(data.origin);
         this.radius = data.radius;
     }
-
+    
     get isClosed(): boolean {
         return true;
+    }
+
+    get orientation(): OrientationEnum {
+        return this._orientation;
     }
 
     get boundary(): Boundary {

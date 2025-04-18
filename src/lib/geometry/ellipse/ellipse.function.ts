@@ -4,6 +4,7 @@ import type { EllipseData } from './ellipse.data';
 import type { BoundaryData } from "../boundary/boundary.data";
 import { scale, rotate, translate, compose, applyToPoint } from 'transformation-matrix';
 import { rotateAngleNormalized } from "../angle/angle.function";
+import { OrientationEnum } from "../geometry/geometry.enum";
 
 /** Get point on ellipse at given angle */
 export function ellipsePointAtAngle(
@@ -128,3 +129,14 @@ export function ellipseMiddlePoint(ellipse: EllipseData): PointData {
     return ellipsePointAtAngle(ellipse, midAngle);
 }
 
+/**
+ * Calculate the orientation of an ellipse based on its start and end angles.
+ * Returns CLOCKWISE if the angle difference is negative, COUNTERCLOCKWISE if positive.
+ */
+export function ellipseOrientation(startAngle: number, endAngle: number): OrientationEnum {
+    // Calculate angle difference before normalizing
+    let angleDiff = endAngle - startAngle;
+    // If angle difference is positive, arc direction is CCW
+    // If angle difference is negative, arc direction is CW
+    return angleDiff >= 0 ? OrientationEnum.COUNTERCLOCKWISE : OrientationEnum.CLOCKWISE;
+}

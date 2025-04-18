@@ -1,9 +1,9 @@
 import { rotateAngleNormalized, degreesToRadians } from "../angle/angle.function";
 import type { BoundaryData } from "../boundary/boundary.data";
+import { OrientationEnum } from "../geometry/geometry.enum";
 import type { PointData } from "../point/point.data";
 import type { TransformData } from "../transform/transform.data";
 import type { ArcData } from "./arc.data";
-import { ArcDirectionEnum } from "./arc.enum";
 import { scale, rotate, translate, compose, applyToPoint } from 'transformation-matrix';
 
 /**
@@ -17,7 +17,7 @@ import { scale, rotate, translate, compose, applyToPoint } from 'transformation-
  * 
  * Note: this does not correctly handle zero-crossing angles
  */
-export function arcDirection(startAngle: number, endAngle: number): ArcDirectionEnum {
+export function arcOrientation(startAngle: number, endAngle: number): OrientationEnum {
     // FIXME Still wrong for some arcs.
     // See test file "Tractor Light Mount - Left.dxf"
 
@@ -26,7 +26,7 @@ export function arcDirection(startAngle: number, endAngle: number): ArcDirection
 
     // If angle difference is positive, arc direction is CCW
     // If angle difference is negative, arc direction is CW
-    return angleDiff >= 0 ? ArcDirectionEnum.CCW : ArcDirectionEnum.CW;
+    return angleDiff >= 0 ? OrientationEnum.COUNTERCLOCKWISE : OrientationEnum.CLOCKWISE;
 }
 
 export function arcStartPoint(arc: ArcData) {

@@ -4,10 +4,8 @@ import { dxfBulgeToArcData, dxfBulgeToArcData2, dxfEllipseToEllipseData, dxfPoin
 import { Line } from '$lib/geometry/line/line';
 import { Arc } from '$lib/geometry/arc/arc';
 import type { Ellipse as DxfEllipse } from 'dxf/handlers/entities';
-import type { Shape } from '$lib/geometry/shape/shape';
-import { ArcDirectionEnum } from '$lib/geometry/arc/arc.enum';
-import { dxfBulgeArcDirection } from './dxf.function';
 import type { ArcData } from '$lib/geometry/arc/arc.data';
+import { OrientationEnum } from '$lib/geometry/geometry/geometry.enum';
 
 describe('bulgeToArcData', () => {
     it('should convert points with positive bulge to arc parameters', () => {
@@ -31,7 +29,7 @@ describe('bulgeToArcData', () => {
         expect(arcData.origin.y).toBeCloseTo(0);
         expect(arcData.startAngle).toBeCloseTo(-Math.PI);
         expect(arcData.endAngle).toBeCloseTo(0);
-        expect(new Arc(arcData).direction).toBe(ArcDirectionEnum.CCW)
+        expect(new Arc(arcData).orientation).toBe(OrientationEnum.COUNTERCLOCKWISE)
     });
 
     it('should convert points with negative bulge to clockwise arc', () => {
@@ -55,7 +53,7 @@ describe('bulgeToArcData', () => {
         expect(arcData.origin.y).toBeCloseTo(0);
         expect(arcData.startAngle).toBeCloseTo(Math.PI);
         expect(arcData.endAngle).toBeCloseTo(0);
-        expect(new Arc(arcData).direction).toBe(ArcDirectionEnum.CW)
+        expect(new Arc(arcData).orientation).toBe(OrientationEnum.CLOCKWISE)
     });
 
     it('finds correct positive CCW rotation', () => {
@@ -66,7 +64,7 @@ describe('bulgeToArcData', () => {
         const arcData = dxfBulgeToArcData(startPoint, endPoint, startPoint.bulge);
         // Then
         const arc = new Arc(arcData);
-        expect(arc.direction).toBe(ArcDirectionEnum.CCW);
+        expect(arc.orientation).toBe(OrientationEnum.COUNTERCLOCKWISE);
     });
 
     it('should handle zero bulge as straight line', () => {
@@ -107,18 +105,18 @@ describe('bulgeToArcData', () => {
         const arc6 = dxfBulgeToArcData2(points[5], points[6], points[5].bulge);
 
         // Then
-        expect(arc1.direction).toBe(ArcDirectionEnum.CW);
+        expect(arc1.orientation).toBe(OrientationEnum.CLOCKWISE);
         // TODO
         // expect(arc1.startAngle).toBeCloseTo();
         // expect(arc1.endAngle).toBeCloseTo();
-        expect(arc2.direction).toBe(ArcDirectionEnum.CCW);
+        expect(arc2.orientation).toBe(OrientationEnum.COUNTERCLOCKWISE);
         // TODO
         // expect(arc2.startAngle).toBeCloseTo();
         // expect(arc2.endAngle).toBeCloseTo();
-        expect(arc3.direction).toBe(ArcDirectionEnum.CCW);
-        expect(arc4.direction).toBe(ArcDirectionEnum.CW);
-        expect(arc5.direction).toBe(ArcDirectionEnum.CW);
-        expect(arc6.direction).toBe(ArcDirectionEnum.CW);
+        expect(arc3.orientation).toBe(OrientationEnum.COUNTERCLOCKWISE);
+        expect(arc4.orientation).toBe(OrientationEnum.CLOCKWISE);
+        expect(arc5.orientation).toBe(OrientationEnum.CLOCKWISE);
+        expect(arc6.orientation).toBe(OrientationEnum.CLOCKWISE);
     });
 
 });

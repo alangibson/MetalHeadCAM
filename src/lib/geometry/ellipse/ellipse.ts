@@ -2,9 +2,9 @@ import { Point } from "../point/point";
 import type { PointData } from "../point/point.data";
 import type { Shape } from "../shape/shape";
 import type { EllipseData } from "./ellipse.data";
-import { ellipseBoundary, ellipseIsClosed, ellipseToPoints, ellipseTransform, ellipsePointAtAngle, ellipseMiddlePoint, ellipseStartPoint, ellipseEndPoint } from "./ellipse.function";
+import { ellipseBoundary, ellipseIsClosed, ellipseToPoints, ellipseTransform, ellipsePointAtAngle, ellipseMiddlePoint, ellipseStartPoint, ellipseEndPoint, ellipseOrientation } from "./ellipse.function";
 import type { TransformData } from "../transform/transform.data";
-import { GeometryTypeEnum } from "../geometry/geometry.enum";
+import { GeometryTypeEnum, OrientationEnum } from "../geometry/geometry.enum";
 import { Boundary } from "../boundary/boundary";
 import type { Geometry } from "../geometry/geometry";
 import { shapeLengthFromPoints } from "../shape/shape.function";
@@ -18,6 +18,7 @@ export class Ellipse implements EllipseData, Shape {
     rotation: number;
     startAngle: number;
     endAngle: number;
+    private _orientation?: OrientationEnum;
 
     constructor(data: EllipseData) {
         this.origin = data.origin;
@@ -30,6 +31,13 @@ export class Ellipse implements EllipseData, Shape {
 
     get isClosed(): boolean {
         return ellipseIsClosed(this.startAngle, this.endAngle);
+    }
+
+    get orientation(): OrientationEnum {
+        if (!this._orientation) {
+            this._orientation = ellipseOrientation(this.startAngle, this.endAngle);
+        }
+        return this._orientation;
     }
 
     get boundary(): Boundary {

@@ -10,18 +10,23 @@
     } = $props();
 
     $effect(() => {
-        Split({
-            columnGutters: [
-                {
-                    track: 1,
-                    element: document.querySelector(".gutter-col-1"),
-                },
-                {
-                    track: 3,
-                    element: document.querySelector(".gutter-col-3"),
-                },
-            ],
-        });
+        const gutter1 = document.querySelector(".gutter-col-1") as HTMLElement;
+        const gutter3 = document.querySelector(".gutter-col-3") as HTMLElement;
+        
+        if (gutter1 && gutter3) {
+            Split({
+                columnGutters: [
+                    {
+                        track: 1,
+                        element: gutter1,
+                    },
+                    {
+                        track: 3,
+                        element: gutter3,
+                    },
+                ],
+            });
+        }
     });
 </script>
 
@@ -85,6 +90,7 @@
         display: grid;
         grid-template-columns: 1fr 10px 6fr 10px 1fr;
         height: 100%;
+        overflow: hidden;
     }
 
     .gutter-col {
@@ -102,10 +108,14 @@
 
     .column {
         padding: 1rem;
+        height: 100%;
+        overflow: hidden;
     }
     .left-column {
         border-right: 2px solid #ccc;
         min-width: fit-content;
+        overflow-y: auto;
+        height: 100%;
     }
     .middle-column {
         display: flex;
@@ -115,14 +125,14 @@
         justify-content: flex-start;
         padding: 0;
         gap: 1rem;
-        overflow: scroll;
+        overflow-y: auto;
+        height: 100%;
     }
 
     .right-column {
-        /* width: 200px; */
-        /* min-width: 200px; */
-        /* flex-grow: 1; */
         min-width: fit-content;
+        overflow-y: auto;
+        height: 100%;
     }
 
     .resizable {

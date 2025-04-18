@@ -4,7 +4,6 @@
     import { SvelteSet } from "svelte/reactivity";
     import RowLayout from "$lib/components/RowLayout.svelte";
     import DrawingPositionComponent from "$lib/components/drawing/DrawingPositionComponent.svelte";
-    import SelectedShapesComponent from "$lib/components/drawing/SelectedShapesComponent.svelte";
     import DrawingLayersComponent from "$lib/components/drawing/DrawingLayersComponent.svelte";
     import DrawingComponent from "$lib/components/drawing/DrawingComponent.svelte";
     import FileOpenRow from "$lib/components/importing/FileOpenRow.svelte";
@@ -13,6 +12,7 @@
     import PlanItems from "$lib/components/planning/PlanItems.svelte";
     import type { Plan } from "$lib/domain/planning/plan/plan";
     import { Planning } from "$lib/domain/planning/plan/plan.service";
+    import GeometryProperties from "$lib/components/shapes/geometry/GeometryProperties.svelte";
 
     let svgContent: string = $state("");
     let drawing: Drawing = $state();
@@ -42,7 +42,7 @@
             {/snippet}
             {#snippet rightColumn()}
                 <DrawingPositionComponent></DrawingPositionComponent>
-                <SelectedShapesComponent></SelectedShapesComponent>
+                <GeometryProperties></GeometryProperties>
             {/snippet}
         </RowLayout>
     {:else if activeStage === 4}
@@ -54,7 +54,9 @@
             {#snippet middleColumn()}
                 <PlanComponent {plan}></PlanComponent>
             {/snippet}
-            {#snippet rightColumn()}{/snippet}
+            {#snippet rightColumn()}
+                <GeometryProperties></GeometryProperties>
+            {/snippet}
         </RowLayout>
     {/if}
 </div>
@@ -63,6 +65,8 @@
     .canvas-container {
         display: flex;
         flex-direction: column;
+        height: 100%;
+        overflow: hidden;
     }
     /* .canvas-container {
         height: 100%;

@@ -11,9 +11,9 @@ import type { CircleData } from '$lib/geometry/circle/circle.data';
 import type { LineData } from '$lib/geometry/line/line.data';
 import type { SplineData } from '$lib/geometry/spline/spline.data';
 import type { TransformData } from "$lib/geometry/transform/transform.data";
-import { ArcDirectionEnum } from '$lib/geometry/arc/arc.enum';
 import { degreesToRadians } from "$lib/geometry/angle/angle.function";
 import type InsertEntityData from 'dxf/handlers/entity/insert';
+import { OrientationEnum } from '$lib/geometry/geometry/geometry.enum';
 
 export function dxfArcToArcData(dxfArc: DxfArc): ArcData {
     return {
@@ -118,24 +118,24 @@ export function dxfBulgeToArcData(startPoint: DxfPoint, endPoint: DxfPoint, bulg
     // reverse a and b and invert sign
     // Bulge = tan(theta/4)
     let theta: number;
-    let direction: ArcDirectionEnum;
+    let orientation: OrientationEnum;
     // let a
     // let b
     if (bulge < 0) {
     //     theta = Math.atan(-bulge) * 4;
-        direction = ArcDirectionEnum.CW;
+        orientation = OrientationEnum.CLOCKWISE;
     //     // a = new V2(from[0], from[1])
     //     // b = new V2(to[0], to[1])
     } else {
     //     // Default is counter-clockwise
     //     theta = Math.atan(bulge) * 4;
-        direction = ArcDirectionEnum.CCW;
+        orientation = OrientationEnum.COUNTERCLOCKWISE;
     //     // a = new V2(to[0], to[1])
     //     // b = new V2(from[0], from[1])
     //     [startPoint, endPoint] = [endPoint, startPoint];
     }
     theta = 4 * Math.atan(bulge);
-    // direction = ArcDirectionEnum.CW; // From Polylinie.dxf $ARCDIR
+    // orientation = OrientationEnum.CLOCKWISE; // From Polylinie.dxf $ARCDIR
 
     const dx = endPoint.x - startPoint.x;
     const dy = endPoint.y - startPoint.y;
@@ -159,8 +159,7 @@ export function dxfBulgeToArcData(startPoint: DxfPoint, endPoint: DxfPoint, bulg
         radius,
         startAngle,
         endAngle,
-        direction
-        // direction: dxfBulgeArcDirection(bulge)
+        orientation: orientation
     };
 }
 
@@ -176,16 +175,16 @@ export function dxfBulgeToArcData2(from: DxfPoint, to: DxfPoint, bulge: number):
     let theta: number;
     let a: V2;
     let b: V2;
-    let direction: ArcDirectionEnum;
+    let orientation: OrientationEnum;
     if (bulge < 0) {
-        direction = ArcDirectionEnum.CW;
+        orientation = OrientationEnum.CLOCKWISE;
         theta = Math.atan(-bulge) * 4;
         a = new V2(from.x, from.y);
         b = new V2(to.x, to.y);
     } else {
         // Default is counter-clockwise
         // TODO Default is actually in DXF HEADER as $ANGDIR.
-        direction = ArcDirectionEnum.CCW;
+        orientation = OrientationEnum.COUNTERCLOCKWISE;
         theta = Math.atan(bulge) * 4;
         a = new V2(to.x, to.y);
         b = new V2(from.x, from.y);
@@ -253,7 +252,7 @@ export function dxfBulgeToArcData2(from: DxfPoint, to: DxfPoint, bulge: number):
         radius: r,
         startAngle,
         endAngle,
-        direction
+        orientation: orientation
     };
 }
 

@@ -2,12 +2,10 @@ import type { TransformData } from "../transform/transform.data";
 import { Point } from "../point/point";
 import type { Shape } from "../shape/shape";
 import type { ArcData } from "./arc.data";
-import { ArcDirectionEnum } from "./arc.enum";
-import { arcBoundary, arcDirection, arcEndPoint, arcIsClosed, arcMiddlePoint, arcSample, arcStartPoint, arcTransform } from "./arc.function";
+import { arcBoundary, arcOrientation, arcEndPoint, arcIsClosed, arcMiddlePoint, arcSample, arcStartPoint, arcTransform } from "./arc.function";
 import { GeometryTypeEnum, OrientationEnum } from "../geometry/geometry.enum";
 import { Boundary } from "../boundary/boundary";
 import type { Geometry } from "../geometry/geometry";
-import { shapeAreaFromPoints } from "../shape/shape.function";
 
 export class Arc implements ArcData, Shape {
 
@@ -16,14 +14,19 @@ export class Arc implements ArcData, Shape {
     radius: number;
     startAngle: number;
     endAngle: number;
-    _direction?: ArcDirectionEnum;
+    private _orientation?: OrientationEnum;
 
     constructor(data: ArcData) {
         this.origin = new Point(data.origin);
         this.radius = data.radius;
         this.startAngle = data.startAngle;
         this.endAngle = data.endAngle;
-        this._direction = data.direction;
+        if (data.orientation)
+            this._orientation = data.orientation;
+        else
+            // Set at creation time because we will render arc backwards
+            // if we reverse() then try to determine direction afterward
+            this._orientation = OrientationEnum.COUNTERCLOCKWISE;
     }
 
     get isClosed(): boolean {
@@ -58,11 +61,11 @@ export class Arc implements ArcData, Shape {
         ));
     }
 
-    get direction(): ArcDirectionEnum {
-        if (this._direction)
-            return this._direction;
+    get orientation(): OrientationEnum {
+        if (this._orientation)
+            return this._orientation;
         else
-            return arcDirection(this.startAngle, this.endAngle);
+            return arcOrientation(this.startAngle, this.endAngle);
     }
 
     get area(): number | null {
@@ -75,10 +78,6 @@ export class Arc implements ArcData, Shape {
         // For an arc, length = radius * angle
         const angle = this.endAngle - this.startAngle;
         return Math.abs(this.radius * angle);
-    }
-
-    get orientation(): OrientationEnum {
-
     }
 
     transform(transform: TransformData): void {
@@ -108,7 +107,7 @@ export class Arc implements ArcData, Shape {
         const start_angle = this.startAngle;
         this.startAngle = this.endAngle;
         this.endAngle = start_angle;
-        this._direction = this._direction == ArcDirectionEnum.CW ? ArcDirectionEnum.CCW : ArcDirectionEnum.CW;
+        this._orientation = this._orientation == OrientationEnum.CLOCKWISE ? OrientationEnum.COUNTERCLOCKWISE : OrientationEnum.CLOCKWISE;
     }
 
 }

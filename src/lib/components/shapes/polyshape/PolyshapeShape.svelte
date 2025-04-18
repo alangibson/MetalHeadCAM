@@ -10,6 +10,7 @@
     import { Spline } from "$lib/geometry/spline/spline";
     import { splineSvgPathCommand } from "../spline/spline.function";
     import { polyshapeSvgPathCommand } from "./polyshape.function";
+    import { shapeSvgPathCommand } from "../shape/shape.function";
     
     let {
         geometry: polyshape = $bindable<Polyshape>(),
@@ -30,20 +31,7 @@
 
         // Add each shape to the path
         for (const shape of shapes) {
-            // TODO ellipse
-            if (shape instanceof Line) {
-                pathData += lineSvgPathCommand(shape);
-            } else if (shape instanceof Arc) {
-                pathData += arcSvgPathCommand(shape);
-            } else if (shape instanceof Circle) {
-                pathData += circleSvgPathCommand(shape);
-            } else if (shape instanceof Spline) {
-                pathData += splineSvgPathCommand(shape);
-            } else if (shape instanceof Polyshape) {
-                pathData += polyshapeSvgPathCommand(shape);
-            } else {
-                throw new Error(`Shape not supported: ${shape.type} ${shape.constructor.name}`);
-            }
+            pathData += shapeSvgPathCommand(shape)
         }
 
         if (polyshape.isClosed) {

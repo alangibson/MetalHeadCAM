@@ -46,10 +46,16 @@
                         <li class="cut-item">
                             <div class="cut-type">{cut.constructor.name}</div>
                             <div class="cut-details">
-                                <ul class="shape-list">
+                                <ul class="shape-list" class:expanded={true}>
                                     {#each cut.path.shapes as shape}
                                         <li class="shape-item">
-                                            {shape.type}
+                                            <div class="shape-type">{shape.constructor.name}</div>
+                                            <div class="shape-details">
+                                                <ul>
+                                                    <li>isClosed: {shape.isClosed}</li>
+                                                    <li>orientation: {shape.orientation}</li>
+                                                </ul>
+                                            </div>
                                         </li>
                                     {/each}
                                 </ul>

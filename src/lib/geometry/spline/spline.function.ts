@@ -5,6 +5,8 @@ import { pointCoincident } from "../point/point.function";
 import type { TransformData } from "../transform/transform.data";
 import { scale, rotate, translate, compose, applyToPoint } from 'transformation-matrix';
 import nurbs from 'nurbs';
+import { OrientationEnum } from "../geometry/geometry.enum";
+import { lineOrientation } from "../line/line.function";
 
 /** Check if a spline is closed (start point equals end point) */
 export function splineIsClosed(spline: SplineData, tolerance: number = 0.005): boolean {
@@ -14,6 +16,46 @@ export function splineIsClosed(spline: SplineData, tolerance: number = 0.005): b
         spline.controlPoints[spline.controlPoints.length - 1],
         tolerance
     );
+}
+
+/** Calculate the signed area of a closed NURBS curve */
+export function splineArea(spline: SplineData): number {
+    if (!splineIsClosed(spline) || spline.controlPoints.length < 3) {
+        return 0;
+    }
+
+    let area = 0;
+    for (let i = 0; i < spline.controlPoints.length; i++) {
+        const current = spline.controlPoints[i];
+        const next = spline.controlPoints[(i + 1) % spline.controlPoints.length];
+        area += (next.x - current.x) * (next.y + current.y);
+    }
+    return area;
+}
+
+/** Calculate the orientation of a NURBS */
+export function splineOrientation(spline: SplineData): OrientationEnum {
+    if (spline.controlPoints.length < 2) {
+        return OrientationEnum.COLINEAR;
+    }
+
+    // If the spline is closed, use the polygon area method
+    if (splineIsClosed(spline)) {
+        if (spline.controlPoints.length < 3) {
+            return OrientationEnum.COLINEAR;
+        }
+
+        const area = splineArea(spline);
+        if (Math.abs(area) < 0.0001) { // Using a small epsilon for floating point comparison
+            return OrientationEnum.COLINEAR;
+        }
+        return area > 0 ? OrientationEnum.CLOCKWISE : OrientationEnum.COUNTERCLOCKWISE;
+    } else {
+        // For open splines, determine orientation based on start to end direction
+        const start = spline.controlPoints[0];
+        const end = spline.controlPoints[spline.controlPoints.length - 1];
+        return lineOrientation(start, end);
+    }
 }
 
 /** Calculate a bounding box for a spline */
