@@ -36,9 +36,9 @@
 >
     <KonvaLayer>
         {#each plan?.parts as part}
-            <PartShape {part} onclick={() => console.log('Part')}>
+            <PartShape {part}>
                 {#each part.cuts as cut}
-                    <CutShape {cut} onclick={() => console.log('Cut')}></CutShape>
+                    <CutShape {cut}></CutShape>
                 {/each}
             </PartShape>
         {/each}

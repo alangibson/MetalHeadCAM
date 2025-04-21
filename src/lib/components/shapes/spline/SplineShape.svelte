@@ -6,9 +6,10 @@
     import type { Spline } from "$lib/geometry/spline/spline";
     import type { S } from "vitest/dist/chunks/config.d.DevWltVl.js";
     import { splineSvgPathCommand } from "./spline.function";
+    import ShapeBearing from "../markers/ShapeBearing.svelte";
 
     let {
-        geometry: splineData = $bindable<Spline>(),
+        geometry: spline = $bindable<Spline>(),
         stageScaleBy = $bindable(1),
         strokeWidth = $bindable(1),
         onmouseenter: onMouseEnter,
@@ -21,7 +22,7 @@
     });
 
     $effect(() => {
-        const componentSplines: Spline[] = splineData.decompose();
+        const componentSplines: Spline[] = spline.decompose();
         config.data = componentSplines.reduce(
             (data: string, componentSpline: Spline) =>
                 data += splineSvgPathCommand(componentSpline),
@@ -40,3 +41,8 @@
     onmouseleave={onMouseLeave}
     onclick={onClick}
 />
+
+<ShapeBearing
+    shape={spline}
+    {strokeWidth}
+></ShapeBearing>

@@ -1,4 +1,5 @@
-import { rotateAngleNormalized, degreesToRadians } from "../angle/angle.function";
+import { rotateAngleNormalized, degreesToRadians, normalizeAngle } from "../angle/angle.function";
+import type { AngleRadians } from "../angle/angle.type";
 import type { BoundaryData } from "../boundary/boundary.data";
 import { OrientationEnum } from "../geometry/geometry.enum";
 import type { PointData } from "../point/point.data";
@@ -27,6 +28,10 @@ export function arcOrientation(startAngle: number, endAngle: number): Orientatio
     // If angle difference is positive, arc direction is CCW
     // If angle difference is negative, arc direction is CW
     return angleDiff >= 0 ? OrientationEnum.COUNTERCLOCKWISE : OrientationEnum.CLOCKWISE;
+}
+
+export function arcSweepAngle(arc: ArcData): AngleRadians {
+    return arc.endAngle - arc.startAngle;
 }
 
 export function arcStartPoint(arc: ArcData) {
@@ -79,7 +84,7 @@ export function arcTransform(transform: TransformData, arc: ArcData): ArcData {
 
 // Downsample an Arc into an array of points
 export function arcSample(curve: ArcData, samples: number = 1000): PointData[] {
-    const points: PointData[] = [arcStartPoint(curve)];
+    const points: PointData[] = [];
     for (let i = 0; i <= samples; i++) {
         const t = i / samples;
         // Arc approximation using circle parameterization
@@ -90,7 +95,6 @@ export function arcSample(curve: ArcData, samples: number = 1000): PointData[] {
         };
         points.push(point);
     }
-    points.push(arcEndPoint(curve));
     return points;
 }
 
@@ -150,41 +154,50 @@ export function arcIsClosed(arc: ArcData) {
     return Math.abs(arc.endAngle - arc.startAngle) >= 2 * Math.PI;
 }
 
+/** Calculate the bearing (tangent angle) at a point on the arc */
+export function arcBearingAt(arc: ArcData, point: PointData): number {
+    // Calculate the angle from the center to the point
+    const dx = point.x - arc.origin.x;
+    const dy = point.y - arc.origin.y;
+    const angle = Math.atan2(dy, dx);
+    
+    // The tangent is perpendicular to the radius
+    // For CCW arcs, add 90 degrees (π/2)
+    // For CW arcs, subtract 90 degrees (-π/2)
+    const orientation = arc.orientation || arcOrientation(arc.startAngle, arc.endAngle);
+    return angle + (orientation === OrientationEnum.COUNTERCLOCKWISE ? Math.PI / 2 : -Math.PI / 2);
+}
 
 /** Calculate midpoint of an arc */
-export function arcMiddlePoint(cx: number, cy: number, r: number, startAngle: number, endAngle: number, useLongArc: boolean = false) {
-    // Normalize the angles to be between 0 and 2*PI
-    startAngle = (startAngle + 2 * Math.PI) % (2 * Math.PI);
-    endAngle = (endAngle + 2 * Math.PI) % (2 * Math.PI);
-
+export function arcMiddlePoint(arc: ArcData): PointData {
+    // Get the orientation if not explicitly provided
+    const orientation = arc.orientation || arcOrientation(arc.startAngle, arc.endAngle);
+    
     // Calculate the angular difference
-    let deltaAngle = endAngle - startAngle;
-
-    // Adjust deltaAngle to be between -PI and PI
-    if (deltaAngle > Math.PI) {
-        deltaAngle -= 2 * Math.PI;
-    } else if (deltaAngle < -Math.PI) {
-        deltaAngle += 2 * Math.PI;
-    }
-
-    // If useLongArc is true, adjust deltaAngle to use the longer arc
-    if (useLongArc) {
-        if (deltaAngle > 0) {
-            deltaAngle -= 2 * Math.PI;
-        } else {
+    let deltaAngle: AngleRadians = arcSweepAngle(arc);
+    
+    // Normalize angles to handle cases where they cross 0/2π boundary
+    const startAngle = normalizeAngle(arc.startAngle);
+    const endAngle = normalizeAngle(arc.endAngle);
+    
+    // Adjust deltaAngle based on orientation
+    if (orientation === OrientationEnum.COUNTERCLOCKWISE) {
+        if (deltaAngle < 0) {
             deltaAngle += 2 * Math.PI;
         }
+    } else {
+        if (deltaAngle > 0) {
+            deltaAngle -= 2 * Math.PI;
+        }
     }
-
+    
     // Calculate the midpoint angle
-    let midAngle = startAngle + deltaAngle / 2;
-
-    // Ensure midAngle is between 0 and 2*PI
-    midAngle = (midAngle + 2 * Math.PI) % (2 * Math.PI);
-
+    const midAngle = startAngle + deltaAngle / 2;
+    
     // Calculate the midpoint coordinates
-    let mx = cx + r * Math.cos(midAngle);
-    let my = cy + r * Math.sin(midAngle);
-
-    return { x: mx, y: my };
+    return {
+        x: arc.origin.x + arc.radius * Math.cos(midAngle),
+        y: arc.origin.y + arc.radius * Math.sin(midAngle)
+    };
 }
+

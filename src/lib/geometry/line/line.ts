@@ -5,7 +5,10 @@ import type { TransformData } from "../transform/transform.data";
 import { GeometryTypeEnum, OrientationEnum } from "../geometry/geometry.enum";
 import { Boundary } from "../boundary/boundary";
 import type { Geometry } from "../geometry/geometry";
-import { lineMiddlePoint, lineOrientation, lineSample, lineTransform } from "./line.function";
+import { lineIsClosed, lineMiddlePoint, lineOrientation, lineSample, lineTransform } from "./line.function";
+import type { AngleRadians } from "../angle/angle.type";
+import type { PointData } from "../point/point.data";
+import { angleBetweenPoints } from "../angle/angle.function";
 
 export class Line implements LineData, Shape {
 
@@ -13,14 +16,20 @@ export class Line implements LineData, Shape {
     startPoint: Point;
     endPoint: Point;
     private _orientation?: OrientationEnum;
+    private _middlePoint?: Point;
 
     constructor(data: LineData) {
         this.startPoint = new Point(data.startPoint);
         this.endPoint = new Point(data.endPoint);
+
+        // Validate
+        // Shouldn't be possible for start and end points to be identical
+        if (this.startPoint.coincident(this.endPoint, 0))
+            console.warn('Line start and end points are identical', this);
     }
 
     get isClosed(): boolean {
-        return false;
+        return lineIsClosed(this);
     }
 
     get orientation(): OrientationEnum {
@@ -38,7 +47,9 @@ export class Line implements LineData, Shape {
     }
 
     get middlePoint(): Point {
-        return new Point(lineMiddlePoint(this));
+        if (!this._middlePoint)
+            this._middlePoint = new Point(lineMiddlePoint(this));
+        return this._middlePoint;
     }
 
     get area(): number | null {
@@ -67,7 +78,9 @@ export class Line implements LineData, Shape {
     tessellate(samples: number = 1000): Point[] {
         // HACK one sample per unit length
         samples = this.length
-        return lineSample(this, samples).map(p => new Point(p));
+        const lineSamples = lineSample(this, samples);
+        const sample = lineSamples.map(p => new Point(p));
+        return [this.startPoint, ...sample, this.endPoint];
     }
 
     reverse(): void {
@@ -76,5 +89,9 @@ export class Line implements LineData, Shape {
 		this.endPoint = startPoint;
         this._orientation = this._orientation == OrientationEnum.CLOCKWISE ? OrientationEnum.COUNTERCLOCKWISE : OrientationEnum.CLOCKWISE;
 	}
+
+    bearingAt(point: PointData): AngleRadians {
+        return angleBetweenPoints(this.startPoint, this.endPoint);
+    }
 
 }

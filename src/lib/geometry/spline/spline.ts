@@ -8,6 +8,9 @@ import { Boundary } from "../boundary/boundary";
 import type { Geometry } from "../geometry/geometry";
 import { splineBoundary, splineIsClosed, splineSample, splineTransform, splineMiddlePoint, splineStartPoint, splineEndPoint, splineOrientation } from "./spline.function";
 import { shapeAreaFromPoints, shapeLengthFromPoints } from "../shape/shape.function";
+import type { PointData } from "../point/point.data";
+import type { AngleRadians } from "../angle/angle.type";
+import nurbs from 'nurbs';
 
 /**
  * A NURBS.
@@ -20,6 +23,9 @@ export class Spline implements SplineData, Shape {
     private _weights?: number[];
     private _degree?: number;
     private _orientation?: OrientationEnum;
+    private _startPoint?: Point;
+    private _middlePoint?: Point;
+    private _endPoint?: Point;
 
     constructor(data: SplineData) {
         this.controlPoints = data.controlPoints.map(p => new Point(p));
@@ -73,15 +79,31 @@ export class Spline implements SplineData, Shape {
     }
 
     get startPoint(): Point {
-        return new Point(splineStartPoint(this));
+        if (!this._startPoint)
+            this._startPoint = new Point(splineStartPoint(this));
+        return this._startPoint;
+    }
+
+    set startPoint(point: Point) {
+        this.controlPoints[0] = point;
+        this._startPoint = undefined;
     }
 
     get endPoint(): Point {
-        return new Point(splineEndPoint(this));
+        if (!this._endPoint)
+            this._endPoint = new Point(splineEndPoint(this));
+        return this._endPoint;
+    }
+
+    set endPoint(point: Point) {
+        this.controlPoints[this.controlPoints.length-1] = point;
+        this._endPoint = undefined;
     }
 
     get middlePoint(): Point {
-        return new Point(splineMiddlePoint(this));
+        if (!this._middlePoint)
+            this._middlePoint = new Point(splineMiddlePoint(this));
+        return this._middlePoint;
     }
 
     get area(): number | null {
@@ -119,7 +141,8 @@ export class Spline implements SplineData, Shape {
     tessellate(samples: number = 1000): Point[] {
         // HACK 10 samples per unit length
         samples = this.length * 10;
-        return splineSample(this, samples).map(p => new Point(p));
+        const sample = splineSample(this, samples).map(p => new Point(p));
+        return [this.startPoint, ...sample, this.endPoint];
     }
 
     reverse(): void {
@@ -127,6 +150,38 @@ export class Spline implements SplineData, Shape {
         this.knots.reverse();
         this.weights.reverse();
         // this.clearCache();
+        // this._startPoint = undefined;
+        // this._middlePoint = undefined;
+        // this._endPoint = undefined;
+    }
+
+    bearingAt(point: PointData): AngleRadians {
+        // Sample points along the spline
+        const points = this.tessellate(1000);
+        
+        // Find the closest point
+        let closestIndex = 0;
+        let minDistance = Infinity;
+        
+        for (let i = 0; i < points.length; i++) {
+            const dx = points[i].x - point.x;
+            const dy = points[i].y - point.y;
+            const distance = dx * dx + dy * dy;
+            
+            if (distance < minDistance) {
+                minDistance = distance;
+                closestIndex = i;
+            }
+        }
+        
+        // Calculate the tangent using the points before and after the closest point
+        const prevIndex = Math.max(0, closestIndex - 1);
+        const nextIndex = Math.min(points.length - 1, closestIndex + 1);
+        
+        const dx = points[nextIndex].x - points[prevIndex].x;
+        const dy = points[nextIndex].y - points[prevIndex].y;
+        
+        return Math.atan2(dy, dx);
     }
 
     /** Decompose NURBS into one or more cubic bezier curves */

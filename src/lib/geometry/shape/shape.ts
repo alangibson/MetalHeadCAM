@@ -1,3 +1,4 @@
+import type { AngleRadians } from "../angle/angle.type";
 import type { Boundary } from "../boundary/boundary";
 import type { Geometry } from "../geometry/geometry";
 import type { OrientationEnum } from "../geometry/geometry.enum";
@@ -25,4 +26,6 @@ export interface Shape extends Geometry {
     // Swap start and end points, at a minimum.
 	// Implementing classes must also take care of any points in between.
 	reverse(): void;
+    // Get angle on xy plane of line or tangent of curve at a given point
+    bearingAt(point: PointData): AngleRadians;
 }

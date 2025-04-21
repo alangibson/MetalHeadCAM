@@ -86,16 +86,29 @@ export class DXFConverter {
                         const dxfLine: DxfLine = dxfEntity;
                         const line: Line = new Line(dxfLineToLineData(dxfLine));
                         transformDatas.forEach((transformData) => line.transform(transformData));
+                        // Validate
+                        // When line.isClosed==true, throw it away since we can't do anything with it.
+                        // if (line.isClosed) {
+                        //     console.log('Throwing away closed line', line);
+                        //     break;
+                        // }
                         layer.add(line);
                         break;
                     case 'LWPOLYLINE':
                         console.log('LWPolyline:', dxfEntity);
                         const dxfLwpolyline: LWPolyline = dxfEntity;
+                        // Validate
                         if (dxfLwpolyline.vertices?.length < 2) {
                             console.warn('LWPOLYLINE has too few vertices. Discarding.');
                             break;
                         }
                         const lwpolyline: Polyshape = new Polyshape(dxfPointsToPolyshapeData(dxfLwpolyline));
+                        // Validate
+                        // Throw away degenerte Polyshapes (those with no child shapes)
+                        // if (lwpolyline.length == 0) {
+                        //     console.log('Throwing away degenerate LWPOLYLINE', lwpolyline);
+                        //     break;
+                        // }
                         transformDatas.forEach((transformData) => lwpolyline.transform(transformData));
                         layer.add(lwpolyline);
                         break;

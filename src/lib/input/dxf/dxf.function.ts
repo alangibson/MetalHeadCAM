@@ -78,9 +78,12 @@ export function dxfPointToPointData(dxfPoint: DxfPoint): PointData {
 export function dxfPointsToPolyshapeData(lwpolyline: DxfLWPolyline): PolyshapeData {
 
     const vertices = lwpolyline.vertices;
-    let shapes: Shape[] = vertices.slice(1).map((curr, i) =>
-        dxfPointsToShape(vertices[i], curr)
-    );
+
+    let shapes: Shape[] = [];
+    for (let i = 1; i < vertices.length; i++) {
+        const shape = dxfPointsToShape(vertices[i-1], vertices[i]);
+        shapes.push(shape);
+    }
 
     // If polyline is closed, add a final line back to start
     if (lwpolyline.closed && vertices.length > 0) {

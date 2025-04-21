@@ -1,9 +1,11 @@
 <script lang="ts">
     import type { CircleData } from "$lib/geometry/circle/circle.data";
     import { Circle as KonvaCircle } from "svelte-konva";
+    import ShapeBearing from "../markers/ShapeBearing.svelte";
+    import type { Circle } from "$lib/geometry/circle/circle";
 
     let {
-        geometry: circleData = $bindable<CircleData>(),
+        geometry: circle = $bindable<Circle>(),
         stageScaleBy = $bindable(1),
         strokeWidth = $bindable(1),
         onmouseenter: onMouseEnter,
@@ -13,16 +15,16 @@
 
     // Map from CircleData to Konva.Circle
     let config = $state({
-        x: circleData.origin.x,
-        y: circleData.origin.y,
-        radius: circleData.radius
+        x: circle.origin.x,
+        y: circle.origin.y,
+        radius: circle.radius
     });
 
     // Map from Konva.Circle to CircleData
     $effect(() => {
-        circleData.origin.x = config.x;
-        circleData.origin.y = config.y;
-        circleData.radius = config.radius;
+        circle.origin.x = config.x;
+        circle.origin.y = config.y;
+        circle.radius = config.radius;
     });
 </script>
 
@@ -36,3 +38,8 @@
     onmouseleave={onMouseLeave}
     onclick={onClick}
 />
+
+<ShapeBearing
+    shape={circle}
+    {strokeWidth}
+></ShapeBearing>

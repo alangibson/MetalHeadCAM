@@ -1,10 +1,11 @@
 <script lang="ts">
     import { radiansToDegrees } from "$lib/geometry/angle/angle.function";
-    import type { ArcData } from "$lib/geometry/arc/arc.data";
+    import type { Arc } from "$lib/geometry/arc/arc";
     import { Arc as KonvaArc } from "svelte-konva";
+    import ShapeBearing from "../markers/ShapeBearing.svelte";
 
     let {
-        geometry: arcData = $bindable<ArcData>(),
+        geometry: arc = $bindable<Arc>(),
         strokeWidth = $bindable(1),
         stageScaleBy = $bindable(1),
         onmouseenter: onMouseEnter,
@@ -14,20 +15,20 @@
         
     // Map from ArcData to Konva.Arc
     let config = $state({
-        x: arcData.origin.x,
-        y: arcData.origin.y,
-        innerRadius: arcData.radius,
-        outerRadius: arcData.radius,
-        angle: radiansToDegrees(arcData.endAngle - arcData.startAngle),
-        rotation: radiansToDegrees(arcData.startAngle),
+        x: arc.origin.x,
+        y: arc.origin.y,
+        innerRadius: arc.radius,
+        outerRadius: arc.radius,
+        angle: radiansToDegrees(arc.angle),
+        rotation: radiansToDegrees(arc.rotation),
     });
 
     // Map from Konva.Arc to ArcData
     // TODO use ontransformend?
     $effect(() => {
-        arcData.origin.x = config.x;
-        arcData.origin.y = config.y;
-        arcData.radius = config.outerRadius;
+        arc.origin.x = config.x;
+        arc.origin.y = config.y;
+        arc.radius = config.outerRadius;
         // TODO others...
     });
 </script>
@@ -42,3 +43,7 @@
     onmouseleave={onMouseLeave}
     onclick={onClick}
 />
+<ShapeBearing
+    shape={arc}
+    {strokeWidth}
+></ShapeBearing>

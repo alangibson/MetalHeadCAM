@@ -44,7 +44,7 @@ export function circleEndPoint(circle: CircleData): PointData {
 
 /** Sample Circle to an array of Points */
 export function circleSample(circle: CircleData, samples: number = 1000): PointData[] {
-	const points: PointData[] = [circleStartPoint(circle)];
+	const points: PointData[] = [];
 	for (let i = 0; i <= samples; i++) {
 		const theta = (i / samples) * 2 * Math.PI;
 		const point = {
@@ -53,7 +53,6 @@ export function circleSample(circle: CircleData, samples: number = 1000): PointD
 		};
 		points.push(point);
 	}
-    points.push(circleEndPoint(circle));
 	return points;
 }
 
@@ -73,12 +72,12 @@ export function circleBoundary(circle: CircleData): BoundaryData {
 
 /**
  * Returns the middle point along a circle.
- * For a circle, this is a point on the right side (0 degrees).
- * Kind of nonsensical, but all the other shapes have this function.
+ * For a circle, this is a point on the left side (180 degrees).
+ * This represents the middle point when traversing the circle counter-clockwise.
  */
 export function circleMiddlePoint(circle: CircleData): PointData {
     return {
-        x: circle.origin.x + circle.radius,
+        x: circle.origin.x - circle.radius,
         y: circle.origin.y
     };
 }

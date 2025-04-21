@@ -19,10 +19,10 @@ export class Point implements PointData, Geometry {
     /**
      * Points are the same within a given tolerance.
      */
-    coincident(thatPoint: Point, tolerance: number = 0.005): boolean {
+    coincident(thatPoint: PointData, tolerance: number = 0.005): boolean {
         return pointCoincident(this, thatPoint, tolerance);
     }
-
+    
     transform(transform: TransformData): void {
         const transformed = pointTransform(transform, this);
         this.x = transformed.x;

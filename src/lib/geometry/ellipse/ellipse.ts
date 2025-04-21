@@ -8,6 +8,8 @@ import { GeometryTypeEnum, OrientationEnum } from "../geometry/geometry.enum";
 import { Boundary } from "../boundary/boundary";
 import type { Geometry } from "../geometry/geometry";
 import { shapeLengthFromPoints } from "../shape/shape.function";
+import type { AngleRadians } from "../angle/angle.type";
+import { angleBetweenPoints } from "../angle/angle.function";
 
 export class Ellipse implements EllipseData, Shape {
 
@@ -19,6 +21,9 @@ export class Ellipse implements EllipseData, Shape {
     startAngle: number;
     endAngle: number;
     private _orientation?: OrientationEnum;
+    private _startPoint?: Point;
+    private _middlePoint?: Point;
+    private _endPoint?: Point;
 
     constructor(data: EllipseData) {
         this.origin = data.origin;
@@ -45,15 +50,21 @@ export class Ellipse implements EllipseData, Shape {
     }
 
     get startPoint(): Point {
-        return new Point(ellipseStartPoint(this));
+        if (!this._startPoint)
+            this._startPoint = new Point(ellipseStartPoint(this));
+        return this._startPoint;
     }
 
     get endPoint(): Point {
-        return new Point(ellipseEndPoint(this));
+        if (!this._endPoint)
+            this._endPoint = new Point(ellipseEndPoint(this));
+        return this._endPoint;
     }
 
     get middlePoint(): Point {
-        return new Point(ellipseMiddlePoint(this));
+        if (!this._middlePoint)
+            this._middlePoint = new Point(ellipseMiddlePoint(this));
+        return this._middlePoint;
     }
 
     get area(): number | null {
@@ -93,10 +104,18 @@ export class Ellipse implements EllipseData, Shape {
             throw new Error("Method not implemented.");
     }
 
+    bearingAt(point: PointData): AngleRadians {
+        // Calculate the angle from the center to the point
+        const angle = angleBetweenPoints(this.origin, point);
+        // The tangent is perpendicular to the radius
+        return angle + Math.PI / 2;
+    }
+
     tessellate(samples: number = 1000): Point[] {
         // HACK one sample per unit length
-        samples = this.length
-        return ellipseToPoints(this, samples).map(p => new Point(p));
+        samples = this.length;
+        const sample = ellipseToPoints(this, samples).map(p => new Point(p));
+        return [this.startPoint, ...sample, this.endPoint];
     }
 
     reverse(): void {

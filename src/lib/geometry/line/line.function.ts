@@ -1,5 +1,6 @@
 import { OrientationEnum } from "../geometry/geometry.enum";
 import type { PointData } from "../point/point.data";
+import { pointCoincident } from "../point/point.function";
 import type { TransformData } from "../transform/transform.data";
 import type { LineData } from "./line.data";
 import { scale, rotate, translate, compose, applyToPoint } from 'transformation-matrix';
@@ -100,7 +101,11 @@ export function lineMiddlePoint(line: LineData): PointData {
  * Sample points along a line at regular intervals
  */
 export function lineSample(line: LineData, samples: number = 1000): PointData[] {
-	const points: PointData[] = [line.startPoint];
+	// Lines with where start and end point are the same have been seen in the wild
+	if (pointCoincident(line.startPoint, line.endPoint, 0.05))
+		return [];
+
+	const points: PointData[] = [];
 	for (let i = 0; i <= samples; i++) {
 		const t = i / samples;
 		const point = {
@@ -109,6 +114,13 @@ export function lineSample(line: LineData, samples: number = 1000): PointData[] 
 		};
 		points.push(point);
 	}
-	points.push(line.endPoint);
 	return points;
+}
+
+/** 
+ * The idea of a closed line is nonsensical, but in practice we sometimes find
+ * lines where start and end point are the same, or nearly the same.
+ */
+export function lineIsClosed(line: LineData): boolean {
+	return pointCoincident(line.startPoint, line.endPoint, 0.005);
 }

@@ -7,12 +7,13 @@ import { scale, rotate, translate, compose, applyToPoint } from 'transformation-
 import nurbs from 'nurbs';
 import { OrientationEnum } from "../geometry/geometry.enum";
 import { lineOrientation } from "../line/line.function";
+import { Point } from "../point/point";
 
 /** Check if a spline is closed (start point equals end point) */
 export function splineIsClosed(spline: SplineData, tolerance: number = 0.005): boolean {
     if (spline.controlPoints.length < 2) return false;
     return pointCoincident(
-        spline.controlPoints[0], 
+        spline.controlPoints[0],
         spline.controlPoints[spline.controlPoints.length - 1],
         tolerance
     );
@@ -90,32 +91,45 @@ export function splineEndPoint(spline: SplineData): PointData {
     return spline.controlPoints[spline.controlPoints.length - 1];
 }
 
-/**
- * Sample points along a spline curve using Three.js
- */
+/** Sample points along a spline curve */
 export function splineSample(spline: SplineData, samples: number = 1000): PointData[] {
-    if (spline.controlPoints.length < 2) {
-        return [];
-    }
-
-    if (samples < 4) {
-        console.warn('samples', samples, spline);
-    }
-
+    // For an open curve, we need n + degree + 1 knots
+    // For a closed curve, we need n + 1 knots
+    // const isClosed = splineIsClosed(spline, 0.05);
+    const n = spline.controlPoints.length;
+    // Degree 2 = quadratic b-spline, 3 = cubic b-spline
+    const degree = spline.degree || n - 1;
+    
     const curve = nurbs({
         points: spline.controlPoints.map(p => [p.x, p.y]),
-        boundary: 'clamped'
+        degree: degree,
+        knots: spline.knots,
+        weights: spline.weights,
+        // boundary: 'clamped'
     });
-
+    
     // Sample points along the curve
-    const sampledPoints: PointData[] = [splineStartPoint(spline)];
+    const sampledPoints: PointData[] = [];
     for (let i = 0; i <= samples; i++) {
         const t = i / samples;
-        const point = curve.evaluate([], t);
-        sampledPoints.push({ x: point[0], y: point[1] });
+
+        try {
+            const point = curve.evaluate([], t);
+            sampledPoints.push({ x: point[0], y: point[1] });
+        } catch (error) {
+            console.warn('Failed to evaluate spline at t=', t, spline, error);
+        }
+
     }
-    sampledPoints.push(splineEndPoint(spline));
+
     return sampledPoints;
+}
+
+/** Calculate middle point of spline curve. */
+export function splineMiddlePoint(spline: SplineData): PointData {
+    // Sample more points for better accuracy
+    const points = splineSample(spline, 1000);
+    return points[500];
 }
 
 /** Apply transform to a spline */
@@ -134,22 +148,3 @@ export function splineTransform(transform: TransformData, spline: SplineData): S
         controlPoints
     };
 }
-
-/**
- * Calculate middle point of spline curve.
- * Uses t = 0.5 to find point halfway along curve.
- */
-export function splineMiddlePoint(spline: SplineData): PointData {
-    // Sample points and get the middle one
-    const points = splineSample(spline, 30);
-    
-    if (points.length < 2) {
-        // Return first control point if not enough points
-        return spline.controlPoints[0];
-    }
-
-    // Get middle point (round down for even number of points)
-    const midIndex = Math.floor((points.length - 1) / 2);
-    return points[midIndex];
-}
-

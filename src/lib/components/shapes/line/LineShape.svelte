@@ -1,9 +1,12 @@
 <script lang="ts">
-    import type { LineData } from "$lib/geometry/line/line.data";
-    import { Line as KonvaLine } from "svelte-konva";
+    import { radiansToDegrees } from "$lib/geometry/angle/angle.function";
+    import type { Line } from "$lib/geometry/line/line";
+    import { Line as KonvaLine, Wedge as KonvaWedge } from "svelte-konva";
+    import BearingMarker from "../markers/BearingMarker.svelte";
+    import ShapeBearing from "../markers/ShapeBearing.svelte";
 
     let {
-        geometry: lineData = $bindable<LineData>(),
+        geometry: line = $bindable<Line>(),
         stageScaleBy = $bindable(1),
         strokeWidth = $bindable(1),
         onmouseenter: onMouseEnter,
@@ -14,20 +17,21 @@
     // Map from LineData to Konva.Line
     let config = $state({
         points: [
-            lineData.startPoint.x,
-            lineData.startPoint.y,
-            lineData.endPoint.x,
-            lineData.endPoint.y
-        ]
+            line.startPoint.x,
+            line.startPoint.y,
+            line.endPoint.x,
+            line.endPoint.y,
+        ],
     });
+    let middlePoint = $derived(line.middlePoint);
 
     // Map from Konva.Line to LineData
     $effect(() => {
         const points = config.points;
-        lineData.startPoint.x = points[0];
-        lineData.startPoint.y = points[1];
-        lineData.endPoint.x = points[2];
-        lineData.endPoint.y = points[3];
+        line.startPoint.x = points[0];
+        line.startPoint.y = points[1];
+        line.endPoint.x = points[2];
+        line.endPoint.y = points[3];
     });
 </script>
 
@@ -40,4 +44,9 @@
     onmouseenter={onMouseEnter}
     onmouseleave={onMouseLeave}
     onclick={onClick}
-/> 
+/>
+
+<ShapeBearing
+    shape={line}
+    {strokeWidth}
+></ShapeBearing>

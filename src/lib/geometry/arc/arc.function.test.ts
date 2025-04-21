@@ -4,6 +4,8 @@ import { degreesToRadians } from "../angle/angle.function";
 import type { ArcData } from './arc.data';
 import type { TransformData } from '../transform/transform.data';
 import { OrientationEnum } from '../geometry/geometry.enum';
+import { arcBearingAt } from './arc.function';
+import { arcMiddlePoint } from './arc.function';
 
 describe('arcOrientation', () => {
     it('small positive angle difference', () => {
@@ -249,80 +251,337 @@ describe('arcTransform', () => {
     });
 });
 
-// describe('arcToSvgFlags', () => {
-//     it('should handle CCW small arc', () => {
-//         // 90 degree arc from 0 to π/2
-//         const [largeArc, sweep] = arcToSvgFlags(0, Math.PI / 2, OrientationEnum.COUNTERCLOCKWISE);
-//         expect(largeArc).toBe(0); // Less than 180 degrees
-//         expect(sweep).toBe(0);    // CCW = 0
-//     });
+describe('arcBearingAt', () => {
+    it('should calculate bearing at start point of CCW arc', () => {
+        // Arrange
+        const arc: ArcData = {
+            origin: { x: 0, y: 0 },
+            radius: 5,
+            startAngle: 0,
+            endAngle: Math.PI, // 180 degrees
+            orientation: OrientationEnum.COUNTERCLOCKWISE
+        };
+        const point = { x: 5, y: 0 }; // Start point of arc
 
-//     it('should handle CCW large arc', () => {
-//         // 270 degree arc from 0 to 3π/2
-//         const [largeArc, sweep] = arcToSvgFlags(0, 3 * Math.PI / 2, OrientationEnum.COUNTERCLOCKWISE);
-//         expect(largeArc).toBe(1); // Greater than 180 degrees
-//         expect(sweep).toBe(0);    // CCW = 0
-//     });
+        // Act
+        const bearing = arcBearingAt(arc, point);
 
-//     it('should handle CW small arc', () => {
-//         // 90 degree arc from π/2 to 0
-//         const [largeArc, sweep] = arcToSvgFlags(Math.PI / 2, 0, OrientationEnum.CW);
-//         expect(largeArc).toBe(0); // Less than 180 degrees
-//         expect(sweep).toBe(1);    // CW = 1
-//     });
+        // Assert
+        expect(bearing).toBeCloseTo(Math.PI / 2); // 90 degrees
+    });
 
-//     it('should handle CW large arc', () => {
-//         // 270 degree arc from 3π/2 to 0
-//         const [largeArc, sweep] = arcToSvgFlags(3 * Math.PI / 2, 0, OrientationEnum.CW);
-//         expect(largeArc).toBe(1); // Greater than 180 degrees
-//         expect(sweep).toBe(1);    // CW = 1
-//     });
+    it('should calculate bearing at end point of CCW arc', () => {
+        // Arrange
+        const arc: ArcData = {
+            origin: { x: 0, y: 0 },
+            radius: 5,
+            startAngle: 0,
+            endAngle: Math.PI, // 180 degrees
+            orientation: OrientationEnum.COUNTERCLOCKWISE
+        };
+        const point = { x: -5, y: 0 }; // End point of arc
 
-//     it('should handle angles crossing 0/2π boundary CCW', () => {
-//         // Arc from 3π/2 to π/2 going CCW
-//         const [largeArc, sweep] = arcToSvgFlags(3 * Math.PI / 2, Math.PI / 2, OrientationEnum.COUNTERCLOCKWISE);
-//         expect(largeArc).toBe(0); // Less than 180 degrees
-//         expect(sweep).toBe(0);    // CCW = 0
-//     });
+        // Act
+        const bearing = arcBearingAt(arc, point);
 
-//     it('should handle angles crossing 0/2π boundary CW', () => {
-//         // Arc from π/2 to 3π/2 going CW
-//         const [largeArc, sweep] = arcToSvgFlags(Math.PI / 2, 3 * Math.PI / 2, OrientationEnum.CW);
-//         expect(largeArc).toBe(0); // Less than 180 degrees
-//         expect(sweep).toBe(1);    // CW = 1
-//     });
+        // Assert
+        expect(bearing).toBeCloseTo(Math.PI / 2); // 90 degrees
+    });
 
-//     it('should handle bulge 1', () => {
-//         // Given
-//         const arc = {
-//             origin: { x: 211.36363636362836, y: 107.40259740260427 },
-//             radius: 47.48036673367937,
-//             startAngle: 0.6202494859826058,
-//             endAngle: -2.0375020302379463,
-//             orientation: 'cw'
-//         };
-//         // When
-//         const [largeArc, sweep] = arcToSvgFlags(arc.startAngle, arc.endAngle, arc.orientation);
-//         // Then
-//         expect(largeArc).toBe(0);
-//         expect(sweep).toBe(0);
+    it('should calculate bearing at start point of CW arc', () => {
+        // Arrange
+        const arc: ArcData = {
+            origin: { x: 0, y: 0 },
+            radius: 5,
+            startAngle: Math.PI, // 180 degrees
+            endAngle: 0,
+            orientation: OrientationEnum.CLOCKWISE
+        };
+        const point = { x: -5, y: 0 }; // Start point of arc
 
-//     });
+        // Act
+        const bearing = arcBearingAt(arc, point);
 
-//     it('should handle bulge 2', () => {
-//         // Given
-//         const arc = {
-//             origin: { x: 157.5, y: 0.4939209727494216 },
-//             radius: 72.23077066922308,
-//             startAngle: 1.1040906233509769,
-//             endAngle: 2.0375020302388167,
-//             orientation: 'ccw'
-//         };
-//         // When
-//         const [largeArc, sweep] = arcToSvgFlags(arc.startAngle, arc.endAngle, arc.orientation);
-//         // Then
-//         expect(largeArc).toBe(0);
-//         expect(sweep).toBe(1);
+        // Assert
+        expect(bearing).toBeCloseTo(-Math.PI / 2); // -90 degrees
+    });
 
-//     });
-// }); 
+    it('should calculate bearing at end point of CW arc', () => {
+        // Arrange
+        const arc: ArcData = {
+            origin: { x: 0, y: 0 },
+            radius: 5,
+            startAngle: Math.PI, // 180 degrees
+            endAngle: 0,
+            orientation: OrientationEnum.CLOCKWISE
+        };
+        const point = { x: 5, y: 0 }; // End point of arc
+
+        // Act
+        const bearing = arcBearingAt(arc, point);
+
+        // Assert
+        expect(bearing).toBeCloseTo(-Math.PI / 2); // -90 degrees
+    });
+
+    it('should calculate bearing at midpoint of CCW arc', () => {
+        // Arrange
+        const arc: ArcData = {
+            origin: { x: 0, y: 0 },
+            radius: 5,
+            startAngle: 0,
+            endAngle: Math.PI, // 180 degrees
+            orientation: OrientationEnum.COUNTERCLOCKWISE
+        };
+        const point = { x: 0, y: 5 }; // Midpoint of arc
+
+        // Act
+        const bearing = arcBearingAt(arc, point);
+
+        // Assert
+        expect(bearing).toBeCloseTo(Math.PI); // 180 degrees
+    });
+
+    it('should calculate bearing at midpoint of CW arc', () => {
+        // Arrange
+        const arc: ArcData = {
+            origin: { x: 0, y: 0 },
+            radius: 5,
+            startAngle: Math.PI, // 180 degrees
+            endAngle: 0,
+            orientation: OrientationEnum.CLOCKWISE
+        };
+        const point = { x: 0, y: 5 }; // Midpoint of arc
+
+        // Act
+        const bearing = arcBearingAt(arc, point);
+
+        // Assert
+        expect(bearing).toBeCloseTo(0); // 0 degrees
+    });
+
+    it('should calculate bearing for point not on arc', () => {
+        // Arrange
+        const arc: ArcData = {
+            origin: { x: 0, y: 0 },
+            radius: 5,
+            startAngle: 0,
+            endAngle: Math.PI, // 180 degrees
+            orientation: OrientationEnum.COUNTERCLOCKWISE
+        };
+        const point = { x: 3, y: 4 }; // Point not on arc but on circle
+
+        // Act
+        const bearing = arcBearingAt(arc, point);
+
+        // Assert
+        // The bearing should still be calculated correctly even if point is not on arc
+        const expectedAngle = Math.atan2(4, 3) + Math.PI / 2;
+        expect(bearing).toBeCloseTo(expectedAngle);
+    });
+
+    it('should handle arc with non-zero origin', () => {
+        // Arrange
+        const arc: ArcData = {
+            origin: { x: 10, y: 20 },
+            radius: 5,
+            startAngle: 0,
+            endAngle: Math.PI, // 180 degrees
+            orientation: OrientationEnum.COUNTERCLOCKWISE
+        };
+        const point = { x: 15, y: 20 }; // Start point of arc
+
+        // Act
+        const bearing = arcBearingAt(arc, point);
+
+        // Assert
+        expect(bearing).toBeCloseTo(Math.PI / 2); // 90 degrees
+    });
+
+    it('should handle rotated CCW arc', () => {
+        // Arrange
+        const arc: ArcData = {
+            origin: { x: 0, y: 0 },
+            radius: 5,
+            startAngle: Math.PI / 4, // 45 degrees
+            endAngle: 5 * Math.PI / 4, // 225 degrees
+            orientation: OrientationEnum.COUNTERCLOCKWISE
+        };
+        const point = { 
+            x: 5 * Math.cos(Math.PI / 4), 
+            y: 5 * Math.sin(Math.PI / 4) 
+        }; // Start point of arc
+
+        // Act
+        const bearing = arcBearingAt(arc, point);
+
+        // Assert
+        expect(bearing).toBeCloseTo(3 * Math.PI / 4); // 135 degrees
+    });
+
+    it('should handle rotated CW arc', () => {
+        // Arrange
+        const arc: ArcData = {
+            origin: { x: 0, y: 0 },
+            radius: 5,
+            startAngle: 5 * Math.PI / 4, // 225 degrees
+            endAngle: Math.PI / 4, // 45 degrees
+            orientation: OrientationEnum.CLOCKWISE
+        };
+        const point = { 
+            x: 5 * Math.cos(5 * Math.PI / 4), 
+            y: 5 * Math.sin(5 * Math.PI / 4) 
+        }; // Start point of arc
+
+        // Act
+        const bearing = arcBearingAt(arc, point);
+
+        // Assert
+        expect(bearing).toBeCloseTo(-Math.PI / 4); // -45 degrees
+    });
+});
+
+describe('arcMiddlePoint', () => {
+    it('should calculate midpoint of CCW 180-degree arc', () => {
+        // Arrange
+        const arc: ArcData = {
+            origin: { x: 0, y: 0 },
+            radius: 5,
+            startAngle: 0,
+            endAngle: Math.PI, // 180 degrees
+            orientation: OrientationEnum.COUNTERCLOCKWISE
+        };
+
+        // Act
+        const midpoint = arcMiddlePoint(arc);
+
+        // Assert
+        expect(midpoint.x).toBeCloseTo(0);
+        expect(midpoint.y).toBeCloseTo(5);
+    });
+
+    it('should calculate midpoint of CW 180-degree arc', () => {
+        // Arrange
+        const arc: ArcData = {
+            origin: { x: 0, y: 0 },
+            radius: 5,
+            startAngle: Math.PI, // 180 degrees
+            endAngle: 0,
+            orientation: OrientationEnum.CLOCKWISE
+        };
+
+        // Act
+        const midpoint = arcMiddlePoint(arc);
+
+        // Assert
+        expect(midpoint.x).toBeCloseTo(0);
+        expect(midpoint.y).toBeCloseTo(-5);
+    });
+
+    it('should calculate midpoint of CCW 90-degree arc', () => {
+        // Arrange
+        const arc: ArcData = {
+            origin: { x: 0, y: 0 },
+            radius: 5,
+            startAngle: 0,
+            endAngle: Math.PI / 2, // 90 degrees
+            orientation: OrientationEnum.COUNTERCLOCKWISE
+        };
+
+        // Act
+        const midpoint = arcMiddlePoint(arc);
+
+        // Assert
+        expect(midpoint.x).toBeCloseTo(5 * Math.cos(Math.PI / 4));
+        expect(midpoint.y).toBeCloseTo(5 * Math.sin(Math.PI / 4));
+    });
+
+    it('should calculate midpoint of CW 90-degree arc', () => {
+        // Arrange
+        const arc: ArcData = {
+            origin: { x: 0, y: 0 },
+            radius: 5,
+            startAngle: Math.PI / 2, // 90 degrees
+            endAngle: 0,
+            orientation: OrientationEnum.CLOCKWISE
+        };
+
+        // Act
+        const midpoint = arcMiddlePoint(arc);
+
+        // Assert
+        expect(midpoint.x).toBeCloseTo(5 * Math.cos(Math.PI / 4));
+        expect(midpoint.y).toBeCloseTo(5 * Math.sin(Math.PI / 4));
+    });
+
+    it('should handle arc crossing 0/2π boundary CCW', () => {
+        // Arrange
+        const arc: ArcData = {
+            origin: { x: 0, y: 0 },
+            radius: 5,
+            startAngle: 3 * Math.PI / 2, // 270 degrees
+            endAngle: Math.PI / 2, // 90 degrees
+            orientation: OrientationEnum.COUNTERCLOCKWISE
+        };
+
+        // Act
+        const midpoint = arcMiddlePoint(arc);
+
+        // Assert
+        expect(midpoint.x).toBeCloseTo(0);
+        expect(midpoint.y).toBeCloseTo(-5);
+    });
+
+    it('should handle arc crossing 0/2π boundary CW', () => {
+        // Arrange
+        const arc: ArcData = {
+            origin: { x: 0, y: 0 },
+            radius: 5,
+            startAngle: Math.PI / 2, // 90 degrees
+            endAngle: 3 * Math.PI / 2, // 270 degrees
+            orientation: OrientationEnum.CLOCKWISE
+        };
+
+        // Act
+        const midpoint = arcMiddlePoint(arc);
+
+        // Assert
+        expect(midpoint.x).toBeCloseTo(0);
+        expect(midpoint.y).toBeCloseTo(5);
+    });
+
+    it('should handle arc with non-zero origin', () => {
+        // Arrange
+        const arc: ArcData = {
+            origin: { x: 10, y: 20 },
+            radius: 5,
+            startAngle: 0,
+            endAngle: Math.PI, // 180 degrees
+            orientation: OrientationEnum.COUNTERCLOCKWISE
+        };
+
+        // Act
+        const midpoint = arcMiddlePoint(arc);
+
+        // Assert
+        expect(midpoint.x).toBeCloseTo(10);
+        expect(midpoint.y).toBeCloseTo(25);
+    });
+
+    it('should handle arc with implicit orientation', () => {
+        // Arrange
+        const arc: ArcData = {
+            origin: { x: 0, y: 0 },
+            radius: 5,
+            startAngle: 0,
+            endAngle: Math.PI // 180 degrees
+        };
+
+        // Act
+        const midpoint = arcMiddlePoint(arc);
+
+        // Assert
+        expect(midpoint.x).toBeCloseTo(0);
+        expect(midpoint.y).toBeCloseTo(5);
+    });
+});

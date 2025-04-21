@@ -30,6 +30,9 @@ export namespace Planning {
             // TODO link together all shapes where start/end points are nearly, but not
             //  exactly the same. We should be able to simply iterate over shapeChain: Shape[][]
             //  and make sure all shapes are forward connected.
+            polyshapes.forEach(ps => ps.orient());
+
+            // TODO Make sure all shapes are oriented in the same direction
             // Should be done in Polyshape.orient()
             //      polyshapes.forEach(ps => ps.orient());
             // This isn't intelligent enough
@@ -38,13 +41,13 @@ export namespace Planning {
             // TODO Make sure winding direction of all shapes is the same.
             // Shape chains are not necessarily sorted in any particular direction, 
             // so reverse shapes as needed so that they are.
+            // Could also be done with Polyshape.orient(OrientationEnum.COUNTERCLOCKWISE)
 
             // Build up a list of Cuts. Each Polyshape is a Cut path.
             const cuts: Cut[] = polyshapes.map((path: Polyshape) => new Cut({path}));
 
             // Group cuts into nesting hierarchy
             const cutRoots: CutNestingNode[] = cutNesting(cuts);
-            console.log('cutRoots', cutRoots);
 
             // Group Cut(s) into Part(s)
             const parts: Part[] = cutsRootsToParts(cutRoots);

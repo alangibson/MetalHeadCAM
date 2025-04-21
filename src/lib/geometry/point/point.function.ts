@@ -64,3 +64,11 @@ export function pointTransform(transform: TransformData, point: PointData): Poin
 	// Transform point
 	return applyToPoint(matrix, point);
 }
+
+/** Calculate squared distance between two points */
+export function pointDistance(a: PointData, b: PointData): number {
+	const dx = a.x - b.x;
+	const dy = a.y - b.y;
+	const distance = dx * dx + dy * dy;
+	return distance;
+}

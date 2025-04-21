@@ -1,10 +1,14 @@
 <script lang="ts">
-    import type { EllipseData } from "$lib/geometry/ellipse/ellipse.data";
     import { Ellipse as KonvaEllipse } from "svelte-konva";
-        import { degreesToRadians, radiansToDegrees } from "$lib/geometry/angle/angle.function";
+    import {
+        degreesToRadians,
+        radiansToDegrees,
+    } from "$lib/geometry/angle/angle.function";
+    import type { Ellipse } from "$lib/geometry/ellipse/ellipse";
+    import ShapeBearing from "../markers/ShapeBearing.svelte";
 
     let {
-        geometry: ellipseData = $bindable<EllipseData>(),
+        geometry: ellipse = $bindable<Ellipse>(),
         stageScaleBy = $bindable(1),
         strokeWidth = $bindable(1),
         onmouseenter: onMouseEnter,
@@ -14,20 +18,20 @@
 
     // Map from EllipseData to Konva.Ellipse
     let config = $state({
-        x: ellipseData.origin.x,
-        y: ellipseData.origin.y,
-        radiusX: ellipseData.majorLength,
-        radiusY: ellipseData.minorLength,
-        rotation: radiansToDegrees(ellipseData.rotation)
+        x: ellipse.origin.x,
+        y: ellipse.origin.y,
+        radiusX: ellipse.majorLength,
+        radiusY: ellipse.minorLength,
+        rotation: radiansToDegrees(ellipse.rotation),
     });
 
     // Map from Konva.Ellipse to EllipseData
     $effect(() => {
-        ellipseData.origin.x = config.x;
-        ellipseData.origin.y = config.y;
-        ellipseData.majorLength = config.radiusX;
-        ellipseData.minorLength = config.radiusY;
-        ellipseData.rotation = degreesToRadians(config.rotation);
+        ellipse.origin.x = config.x;
+        ellipse.origin.y = config.y;
+        ellipse.majorLength = config.radiusX;
+        ellipse.minorLength = config.radiusY;
+        ellipse.rotation = degreesToRadians(config.rotation);
     });
 </script>
 
@@ -40,4 +44,6 @@
     onmouseenter={onMouseEnter}
     onmouseleave={onMouseLeave}
     onclick={onClick}
-/> 
+/>
+
+<ShapeBearing shape={ellipse} {strokeWidth}></ShapeBearing>
