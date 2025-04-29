@@ -23,9 +23,6 @@ export function cutNesting(cuts: Cut[]): CutNestingNode[] {
     const closedNodes = nodes.filter(node => node.cut.path.isClosed);
     const openNodes = nodes.filter(node => !node.cut.path.isClosed);
 
-    console.log('closedNodes', closedNodes);
-    console.log('openNodes', openNodes);
-
     // Sort closed nodes by area (largest first)
     closedNodes.sort((a, b) => {
         const areaA = a.cut.path.area;
@@ -50,9 +47,6 @@ export function cutNesting(cuts: Cut[]): CutNestingNode[] {
 
             // Do full containment check
             if (potential.cut.path.contains(closedNode.cut.path)) {
-
-                console.log('containment found', potential.cut, 'contains', closedNode.cut);
-
                 const area = potential.cut.path.area;
                 if (area < smallestArea) {
                     smallestArea = area;

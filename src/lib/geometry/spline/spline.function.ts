@@ -103,12 +103,13 @@ export function splineSample(spline: SplineData, samples: number = 1000): PointD
     const curve = nurbs({
         points: spline.controlPoints.map(p => [p.x, p.y]),
         degree: degree,
-        knots: spline.knots,
-        weights: spline.weights,
+        knots: degree > 3 ? spline.knots : undefined,
+        weights: degree > 3 ? spline.weights : undefined,
         // boundary: 'clamped'
     });
     
     // Sample points along the curve
+    let foundError = [];
     const sampledPoints: PointData[] = [];
     for (let i = 0; i <= samples; i++) {
         const t = i / samples;
@@ -117,9 +118,12 @@ export function splineSample(spline: SplineData, samples: number = 1000): PointD
             const point = curve.evaluate([], t);
             sampledPoints.push({ x: point[0], y: point[1] });
         } catch (error) {
-            console.warn('Failed to evaluate spline at t=', t, spline, error);
+            // console.warn('Failed to evaluate spline at t=', t, spline, error);
+            foundError = [spline, error];
         }
-
+    }
+    if (foundError.length > 0) {
+        console.warn('found error', ...foundError);
     }
 
     return sampledPoints;

@@ -14,7 +14,6 @@
         } else {
             expandedLayers.add(layer);
         }
-        console.log(expandedLayers);
     }
 
     // Get display name for geometry type
