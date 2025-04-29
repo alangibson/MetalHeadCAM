@@ -22,7 +22,7 @@ export namespace Planning {
 
             // Find chains of Shapes that are connected by overlapping start and end points
             // We find all possible connections, not just end to start points.
-            const shapeChain: Shape[][] = shapeChains(layer.geometries, 0.05);
+            const shapeChain: Shape[][] = shapeChains(layer.geometries);
 
             // Transform Layer geometries to connected Polyshapes
             const polyshapes: Polyshape[] = shapeChainsToPolyshapes(shapeChain);
@@ -36,7 +36,7 @@ export namespace Planning {
             // Should be done in Polyshape.orient()
             //      polyshapes.forEach(ps => ps.orient());
             // This isn't intelligent enough
-            //      shapeChain.forEach((shapeChain: Shape[]) => reorientShapes(shapeChain, 0.05));
+            //      shapeChain.forEach((shapeChain: Shape[]) => reorientShapes(shapeChain));
             
             // TODO Make sure winding direction of all shapes is the same.
             // Shape chains are not necessarily sorted in any particular direction, 

@@ -1,6 +1,7 @@
 import type { PointData } from "./point.data";
 import type { TransformData } from "../transform/transform.data";
 import { scale, rotate, translate, compose, applyToPoint } from 'transformation-matrix';
+import { DEFAULT_COINCIDENCE_TOLERANCE } from "$lib/input/config/defaults";
 
 /**
  * Point-in-polygon test using ray casting algorithm
@@ -48,7 +49,7 @@ export function pointEnclosedByPolygon(
 	return crossings % 2 !== 0;
 }
 
-export function pointCoincident(thisPoint: PointData, thatPoint: PointData, tolerance: number = 0.005): boolean {
+export function pointCoincident(thisPoint: PointData, thatPoint: PointData, tolerance: number = DEFAULT_COINCIDENCE_TOLERANCE): boolean {
 	return Math.abs(thisPoint.x - thatPoint.x) < tolerance && Math.abs(thisPoint.y - thatPoint.y) < tolerance;
 }
 

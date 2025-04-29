@@ -13,7 +13,7 @@ export function polyshapeIsClosed(polyshape: PolyshapeData): boolean {
     const startPoint: PointData = polyshape.shapes[0].startPoint;
     const endPoint: PointData = polyshape.shapes[polyshape.shapes.length - 1].endPoint;
     // TODO get tolerance from configuration
-    return pointCoincident(startPoint, endPoint, 0.005);
+    return pointCoincident(startPoint, endPoint);
 }
 
 export function polyshapeBoundary(polyshape: PolyshapeData): BoundaryData {

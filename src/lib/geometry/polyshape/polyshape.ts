@@ -131,9 +131,6 @@ export class Polyshape implements PolyshapeData, Shape {
     }
 
     orient(orientation?: OrientationEnum): void {
-        // TODO get from somewhere
-        const tolerance = 0.05;
-
         // Connect all child shapes end-to-start
         for (let i = 1; i < this.shapes.length; i++) {
 
@@ -145,16 +142,16 @@ export class Polyshape implements PolyshapeData, Shape {
 
             // console.log('is ', prevShape.endPoint, 'to be', currentShape.startPoint);
 
-            if (prevShape.endPoint.coincident(currentShape.startPoint, tolerance)) {
+            if (prevShape.endPoint.coincident(currentShape.startPoint)) {
                 // Already correctly oriented
                 // continue;
-            } else if (prevShape.endPoint.coincident(currentShape.endPoint, tolerance)) {
+            } else if (prevShape.endPoint.coincident(currentShape.endPoint)) {
                 // Reverse the current segment to match the end to start
                 currentShape.reverse();
-            } else if (prevShape.startPoint.coincident(currentShape.startPoint, tolerance)) {
+            } else if (prevShape.startPoint.coincident(currentShape.startPoint)) {
                 // Reverse the previous segment to match the start to end
                 prevShape.reverse();
-            } else if (prevShape.startPoint.coincident(currentShape.endPoint, tolerance)) {
+            } else if (prevShape.startPoint.coincident(currentShape.endPoint)) {
                 currentShape.reverse();
                 prevShape.reverse();
             } else {

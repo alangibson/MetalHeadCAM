@@ -1,5 +1,6 @@
 import { Polyshape } from "$lib/geometry/polyshape/polyshape";
 import type { Shape } from "$lib/geometry/shape/shape";
+import { DEFAULT_COINCIDENCE_TOLERANCE } from "$lib/input/config/defaults";
 import { Cut } from "../cut/cut";
 import { cutNesting, type CutNestingNode } from "../cut/cut.function";
 import { Part } from "../part/part";
@@ -7,7 +8,7 @@ import { Part } from "../part/part";
 /**
  * Ensures all shapes are connected endPoint-to-startPoint
  */
-export function reorientShapes(shapes: Shape[], tolerance: number = 0.05) {
+export function reorientShapes(shapes: Shape[], tolerance: number = DEFAULT_COINCIDENCE_TOLERANCE) {
     
     // TODO Blindly calling reverse() on a polyshape does not guarantee that shapes will be 
     // oriented in the same direction

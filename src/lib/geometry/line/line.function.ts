@@ -102,7 +102,7 @@ export function lineMiddlePoint(line: LineData): PointData {
  */
 export function lineSample(line: LineData, samples: number = 1000): PointData[] {
 	// Lines with where start and end point are the same have been seen in the wild
-	if (pointCoincident(line.startPoint, line.endPoint, 0.05))
+	if (pointCoincident(line.startPoint, line.endPoint))
 		return [];
 
 	const points: PointData[] = [];
@@ -122,5 +122,5 @@ export function lineSample(line: LineData, samples: number = 1000): PointData[] 
  * lines where start and end point are the same, or nearly the same.
  */
 export function lineIsClosed(line: LineData): boolean {
-	return pointCoincident(line.startPoint, line.endPoint, 0.005);
+	return pointCoincident(line.startPoint, line.endPoint);
 }

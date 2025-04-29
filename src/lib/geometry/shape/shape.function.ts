@@ -1,10 +1,11 @@
 import type { Shape } from "./shape";
 import type { Point } from "./point";
+import { DEFAULT_COINCIDENCE_TOLERANCE } from "$lib/input/config/defaults";
 
 /**
  * Returns true if shapes start or end points are connected at some point.
  */
-export function shapeIsConnected(thisShape: Shape, thatShape: Shape, tolerance: number = 0.05) {
+export function shapeIsConnected(thisShape: Shape, thatShape: Shape, tolerance: number = DEFAULT_COINCIDENCE_TOLERANCE) {
 	return (
 		thisShape.endPoint.coincident(thatShape.startPoint, tolerance) ||
 		thisShape.endPoint.coincident(thatShape.endPoint, tolerance) ||
@@ -17,7 +18,7 @@ export function shapeIsConnected(thisShape: Shape, thatShape: Shape, tolerance: 
  * Connects all points in shapes within given tolerance. 
  * Returns an array of chains of Shapes.
  */
-export function shapeChains(shapes: Shape[], tolerance: number = 0.01): Shape[][] {
+export function shapeChains(shapes: Shape[], tolerance: number = DEFAULT_COINCIDENCE_TOLERANCE): Shape[][] {
 	const chains: Shape[][] = [];
 	const visited = new Array(shapes.length).fill(false);
 

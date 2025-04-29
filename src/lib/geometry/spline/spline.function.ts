@@ -8,9 +8,10 @@ import nurbs from 'nurbs';
 import { OrientationEnum } from "../geometry/geometry.enum";
 import { lineOrientation } from "../line/line.function";
 import { Point } from "../point/point";
+import { DEFAULT_COINCIDENCE_TOLERANCE } from "$lib/input/config/defaults";
 
 /** Check if a spline is closed (start point equals end point) */
-export function splineIsClosed(spline: SplineData, tolerance: number = 0.005): boolean {
+export function splineIsClosed(spline: SplineData, tolerance: number = DEFAULT_COINCIDENCE_TOLERANCE): boolean {
     if (spline.controlPoints.length < 2) return false;
     return pointCoincident(
         spline.controlPoints[0],
@@ -95,7 +96,7 @@ export function splineEndPoint(spline: SplineData): PointData {
 export function splineSample(spline: SplineData, samples: number = 1000): PointData[] {
     // For an open curve, we need n + degree + 1 knots
     // For a closed curve, we need n + 1 knots
-    // const isClosed = splineIsClosed(spline, 0.05);
+    // const isClosed = splineIsClosed(spline);
     const n = spline.controlPoints.length;
     // Degree 2 = quadratic b-spline, 3 = cubic b-spline
     const degree = spline.degree || n - 1;

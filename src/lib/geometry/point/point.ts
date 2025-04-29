@@ -1,3 +1,4 @@
+import { DEFAULT_COINCIDENCE_TOLERANCE } from "$lib/input/config/defaults";
 import type { Geometry } from "../geometry/geometry";
 import { GeometryTypeEnum } from "../geometry/geometry.enum";
 import type { TransformData } from "../transform/transform.data";
@@ -19,7 +20,7 @@ export class Point implements PointData, Geometry {
     /**
      * Points are the same within a given tolerance.
      */
-    coincident(thatPoint: PointData, tolerance: number = 0.005): boolean {
+    coincident(thatPoint: PointData, tolerance: number = DEFAULT_COINCIDENCE_TOLERANCE): boolean {
         return pointCoincident(this, thatPoint, tolerance);
     }
     
