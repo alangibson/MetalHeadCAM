@@ -12,7 +12,6 @@
     <!-- TODO render lead in -->
     <PolyshapeShape
         geometry={cut.path}
-        stageScaleBy={PlanningStageState.stageScaleBy}
         strokeWidth={PlanningStageState.strokeWidth}
         onclick={PlanningStageState.onClick}
         onmouseenter={PlanningStageState.onMouseEnter}
