@@ -2,7 +2,7 @@ import type { TransformData } from "../transform/transform.data";
 import { Point } from "../point/point";
 import type { Shape } from "../shape/shape";
 import type { ArcData } from "./arc.data";
-import { arcBoundary, arcOrientation, arcEndPoint, arcIsClosed, arcMiddlePoint, arcSample, arcStartPoint, arcTransform, arcBearingAt } from "./arc.function";
+import { arcBoundary, arcOrientation, arcEndPoint, arcIsClosed, arcMiddlePoint, arcTessellate, arcStartPoint, arcTransform, arcBearingAt } from "./arc.function";
 import { GeometryTypeEnum, OrientationEnum } from "../geometry/geometry.enum";
 import { Boundary } from "../boundary/boundary";
 import type { Geometry } from "../geometry/geometry";
@@ -130,7 +130,7 @@ export class Arc implements ArcData, Shape {
         // HACK one sample per unit length
         samples = this.length
         // Convert to array of points for rendering/calculations
-        const sample = arcSample(this, samples).map(p => new Point(p));
+        const sample = arcTessellate(this, samples).map(p => new Point(p));
         return [this.startPoint, ...sample, this.endPoint];
     }
 

@@ -2,7 +2,7 @@ import { Point } from "../point/point";
 import type { PointData } from "../point/point.data";
 import type { Shape } from "../shape/shape";
 import type { EllipseData } from "./ellipse.data";
-import { ellipseBoundary, ellipseIsClosed, ellipseToPoints, ellipseTransform, ellipsePointAtAngle, ellipseMiddlePoint, ellipseStartPoint, ellipseEndPoint, ellipseOrientation } from "./ellipse.function";
+import { ellipseBoundary, ellipseIsClosed, ellipseTessellate, ellipseTransform, ellipsePointAtAngle, ellipseMiddlePoint, ellipseStartPoint, ellipseEndPoint, ellipseOrientation } from "./ellipse.function";
 import type { TransformData } from "../transform/transform.data";
 import { GeometryTypeEnum, OrientationEnum } from "../geometry/geometry.enum";
 import { Boundary } from "../boundary/boundary";
@@ -114,7 +114,7 @@ export class Ellipse implements EllipseData, Shape {
     tessellate(samples: number = 1000): Point[] {
         // HACK one sample per unit length
         samples = this.length;
-        const sample = ellipseToPoints(this, samples).map(p => new Point(p));
+        const sample = ellipseTessellate(this, samples).map(p => new Point(p));
         return [this.startPoint, ...sample, this.endPoint];
     }
 

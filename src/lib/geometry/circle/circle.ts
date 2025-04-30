@@ -2,7 +2,7 @@ import { Point } from "../point/point";
 import type { PointData } from "../point/point.data";
 import type { Shape } from "../shape/shape";
 import type { CircleData } from "./circle.data";
-import { circleBoundary, circleStartPoint, circleEndPoint, circleTransform, circleMiddlePoint, circleSample } from "./circle.function";
+import { circleBoundary, circleStartPoint, circleEndPoint, circleTransform, circleMiddlePoint, circleTessellate } from "./circle.function";
 import type { TransformData } from "../transform/transform.data";
 import { GeometryTypeEnum, OrientationEnum } from "../geometry/geometry.enum";
 import { Boundary } from "../boundary/boundary";
@@ -85,7 +85,7 @@ export class Circle implements CircleData, Shape {
     tessellate(samples: number = 1000): Point[] {
         // HACK one sample per unit length
         samples = this.length
-        const sample = circleSample(this, samples).map(p => new Point(p));
+        const sample = circleTessellate(this, samples).map(p => new Point(p));
         return [this.startPoint, ...sample, this.endPoint];
     }
 

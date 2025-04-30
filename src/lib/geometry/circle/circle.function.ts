@@ -43,7 +43,7 @@ export function circleEndPoint(circle: CircleData): PointData {
 }
 
 /** Sample Circle to an array of Points */
-export function circleSample(circle: CircleData, samples: number = 1000): PointData[] {
+export function circleTessellate(circle: CircleData, samples: number = 1000): PointData[] {
 	const points: PointData[] = [];
 	for (let i = 0; i <= samples; i++) {
 		const theta = (i / samples) * 2 * Math.PI;

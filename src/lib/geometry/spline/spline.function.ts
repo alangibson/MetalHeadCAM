@@ -20,6 +20,35 @@ export function splineIsClosed(spline: SplineData, tolerance: number = DEFAULT_C
     );
 }
 
+/** Check if a spline is clamped (curve passes through first and last control points) */
+export function splineIsClamped(spline: SplineData): boolean {
+    if (!spline.knots || spline.knots.length === 0) {
+        // If no knots are provided, assume it's not clamped
+        return false;
+    }
+
+    const degree = spline.degree || spline.controlPoints.length - 1;
+    const knots = spline.knots;
+
+    // Check if first degree+1 knots are equal to first knot
+    const firstKnot = knots[0];
+    for (let i = 1; i <= degree; i++) {
+        if (knots[i] !== firstKnot) {
+            return false;
+        }
+    }
+
+    // Check if last degree+1 knots are equal to last knot
+    const lastKnot = knots[knots.length - 1];
+    for (let i = knots.length - 2; i >= knots.length - degree - 1; i--) {
+        if (knots[i] !== lastKnot) {
+            return false;
+        }
+    }
+
+    return true;
+}
+
 /** Calculate the signed area of a closed NURBS curve */
 export function splineArea(spline: SplineData): number {
     if (!splineIsClosed(spline) || spline.controlPoints.length < 3) {
@@ -64,7 +93,7 @@ export function splineOrientation(spline: SplineData): OrientationEnum {
 export function splineBoundary(spline: SplineData, samples: number = 100): BoundaryData {
     // For a NURBS, we'll use the control points to determine the boundary
     // Note: The actual curve may extend outside this boundary
-    const points = splineSample(spline, samples);
+    const points = splineTessellate(spline, samples);
 
     let minX = Infinity;
     let maxX = -Infinity;
@@ -93,7 +122,7 @@ export function splineEndPoint(spline: SplineData): PointData {
 }
 
 /** Sample points along a spline curve */
-export function splineSample(spline: SplineData, samples: number = 1000): PointData[] {
+export function splineTessellate(spline: SplineData, samples: number = 1000): PointData[] {
     // For an open curve, we need n + degree + 1 knots
     // For a closed curve, we need n + 1 knots
     // const isClosed = splineIsClosed(spline);
@@ -106,14 +135,17 @@ export function splineSample(spline: SplineData, samples: number = 1000): PointD
         degree: degree,
         knots: degree > 3 ? spline.knots : undefined,
         weights: degree > 3 ? spline.weights : undefined,
-        // boundary: 'clamped'
+        boundary: degree < 4 || splineIsClamped(spline) ? 'clamped' : undefined
     });
+    
+    // Get the valid domain for the curve
+    const [minT, maxT] = curve.domain[0];
     
     // Sample points along the curve
     let foundError = [];
     const sampledPoints: PointData[] = [];
     for (let i = 0; i <= samples; i++) {
-        const t = i / samples;
+        const t = minT + (maxT - minT) * (i / samples);
 
         try {
             const point = curve.evaluate([], t);
@@ -133,7 +165,7 @@ export function splineSample(spline: SplineData, samples: number = 1000): PointD
 /** Calculate middle point of spline curve. */
 export function splineMiddlePoint(spline: SplineData): PointData {
     // Sample more points for better accuracy
-    const points = splineSample(spline, 1000);
+    const points = splineTessellate(spline, 1000);
     return points[500];
 }
 

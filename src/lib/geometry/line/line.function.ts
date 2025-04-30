@@ -100,7 +100,7 @@ export function lineMiddlePoint(line: LineData): PointData {
 /**
  * Sample points along a line at regular intervals
  */
-export function lineSample(line: LineData, samples: number = 1000): PointData[] {
+export function lineTessellate(line: LineData, samples: number = 1000): PointData[] {
 	// Lines with where start and end point are the same have been seen in the wild
 	if (pointCoincident(line.startPoint, line.endPoint))
 		return [];

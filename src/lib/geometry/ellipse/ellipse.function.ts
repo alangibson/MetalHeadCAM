@@ -101,7 +101,7 @@ export function ellipseBoundary(ellipse: EllipseData): BoundaryData {
 }
 
 /** Convert ellipse to array of points */
-export function ellipseToPoints(
+export function ellipseTessellate(
     ellipse: EllipseData,
     samples: number = 1000
 ): PointData[] {

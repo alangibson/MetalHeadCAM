@@ -5,7 +5,7 @@ import type { TransformData } from "../transform/transform.data";
 import { GeometryTypeEnum, OrientationEnum } from "../geometry/geometry.enum";
 import { Boundary } from "../boundary/boundary";
 import type { Geometry } from "../geometry/geometry";
-import { lineIsClosed, lineMiddlePoint, lineOrientation, lineSample, lineTransform } from "./line.function";
+import { lineIsClosed, lineMiddlePoint, lineOrientation, lineTessellate, lineTransform } from "./line.function";
 import type { AngleRadians } from "../angle/angle.type";
 import type { PointData } from "../point/point.data";
 import { angleBetweenPoints } from "../angle/angle.function";
@@ -78,7 +78,7 @@ export class Line implements LineData, Shape {
     tessellate(samples: number = 1000): Point[] {
         // HACK one sample per unit length
         samples = this.length
-        const lineSamples = lineSample(this, samples);
+        const lineSamples = lineTessellate(this, samples);
         const sample = lineSamples.map(p => new Point(p));
         return [this.startPoint, ...sample, this.endPoint];
     }

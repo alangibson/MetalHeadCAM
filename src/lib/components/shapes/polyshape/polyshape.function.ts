@@ -1,5 +1,5 @@
 import type { Polyshape } from "$lib/geometry/polyshape/polyshape";
-import { polyshapeSample } from "$lib/geometry/polyshape/polyshape.function";
+import { polyshapeTessellate } from "$lib/geometry/polyshape/polyshape.function";
 import { shapeSvgPathCommand } from "../shape/shape.function";
 
 /**

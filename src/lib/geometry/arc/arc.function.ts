@@ -83,7 +83,7 @@ export function arcTransform(transform: TransformData, arc: ArcData): ArcData {
 }
 
 // Downsample an Arc into an array of points
-export function arcSample(curve: ArcData, samples: number = 1000): PointData[] {
+export function arcTessellate(curve: ArcData, samples: number = 1000): PointData[] {
     const points: PointData[] = [];
     for (let i = 0; i <= samples; i++) {
         const t = i / samples;

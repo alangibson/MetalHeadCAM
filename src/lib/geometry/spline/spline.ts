@@ -6,7 +6,7 @@ import type { TransformData } from "../transform/transform.data";
 import { GeometryTypeEnum, OrientationEnum } from "../geometry/geometry.enum";
 import { Boundary } from "../boundary/boundary";
 import type { Geometry } from "../geometry/geometry";
-import { splineBoundary, splineIsClosed, splineSample, splineTransform, splineMiddlePoint, splineStartPoint, splineEndPoint, splineOrientation } from "./spline.function";
+import { splineBoundary, splineIsClosed, splineTessellate, splineTransform, splineMiddlePoint, splineStartPoint, splineEndPoint, splineOrientation, splineIsClamped } from "./spline.function";
 import { shapeAreaFromPoints, shapeLengthFromPoints } from "../shape/shape.function";
 import type { PointData } from "../point/point.data";
 import type { AngleRadians } from "../angle/angle.type";
@@ -74,6 +74,11 @@ export class Spline implements SplineData, Shape {
         return splineIsClosed(this);
     }
 
+    /** True if curve runs through start and end points */
+    get isClamped(): boolean {
+        return splineIsClamped(this);
+    }
+
     get boundary(): Boundary {
         return new Boundary(splineBoundary(this));
     }
@@ -108,11 +113,11 @@ export class Spline implements SplineData, Shape {
 
     get area(): number | null {
         if (!this.isClosed) return null;
-        return shapeAreaFromPoints(splineSample(this, 1000));
+        return shapeAreaFromPoints(splineTessellate(this, 1000));
     }
 
     get length(): number {
-        return shapeLengthFromPoints(splineSample(this, 1000));
+        return shapeLengthFromPoints(splineTessellate(this, 1000));
     }
 
     clearCache(): void {
@@ -141,7 +146,7 @@ export class Spline implements SplineData, Shape {
     tessellate(samples: number = 1000): Point[] {
         // HACK 10 samples per unit length
         samples = this.length * 10;
-        const sample = splineSample(this, samples).map(p => new Point(p));
+        const sample = splineTessellate(this, samples).map(p => new Point(p));
         return [this.startPoint, ...sample, this.endPoint];
     }
 

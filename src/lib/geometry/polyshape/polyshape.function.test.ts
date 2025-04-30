@@ -1,8 +1,9 @@
 import { describe, it, expect } from 'vitest';
-import { polyshapeIsClosed } from './polyshape.function';
+import { polyshapeIsClosed, polyshapeReverseShapes } from './polyshape.function';
 import { Line } from '../line/line';
 import { Point } from '../point/point';
 import { Polyshape } from './polyshape';
+import type { Shape } from '../shape/shape';
 
 describe('polyshapeIsClosed', () => {
     it('should return true when start point equals end point', () => {
@@ -43,6 +44,75 @@ describe('polyshapeIsClosed', () => {
 
         // Assert
         expect(result).toBe(false);
+    });
+});
+
+describe('polyshapeReverseShapes', () => {
+    it('should reverse the order of shapes and their internal direction', () => {
+        // Arrange
+        const startPoint = new Point({ x: 0, y: 0 });
+        const midPoint = new Point({ x: 1, y: 1 });
+        const endPoint = new Point({ x: 2, y: 2 });
+        
+        const shapes = [
+            new Line({ startPoint, endPoint: midPoint }),
+            new Line({ startPoint: midPoint, endPoint })
+        ];
+
+        // Act
+        const result = polyshapeReverseShapes(shapes);
+
+        // Assert
+        expect(result).toHaveLength(2);
+        expect(result[0].startPoint).toEqual(endPoint);
+        expect(result[0].endPoint).toEqual(midPoint);
+        expect(result[1].startPoint).toEqual(midPoint);
+        expect(result[1].endPoint).toEqual(startPoint);
+    });
+
+    it('should handle empty array of shapes', () => {
+        // Arrange
+        const shapes: Shape[] = [];
+
+        // Act
+        const result = polyshapeReverseShapes(shapes);
+
+        // Assert
+        expect(result).toHaveLength(0);
+    });
+
+    it('should handle single shape', () => {
+        // Arrange
+        const startPoint = new Point({ x: 0, y: 0 });
+        const endPoint = new Point({ x: 1, y: 1 });
+        const shapes = [new Line({ startPoint, endPoint })];
+
+        // Act
+        const result = polyshapeReverseShapes(shapes);
+
+        // Assert
+        expect(result).toHaveLength(1);
+        expect(result[0].startPoint).toEqual(endPoint);
+        expect(result[0].endPoint).toEqual(startPoint);
+    });
+
+    it('should preserve shape types after reversal', () => {
+        // Arrange
+        const startPoint = new Point({ x: 0, y: 0 });
+        const midPoint = new Point({ x: 1, y: 1 });
+        const endPoint = new Point({ x: 2, y: 2 });
+        
+        const shapes = [
+            new Line({ startPoint, endPoint: midPoint }),
+            new Line({ startPoint: midPoint, endPoint })
+        ];
+
+        // Act
+        const result = polyshapeReverseShapes(shapes);
+
+        // Assert
+        expect(result[0]).toBeInstanceOf(Line);
+        expect(result[1]).toBeInstanceOf(Line);
     });
 });
 

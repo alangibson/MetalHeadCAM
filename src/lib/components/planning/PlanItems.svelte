@@ -52,8 +52,8 @@
                                             <div class="shape-type">{shape.constructor.name}</div>
                                             <div class="shape-details">
                                                 <ul>
-                                                    <li>isClosed: {shape.isClosed}</li>
-                                                    <li>orientation: {shape.orientation}</li>
+                                                    <!-- <li>isClosed: {shape.isClosed}</li>
+                                                    <li>orientation: {shape.orientation}</li> -->
                                                 </ul>
                                             </div>
                                         </li>

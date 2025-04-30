@@ -3,7 +3,7 @@ import { Point } from "../point/point";
 import type { PointData } from "../point/point.data";
 import type { Shape } from "../shape/shape";
 import type { PolyshapeData } from "./polyshape.data";
-import { polyshapeIsClosed, polyshapeMiddlePoint, polyshapeSample } from "./polyshape.function";
+import { polyshapeIsClosed, polyshapeMiddlePoint, polyshapeReverseShapes, polyshapeTessellate } from "./polyshape.function";
 import type { TransformData } from "../transform/transform.data";
 import { GeometryTypeEnum, OrientationEnum } from "../geometry/geometry.enum";
 import { Boundary } from "../boundary/boundary";
@@ -14,11 +14,15 @@ import { GeometryFactory, Coordinate } from 'jsts/org/locationtech/jts/geom';
 import { RelateOp } from 'jsts/org/locationtech/jts/operation/relate';
 import { polyshapeArea } from "./polyshape.function";
 import { pointDistance } from "../point/point.function";
+import { polyshapeConnectShapes } from "./polyshape.function";
+import { roundToDecimalPlaces } from "$lib/utils/numbers";
+import { DECIMAL_PRECISION } from "$lib/input/config/defaults";
 
 export class Polyshape implements PolyshapeData, Shape {
 
     type = GeometryTypeEnum.POLYSHAPE;
     shapes: Shape[];
+    private _isClosed?: boolean;
     private _sample?: Point[];
     private _boundary?: Boundary;
     private _middlePoint?: Point;
@@ -26,7 +30,7 @@ export class Polyshape implements PolyshapeData, Shape {
     constructor(data: PolyshapeData) {
         this.shapes = data.shapes;
     }
-    
+
     get startPoint(): Point {
         return this.shapes[0].startPoint;
     }
@@ -43,8 +47,11 @@ export class Polyshape implements PolyshapeData, Shape {
         this.shapes[this.shapes.length - 1].endPoint = point;
     }
 
+    /** DXF files may define POLYLINES as being closed */
     get isClosed(): boolean {
-        return polyshapeIsClosed(this);
+        if (this._isClosed === undefined)
+            this._isClosed = polyshapeIsClosed(this);
+        return this._isClosed
     }
 
     get orientation(): OrientationEnum {
@@ -82,98 +89,70 @@ export class Polyshape implements PolyshapeData, Shape {
         this._sample = undefined;
         this._boundary = undefined;
         this._middlePoint = undefined;
+        this._isClosed = undefined;
     }
 
     transform(transform: TransformData): void {
         this.shapes.forEach(shape => shape.transform(transform));
         this.clearCache();
     }
-    
+
     reverse(): void {
-        this.shapes.reverse();
-        for (const shape of this.shapes) {
-            shape.reverse();
-        }
+        this.shapes = polyshapeReverseShapes(this.shapes);
         this.clearCache();
     }
-    
+
     /**
      * Test if inner polyshape is fully contained within outer polyshape.
      */
     contains(innerPolyshape: Polyshape): boolean {
-        // Convert both polyshapes to JSTS geometries
-        const geometryFactory = new GeometryFactory();
+        // An open shape can't contain anything
+        if (this.isClosed == false)
+            return false;
         
+        const geometryFactory = new GeometryFactory();
+
         // Convert self (outer) to JSTS geometry
         const outerPoints = this.tessellate(1000);
-        const outerCoords = outerPoints.map(p => new Coordinate(p.x, p.y));
+        const outerCoords = outerPoints.map(p => new Coordinate(roundToDecimalPlaces(p.x, DECIMAL_PRECISION), roundToDecimalPlaces(p.y, DECIMAL_PRECISION)));
+        if (outerCoords.length < 4) {
+            console.warn('outerCoords.length < 4', outerCoords);
+            return false;
+        } 
         const outerLinearRing = geometryFactory.createLinearRing(outerCoords);
         const outerPolygon = geometryFactory.createPolygon(outerLinearRing);
 
         // Convert inner polyshape to JSTS geometry
         const innerPoints = innerPolyshape.tessellate(1000);
-        const innerCoords = innerPoints.map(p => new Coordinate(p.x, p.y));
-        if (innerCoords.length < 4) {
-            console.warn('innerCoords.length < 4', innerPolyshape);
-            return false;
+        const innerCoords = innerPoints.map(p => new Coordinate(roundToDecimalPlaces(p.x, DECIMAL_PRECISION), roundToDecimalPlaces(p.y, DECIMAL_PRECISION)));
+        if (innerPolyshape.isClosed) {
+            if (innerCoords.length < 4) {
+                console.warn('innerCoords.length < 4', innerPolyshape);
+                return false;
+            }
+            const innerLinearRing = geometryFactory.createLinearRing(innerCoords);
+            const innerPolygon = geometryFactory.createPolygon(innerLinearRing);
+            // Use JSTS RelateOp to check containment
+            return RelateOp.contains(outerPolygon, innerPolygon);
+        } else {
+            // For open shapes, we need to check if all points of the inner 
+            // shape are contained within the outer shape
+            const innerLineString = geometryFactory.createLineString(innerCoords);
+            return RelateOp.contains(outerPolygon, innerLineString);
         }
-        const innerLinearRing = geometryFactory.createLinearRing(innerCoords);
-        const innerPolygon = geometryFactory.createPolygon(innerLinearRing);
 
-        // Use JSTS RelateOp to check containment
-        return RelateOp.contains(outerPolygon, innerPolygon);
     }
 
     tessellate(sample: number = 1000): Point[] {
-        if (!this._sample)
-            this._sample = polyshapeSample(this, sample).map(p => new Point(p))
+        // if (!this._sample)
+        this._sample = polyshapeTessellate(this, sample).map(p => new Point(p))
         return this._sample;
     }
 
     orient(orientation?: OrientationEnum): void {
-        // Connect all child shapes end-to-start
-        for (let i = 1; i < this.shapes.length; i++) {
-
-            const prevShape: Shape = this.shapes[i - 1];
-            const currentShape: Shape = this.shapes[i];
-
-            if (prevShape instanceof Polyshape)
-                prevShape.orient(orientation);
-
-            // console.log('is ', prevShape.endPoint, 'to be', currentShape.startPoint);
-
-            if (prevShape.endPoint.coincident(currentShape.startPoint)) {
-                // Already correctly oriented
-                // continue;
-            } else if (prevShape.endPoint.coincident(currentShape.endPoint)) {
-                // Reverse the current segment to match the end to start
-                currentShape.reverse();
-            } else if (prevShape.startPoint.coincident(currentShape.startPoint)) {
-                // Reverse the previous segment to match the start to end
-                prevShape.reverse();
-            } else if (prevShape.startPoint.coincident(currentShape.endPoint)) {
-                currentShape.reverse();
-                prevShape.reverse();
-            } else {
-                // TODO
-            }
-
-            // if (! prevShape.endPoint.coincident(currentShape.startPoint, 0)) {
-            // prevShape.endPoint.x = currentShape.startPoint.x;
-            // prevShape.endPoint.y = currentShape.startPoint.y;
-            // console.log('should set', prevShape.endPoint, 'to be', currentShape.startPoint);
-            prevShape.endPoint = currentShape.startPoint;
-        }
-
-        // First shape startPoint and last shape endPoint must be equal if
-        // Polyshape is closed
-        if (this.isClosed)
-            this.endPoint = this.startPoint;
-
-        // TODO ?
-        // if (this.orientation && this.orientation != orientation)
-        //     this.reverse();
-
+        this.shapes = polyshapeConnectShapes(this.shapes);
+        // TODO change orientation, if needed
+        this.clearCache();
     }
 
     bearingAt(point: PointData): AngleRadians {
@@ -186,7 +165,7 @@ export class Polyshape implements PolyshapeData, Shape {
             const points = shape.tessellate(1000);
 
             for (let i = 0; i < points.length - 1; i++) {
-                
+
                 // if (Number.isNaN(point.x))
                 //     console.log('NaN point', point, shape);
 
