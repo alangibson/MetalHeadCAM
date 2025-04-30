@@ -79,7 +79,7 @@ export namespace Planning {
         // Group cuts into nesting hierarchy
         const cutRoots: CutNestingNode[] = cutNesting(cuts);
 
-        // console.log('cutRoots', cutRoots);
+        console.log('cutRoots', cutRoots);
 
         // Group Cut(s) into Part(s)
         const parts: Part[] = cutsRootsToParts(cutRoots);

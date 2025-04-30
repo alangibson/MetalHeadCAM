@@ -3,6 +3,7 @@
     import { Polyshape } from "$lib/geometry/polyshape/polyshape";
     import { shapeSvgPathCommand } from "../shape/shape.function";
     import ShapeBearing from "../markers/ShapeBearing.svelte";
+    import ShapeTessellation from "../markers/ShapeTessellation.svelte";
 
     let {
         geometry: polyshape = $bindable<Polyshape>(),
@@ -42,3 +43,4 @@
     {onmouseleave}
 />
 <ShapeBearing shape={polyshape} {strokeWidth}></ShapeBearing>
+<!-- <ShapeTessellation shape={polyshape}></ShapeTessellation> -->

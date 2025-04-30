@@ -4,7 +4,8 @@
     let {shape, strokeWidth} = $props();
 </script>
 
-<!-- <BearingMarker
+<!-- 
+<BearingMarker
     point={shape.startPoint}
     bearing={shape.bearingAt(shape.startPoint)}
     {strokeWidth}

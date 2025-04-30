@@ -83,15 +83,32 @@ export function arcTransform(transform: TransformData, arc: ArcData): ArcData {
 }
 
 // Downsample an Arc into an array of points
-export function arcTessellate(curve: ArcData, samples: number = 1000): PointData[] {
+export function arcTessellate(arc: ArcData, samples: number = 1000): PointData[] {
     const points: PointData[] = [];
+    // Get the orientation if not explicitly provided
+    const orientation = arc.orientation || arcOrientation(arc.startAngle, arc.endAngle);
+    
+    // Calculate the angular difference
+    let deltaAngle: AngleRadians = arcSweepAngle(arc);
+    
+    // Adjust deltaAngle based on orientation
+    if (orientation === OrientationEnum.COUNTERCLOCKWISE) {
+        if (deltaAngle < 0) {
+            deltaAngle += 2 * Math.PI;
+        }
+    } else {
+        if (deltaAngle > 0) {
+            deltaAngle -= 2 * Math.PI;
+        }
+    }
+
     for (let i = 0; i <= samples; i++) {
         const t = i / samples;
-        // Arc approximation using circle parameterization
-        const theta = curve.startAngle + t * (curve.endAngle - curve.startAngle);
+        // Arc approximation using circle parameterization, respecting orientation
+        const theta = arc.startAngle + t * deltaAngle;
         let point: PointData = {
-            x: curve.origin.x + curve.radius * Math.cos(theta),
-            y: curve.origin.y + curve.radius * Math.sin(theta)
+            x: arc.origin.x + arc.radius * Math.cos(theta),
+            y: arc.origin.y + arc.radius * Math.sin(theta)
         };
         points.push(point);
     }

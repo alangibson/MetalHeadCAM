@@ -6,6 +6,7 @@ import type { TransformData } from '../transform/transform.data';
 import { OrientationEnum } from '../geometry/geometry.enum';
 import { arcBearingAt } from './arc.function';
 import { arcMiddlePoint } from './arc.function';
+import { arcTessellate } from './arc.function';
 
 describe('arcOrientation', () => {
     it('small positive angle difference', () => {
@@ -585,3 +586,186 @@ describe('arcMiddlePoint', () => {
         expect(midpoint.y).toBeCloseTo(5);
     });
 });
+
+describe('arcTessellate', () => {
+    it('should generate correct number of points', () => {
+        // Arrange
+        const arc: ArcData = {
+            origin: { x: 0, y: 0 },
+            radius: 5,
+            startAngle: 0,
+            endAngle: Math.PI / 2
+        };
+        const samples = 10;
+
+        // Act
+        const points = arcTessellate(arc, samples);
+
+        // Assert
+        expect(points).toHaveLength(samples + 1); // +1 because we include both start and end points
+    });
+
+    it('should generate points in counterclockwise direction with explicit orientation', () => {
+        // Arrange
+        const arc: ArcData = {
+            origin: { x: 0, y: 0 },
+            radius: 5,
+            startAngle: 0,
+            endAngle: Math.PI / 2,
+            orientation: OrientationEnum.COUNTERCLOCKWISE
+        };
+        const samples = 4;
+
+        // Act
+        const points = arcTessellate(arc, samples);
+
+        // Assert
+        // First point should be at (5,0)
+        expect(points[0].x).toBeCloseTo(5);
+        expect(points[0].y).toBeCloseTo(0);
+        
+        // Last point should be at (0,5)
+        expect(points[samples].x).toBeCloseTo(0);
+        expect(points[samples].y).toBeCloseTo(5);
+        
+        // Middle point should be at (3.5355, 3.5355) - 45 degrees
+        expect(points[2].x).toBeCloseTo(3.5355, 4);
+        expect(points[2].y).toBeCloseTo(3.5355, 4);
+    });
+
+    it('should generate points in clockwise direction with explicit orientation', () => {
+        // Arrange
+        const arc: ArcData = {
+            origin: { x: 0, y: 0 },
+            radius: 5,
+            startAngle: Math.PI / 2,
+            endAngle: 0,
+            orientation: OrientationEnum.CLOCKWISE
+        };
+        const samples = 4;
+
+        // Act
+        const points = arcTessellate(arc, samples);
+
+        // Assert
+        // First point should be at (0,5)
+        expect(points[0].x).toBeCloseTo(0);
+        expect(points[0].y).toBeCloseTo(5);
+        
+        // Last point should be at (5,0)
+        expect(points[samples].x).toBeCloseTo(5);
+        expect(points[samples].y).toBeCloseTo(0);
+        
+        // Middle point should be at (3.5355, 3.5355) - 45 degrees
+        expect(points[2].x).toBeCloseTo(3.5355, 4);
+        expect(points[2].y).toBeCloseTo(3.5355, 4);
+    });
+
+    it('should infer counterclockwise orientation when not specified', () => {
+        // Arrange
+        const arc: ArcData = {
+            origin: { x: 0, y: 0 },
+            radius: 5,
+            startAngle: 0,
+            endAngle: Math.PI / 2
+        };
+        const samples = 4;
+
+        // Act
+        const points = arcTessellate(arc, samples);
+
+        // Assert
+        // First point should be at (5,0)
+        expect(points[0].x).toBeCloseTo(5);
+        expect(points[0].y).toBeCloseTo(0);
+        
+        // Last point should be at (0,5)
+        expect(points[samples].x).toBeCloseTo(0);
+        expect(points[samples].y).toBeCloseTo(5);
+    });
+
+    it('should infer clockwise orientation when not specified', () => {
+        // Arrange
+        const arc: ArcData = {
+            origin: { x: 0, y: 0 },
+            radius: 5,
+            startAngle: Math.PI / 2,
+            endAngle: 0
+        };
+        const samples = 4;
+
+        // Act
+        const points = arcTessellate(arc, samples);
+
+        // Assert
+        // First point should be at (0,5)
+        expect(points[0].x).toBeCloseTo(0);
+        expect(points[0].y).toBeCloseTo(5);
+        
+        // Last point should be at (5,0)
+        expect(points[samples].x).toBeCloseTo(5);
+        expect(points[samples].y).toBeCloseTo(0);
+    });
+
+    it('should handle full circle with explicit orientation', () => {
+        // Arrange
+        const arc: ArcData = {
+            origin: { x: 0, y: 0 },
+            radius: 5,
+            startAngle: 0,
+            endAngle: 2 * Math.PI,
+            orientation: OrientationEnum.COUNTERCLOCKWISE
+        };
+        const samples = 4;
+
+        // Act
+        const points = arcTessellate(arc, samples);
+
+        // Assert
+        expect(points).toHaveLength(samples + 1);
+        // First and last points should be the same for a full circle
+        expect(points[0].x).toBeCloseTo(points[samples].x);
+        expect(points[0].y).toBeCloseTo(points[samples].y);
+    });
+
+    it('should handle arc with offset origin and explicit orientation', () => {
+        // Arrange
+        const arc: ArcData = {
+            origin: { x: 10, y: 20 },
+            radius: 5,
+            startAngle: 0,
+            endAngle: Math.PI / 2,
+            orientation: OrientationEnum.COUNTERCLOCKWISE
+        };
+        const samples = 4;
+
+        // Act
+        const points = arcTessellate(arc, samples);
+
+        // Assert
+        // First point should be at (15,20)
+        expect(points[0].x).toBeCloseTo(15);
+        expect(points[0].y).toBeCloseTo(20);
+        
+        // Last point should be at (10,25)
+        expect(points[samples].x).toBeCloseTo(10);
+        expect(points[samples].y).toBeCloseTo(25);
+    });
+
+    it('should use default samples when not specified', () => {
+        // Arrange
+        const arc: ArcData = {
+            origin: { x: 0, y: 0 },
+            radius: 5,
+            startAngle: 0,
+            endAngle: Math.PI / 2
+        };
+
+        // Act
+        const points = arcTessellate(arc);
+
+        // Assert
+        expect(points).toHaveLength(1001); // Default is 1000 samples + 1
+    });
+});
+

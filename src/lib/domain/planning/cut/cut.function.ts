@@ -25,9 +25,9 @@ export function cutNesting(cuts: Cut[]): CutNestingNode[] {
     // TODO What do we do with openNodes?
     const openNodes = nodes.filter(node => !node.cut.path.isClosed);
 
-    // console.log('Number of closed / open  nodes', closedNodes.length, openNodes.length);
-    // console.log('closedNodes', closedNodes);
-    // console.log('openNodes', openNodes);
+    console.log('Number of closed / open  nodes', closedNodes.length, openNodes.length);
+    console.log('closedNodes', closedNodes);
+    console.log('openNodes', openNodes);
 
     // Sort closed nodes by area (largest first)
     closedNodes.sort((a, b) => {
