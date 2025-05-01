@@ -1,7 +1,7 @@
 import type { PointData } from "./point.data";
 import type { TransformData } from "../transform/transform.data";
 import { scale, rotate, translate, compose, applyToPoint } from 'transformation-matrix';
-import { DEFAULT_COINCIDENCE_TOLERANCE } from "$lib/input/config/defaults";
+import { DEFAULT_COINCIDENCE_TOLERANCE } from "$lib/domain/importing/config/defaults";
 
 /**
  * Point-in-polygon test using ray casting algorithm

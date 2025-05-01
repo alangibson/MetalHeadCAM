@@ -1,4 +1,4 @@
-import { DEFAULT_COINCIDENCE_TOLERANCE } from "$lib/input/config/defaults";
+import { DEFAULT_COINCIDENCE_TOLERANCE } from "$lib/domain/importing/config/defaults";
 import type { Geometry } from "../geometry/geometry";
 import { GeometryTypeEnum } from "../geometry/geometry.enum";
 import type { TransformData } from "../transform/transform.data";

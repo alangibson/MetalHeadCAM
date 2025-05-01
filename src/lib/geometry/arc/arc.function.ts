@@ -47,7 +47,7 @@ export function arcEndPoint(arc: ArcData) {
         y: arc.origin.y + arc.radius * Math.sin(arc.endAngle)
     }
 }
-
+``
 export function arcTransform(transform: TransformData, arc: ArcData): ArcData {
     // Create transformation matrix
     const matrix = compose(
@@ -55,6 +55,8 @@ export function arcTransform(transform: TransformData, arc: ArcData): ArcData {
         rotate(transform.rotateAngle || 0),
         scale(transform.scaleX || 1, transform.scaleY || 1)
     );
+
+    console.log('Arc transform', transform.translateX || 0, transform.translateY || 0, transform.rotateAngle, transform.scaleX || 1, transform.scaleY || 1);
 
     // Transform origin point
     const newOrigin: PointData = applyToPoint(matrix, arc.origin);

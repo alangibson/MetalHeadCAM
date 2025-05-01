@@ -1,6 +1,6 @@
 import { Polyshape } from "$lib/geometry/polyshape/polyshape";
 import type { Shape } from "$lib/geometry/shape/shape";
-import { DEFAULT_COINCIDENCE_TOLERANCE } from "$lib/input/config/defaults";
+import { DEFAULT_COINCIDENCE_TOLERANCE } from "$lib/domain/importing/config/defaults";
 import { Cut } from "../cut/cut";
 import { cutNesting, type CutNestingNode } from "../cut/cut.function";
 import { Part } from "../part/part";

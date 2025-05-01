@@ -42,5 +42,5 @@
     {onmouseenter}
     {onmouseleave}
 />
-<ShapeBearing shape={polyshape} {strokeWidth}></ShapeBearing>
+<!-- <ShapeBearing shape={polyshape} {strokeWidth}></ShapeBearing> -->
 <!-- <ShapeTessellation shape={polyshape}></ShapeTessellation> -->

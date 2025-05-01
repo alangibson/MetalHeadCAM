@@ -8,7 +8,7 @@ import nurbs from 'nurbs';
 import { OrientationEnum } from "../geometry/geometry.enum";
 import { lineOrientation } from "../line/line.function";
 import { Point } from "../point/point";
-import { DEFAULT_COINCIDENCE_TOLERANCE } from "$lib/input/config/defaults";
+import { DEFAULT_COINCIDENCE_TOLERANCE } from "$lib/domain/importing/config/defaults";
 
 /** Check if a spline is closed (start point equals end point) */
 export function splineIsClosed(spline: SplineData, tolerance: number = DEFAULT_COINCIDENCE_TOLERANCE): boolean {

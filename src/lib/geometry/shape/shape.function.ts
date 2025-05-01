@@ -1,6 +1,6 @@
 import type { Shape } from "./shape";
 import type { Point } from "./point";
-import { DEFAULT_COINCIDENCE_TOLERANCE } from "$lib/input/config/defaults";
+import { DEFAULT_COINCIDENCE_TOLERANCE } from "$lib/domain/importing/config/defaults";
 
 /**
  * Returns true if shapes start or end points are connected at some point.

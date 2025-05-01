@@ -15,12 +15,29 @@ import { degreesToRadians } from "$lib/geometry/angle/angle.function";
 import type InsertEntityData from 'dxf/handlers/entity/insert';
 import { OrientationEnum } from '$lib/geometry/geometry/geometry.enum';
 
+/**
+ * In the DXF (Drawing Exchange Format) file format, the sweep direction of an
+ * arc is not explicitly specified with a "direction" flag. Instead, it is 
+ * implicitly defined based on the start angle and end angle values, assuming 
+ * a counterclockwise (CCW) sweep direction by default.
+ * 
+ * Sweep Direction Logic:
+ * - The arc is always drawn in a counterclockwise direction from the start 
+ *   angle to the end angle.
+ * - If the end angle is numerically less than the start angle, the arc wraps 
+ *   around 0 degrees and continues CCW.
+ */
 export function dxfArcToArcData(dxfArc: DxfArc): ArcData {
+
+    // if (dxfArc.extrusionZ || dxfArc.transforms.length > 0)
+    //     console.log('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!', dxfArc);
+
     return {
         origin: { x: dxfArc.x, y: dxfArc.y },
         radius: dxfArc.r,
         startAngle: dxfArc.startAngle,
-        endAngle: dxfArc.endAngle
+        endAngle: dxfArc.endAngle,
+        orientation: OrientationEnum.COUNTERCLOCKWISE
     }
 }
 
@@ -81,7 +98,7 @@ export function dxfPointsToPolyshapeData(lwpolyline: DxfLWPolyline): PolyshapeDa
 
     let shapes: Shape[] = [];
     for (let i = 1; i < vertices.length; i++) {
-        const shape = dxfPointsToShape(vertices[i-1], vertices[i]);
+        const shape = dxfPointsToShape(vertices[i - 1], vertices[i]);
         shapes.push(shape);
     }
 
@@ -107,12 +124,12 @@ export function dxfPointsToShape(startPoint: DxfPoint, endPoint: DxfPoint): Shap
 }
 
 export function dxfSplineToSplineData(dxfSpline: DxfSpline): SplineData {
-    return { 
+    return {
         controlPoints: dxfSpline.controlPoints,
         degree: dxfSpline.degree,
         weights: dxfSpline.weights,
         knots: dxfSpline.knots
-     }
+    }
 }
 
 export function dxfBulgeToArcData(startPoint: DxfPoint, endPoint: DxfPoint, bulge: number): ArcData {
@@ -125,17 +142,17 @@ export function dxfBulgeToArcData(startPoint: DxfPoint, endPoint: DxfPoint, bulg
     // let a
     // let b
     if (bulge < 0) {
-    //     theta = Math.atan(-bulge) * 4;
+        //     theta = Math.atan(-bulge) * 4;
         orientation = OrientationEnum.CLOCKWISE;
-    //     // a = new V2(from[0], from[1])
-    //     // b = new V2(to[0], to[1])
+        //     // a = new V2(from[0], from[1])
+        //     // b = new V2(to[0], to[1])
     } else {
-    //     // Default is counter-clockwise
-    //     theta = Math.atan(bulge) * 4;
+        //     // Default is counter-clockwise
+        //     theta = Math.atan(bulge) * 4;
         orientation = OrientationEnum.COUNTERCLOCKWISE;
-    //     // a = new V2(to[0], to[1])
-    //     // b = new V2(from[0], from[1])
-    //     [startPoint, endPoint] = [endPoint, startPoint];
+        //     // a = new V2(to[0], to[1])
+        //     // b = new V2(from[0], from[1])
+        //     [startPoint, endPoint] = [endPoint, startPoint];
     }
     theta = 4 * Math.atan(bulge);
     // orientation = OrientationEnum.CLOCKWISE; // From Polylinie.dxf $ARCDIR
@@ -247,18 +264,17 @@ export function dxfBulgeToArcData2(from: DxfPoint, to: DxfPoint, bulge: number):
     //     // points.reverse()
     //     [startAngle, endAngle] = [endAngle, startAngle];
     // }
-    
+
     // return points.map((p) => [p.x, p.y])
 
     return {
-        origin: {x: d.x, y: d.y},
+        origin: { x: d.x, y: d.y },
         radius: r,
         startAngle,
         endAngle,
         orientation: orientation
     };
 }
-
 
 export function dxfEntityTransformToTransformData(dxfTransform: InsertEntityData): TransformData {
     return {

@@ -16,7 +16,7 @@ import { polyshapeArea } from "./polyshape.function";
 import { pointDistance } from "../point/point.function";
 import { polyshapeConnectShapes } from "./polyshape.function";
 import { roundToDecimalPlaces } from "$lib/utils/numbers";
-import { DECIMAL_PRECISION } from "$lib/input/config/defaults";
+import { DECIMAL_PRECISION } from "$lib/domain/importing/config/defaults";
 
 export class Polyshape implements PolyshapeData, Shape {
 

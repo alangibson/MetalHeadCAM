@@ -1,7 +1,7 @@
 <script lang="ts">
     import { Circle as KonvaCircle } from "svelte-konva";
     import type { Shape } from "$lib/geometry/shape/shape";
-    import { DEFAULT_COLOR_TESSELLATE_POINT } from "$lib/input/config/defaults";
+    import { DEFAULT_COLOR_TESSELLATE_POINT } from "$lib/domain/importing/config/defaults";
     
     let {shape}: {shape: Shape} = $props();
 </script>

@@ -118,7 +118,8 @@ export class StageState {
     // Select shape.
     // Defined as arrow function since it's passed as a callback.
     onClick = (e) => {
-        console.log('onClick', e.target);
+        const target: Konva.Shape = e.target;
+        console.log('onClick', target);
 
         // Add to selected shape list
         if (!this.selectedKonvaShapes.has(this.activeShape))

@@ -133,8 +133,10 @@ describe('dxfPointsToShape', () => {
         // Assert
         expect(shape).toBeInstanceOf(Line);
         const line = shape as Line;
-        expect(line.startPoint).toEqual(startPoint);
-        expect(line.endPoint).toEqual(endPoint);
+        expect(line.startPoint.x).toEqual(startPoint.x);
+        expect(line.startPoint.y).toEqual(startPoint.y);
+        expect(line.endPoint.x).toEqual(endPoint.x);
+        expect(line.endPoint.y).toEqual(endPoint.y);
     });
 
     it('should create Arc when bulge is present and non-zero', () => {

@@ -53,10 +53,10 @@ describe('circleTransform', () => {
         const result = circleTransform(transform, circle);
 
         // In a 90 degree rotation around origin:
-        // x' = -y
-        // y' = x
-        expect(result.origin.x).toBeCloseTo(10);
-        expect(result.origin.y).toBeCloseTo(20);
+        // x' = x*cos(π/2) - y*sin(π/2) = 10*0 - 20*1 = -20
+        // y' = x*sin(π/2) + y*cos(π/2) = 10*1 + 20*0 = 10
+        expect(result.origin.x).toBeCloseTo(-20);
+        expect(result.origin.y).toBeCloseTo(10);
         expect(result.radius).toBe(5); // unchanged
     });
 
@@ -75,9 +75,12 @@ describe('circleTransform', () => {
 
         const result = circleTransform(transform, circle);
 
-        // First scales (x2), then rotates 180° (negates), then translates (+10)
-        expect(result.origin.x).toBeCloseTo((circle.origin.x * 2) + 10);
-        expect(result.origin.y).toBeCloseTo((circle.origin.y * 2) + 10);
+        // Transformations are applied in reverse order of compose:
+        // 1. Scale (x2) -> (20,40)
+        // 2. Rotate 180° -> (-20,-40)
+        // 3. Translate (+10,+10) -> (-10,-30)
+        expect(result.origin.x).toBeCloseTo(-10);  // (10 * 2) * -1 + 10
+        expect(result.origin.y).toBeCloseTo(-30);  // (20 * 2) * -1 + 10
         expect(result.radius).toBe(10);           // 5 * 2
     });
 
@@ -111,10 +114,10 @@ describe('circleTransform', () => {
 
         const result = circleTransform(transform, circle);
 
-        // First scales (y flips), then rotates 180°, then translates
-        expect(result.origin.x).toBeCloseTo(-10 + 34.9);  // (-10) + 34.9
-        expect(result.origin.y).toBeCloseTo(-20 + 7.6);   // (-20) + 7.6
-        expect(result.radius).toBe(5);                     // unchanged due to scaleX=1
+        // First scales (none in this case), then rotates 180° (negates coordinates), then translates
+        expect(result.origin.x).toBeCloseTo(10 + 34.9);  // -(-10) + 34.9
+        expect(result.origin.y).toBeCloseTo(20 + 7.6);   // -(-20) + 7.6
+        expect(result.radius).toBe(5);                    // unchanged due to scaleX=1
     });
 });
 
