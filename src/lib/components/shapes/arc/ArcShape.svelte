@@ -3,6 +3,7 @@
     import type { Arc } from "$lib/geometry/arc/arc";
     import { Arc as KonvaArc } from "svelte-konva";
     import ShapeBearing from "../markers/ShapeBearing.svelte";
+    import { DEFAULT_COLOR_ARC } from "$lib/domain/importing/config/defaults";
 
     let {
         geometry: arc = $bindable<Arc>(),
@@ -35,7 +36,7 @@
 
 <KonvaArc
     {...config}
-    stroke="red"
+    stroke={DEFAULT_COLOR_ARC}
     {strokeWidth}
     lineCap="round"
     lineJoin="round"

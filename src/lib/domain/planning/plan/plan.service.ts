@@ -79,8 +79,6 @@ export namespace Planning {
         // Group cuts into nesting hierarchy
         const cutRoots: CutNestingNode[] = cutNesting(cuts);
 
-        // console.log('cutRoots', cutRoots);
-
         // Group Cut(s) into Part(s)
         const parts: Part[] = cutsRootsToParts(cutRoots);
         
@@ -94,13 +92,11 @@ export namespace Planning {
         // if cuts are holes or shells of parts.
         // PathOptimizer.optimize(parts);
         
-        // Save Part
+        // Save Parts
         plan.parts.push(...parts);
 
-        // TODO Translate Parts so orgin is 0,0
-        // TODO find bounding box around all parts
+        // Translate Parts so orgin is 0,0
         const boundingBox = plan.boundary;
-        console.log('Plan BB', boundingBox);
         plan.transform({
             translateX: -boundingBox.startPoint.x,
             translateY: -boundingBox.startPoint.y

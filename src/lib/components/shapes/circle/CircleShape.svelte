@@ -1,8 +1,8 @@
 <script lang="ts">
-    import type { CircleData } from "$lib/geometry/circle/circle.data";
     import { Circle as KonvaCircle } from "svelte-konva";
     import ShapeBearing from "../markers/ShapeBearing.svelte";
     import type { Circle } from "$lib/geometry/circle/circle";
+    import { DEFAULT_COLOR_CIRCLE } from "$lib/domain/importing/config/defaults";
 
     let {
         geometry: circle = $bindable<Circle>(),
@@ -30,7 +30,7 @@
 
 <KonvaCircle
     {...config}
-    stroke="green"
+    stroke={DEFAULT_COLOR_CIRCLE}
     {strokeWidth}
     lineCap="round"
     lineJoin="round"

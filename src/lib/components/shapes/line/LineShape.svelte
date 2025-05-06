@@ -1,9 +1,8 @@
 <script lang="ts">
-    import { radiansToDegrees } from "$lib/geometry/angle/angle.function";
     import type { Line } from "$lib/geometry/line/line";
     import { Line as KonvaLine, Wedge as KonvaWedge } from "svelte-konva";
-    import BearingMarker from "../markers/BearingMarker.svelte";
     import ShapeBearing from "../markers/ShapeBearing.svelte";
+    import { DEFAULT_COLOR_LINE } from "$lib/domain/importing/config/defaults";
 
     let {
         geometry: line = $bindable<Line>(),
@@ -37,7 +36,7 @@
 
 <KonvaLine
     {...config}
-    stroke="orange"
+    stroke={DEFAULT_COLOR_LINE}
     {strokeWidth}
     lineCap="round"
     lineJoin="round"

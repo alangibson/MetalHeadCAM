@@ -5,6 +5,7 @@
     import { PlanningStageState } from "./state.svelte";
     import CutShape from "./shapes/CutShape.svelte";
     import PartShape from "./shapes/PartShape.svelte";
+    import { DEFAULT_COLOR_AXIS_LINE } from "$lib/domain/importing/config/defaults";
 
     let {
         plan,
@@ -71,12 +72,12 @@
     <KonvaLayer>
         <KonvaLine
             points={[-10000, 0, 10000, 0]}
-            stroke="lightblue"
+            stroke={DEFAULT_COLOR_AXIS_LINE}
             strokeWidth={PlanningStageState.strokeWidth}
         />
         <KonvaLine
             points={[0, -10000, 0, 10000]}
-            stroke="lightblue"
+            stroke={DEFAULT_COLOR_AXIS_LINE}
             strokeWidth={PlanningStageState.strokeWidth}
         />
     </KonvaLayer>

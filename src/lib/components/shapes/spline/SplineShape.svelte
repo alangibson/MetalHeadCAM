@@ -7,6 +7,7 @@
     import type { S } from "vitest/dist/chunks/config.d.DevWltVl.js";
     import { splineSvgPathCommand } from "./spline.function";
     import ShapeBearing from "../markers/ShapeBearing.svelte";
+    import { DEFAULT_COLOR_SPLINE } from "$lib/domain/importing/config/defaults";
 
     let {
         geometry: spline = $bindable<Spline>(),
@@ -33,7 +34,7 @@
 
 <KonvaPath
     {...config}
-    stroke="magenta"
+    stroke={DEFAULT_COLOR_SPLINE}
     {strokeWidth}
     lineCap="round"
     lineJoin="round"

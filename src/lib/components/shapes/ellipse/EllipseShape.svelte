@@ -6,6 +6,7 @@
     } from "$lib/geometry/angle/angle.function";
     import type { Ellipse } from "$lib/geometry/ellipse/ellipse";
     import ShapeBearing from "../markers/ShapeBearing.svelte";
+    import { DEFAULT_COLOR_ELLIPSE } from "$lib/domain/importing/config/defaults";
 
     let {
         geometry: ellipse = $bindable<Ellipse>(),
@@ -37,7 +38,7 @@
 
 <KonvaEllipse
     {...config}
-    stroke="purple"
+    stroke={DEFAULT_COLOR_ELLIPSE}
     {strokeWidth}
     lineCap="round"
     lineJoin="round"
