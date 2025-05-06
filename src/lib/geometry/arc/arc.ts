@@ -117,6 +117,7 @@ export class Arc implements ArcData, Shape {
         this.radius = arcData.radius;
         this.startAngle = arcData.startAngle;
         this.endAngle = arcData.endAngle;
+        this.clearCache();
     }
 
     contains(geometry: Geometry): boolean {

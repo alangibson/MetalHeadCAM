@@ -1,9 +1,9 @@
 // import polygonClipping from 'polygon-clipping';
 import { Point } from "../point/point";
 import type { PointData } from "../point/point.data";
-import type { Shape } from "../shape/shape";
+import { Shape } from "../shape/shape";
 import type { PolyshapeData } from "./polyshape.data";
-import { polyshapeIsClosed, polyshapeMiddlePoint, polyshapeReverseShapes, polyshapeTessellate } from "./polyshape.function";
+import { polyshapeIsClosed, polyshapeIsSimple, polyshapeMiddlePoint, polyshapeReverseShapes, polyshapeTessellate } from "./polyshape.function";
 import type { TransformData } from "../transform/transform.data";
 import { GeometryTypeEnum, OrientationEnum } from "../geometry/geometry.enum";
 import { Boundary } from "../boundary/boundary";
@@ -18,16 +18,18 @@ import { polyshapeConnectShapes } from "./polyshape.function";
 import { roundToDecimalPlaces } from "$lib/utils/numbers";
 import { DECIMAL_PRECISION } from "$lib/domain/importing/config/defaults";
 
-export class Polyshape implements PolyshapeData, Shape {
+export class Polyshape extends Shape implements PolyshapeData {
 
     type = GeometryTypeEnum.POLYSHAPE;
     shapes: Shape[];
     private _isClosed?: boolean;
+    private _isSimple?: boolean;
     private _sample?: Point[];
     private _boundary?: Boundary;
     private _middlePoint?: Point;
 
     constructor(data: PolyshapeData) {
+        super();
         this.shapes = data.shapes;
     }
 
@@ -52,6 +54,13 @@ export class Polyshape implements PolyshapeData, Shape {
         if (this._isClosed === undefined)
             this._isClosed = polyshapeIsClosed(this);
         return this._isClosed
+    }
+
+    /** True if not self-intersecting */
+    get isSimple(): boolean {
+        if (this._isSimple === undefined)
+            this._isSimple = polyshapeIsSimple(this);
+        return this._isSimple;
     }
 
     get orientation(): OrientationEnum {

@@ -70,12 +70,19 @@ export class Circle implements CircleData, Shape {
     get length(): number {
         return 2 * Math.PI * this.radius;
     }
+    
+    clearCache(): void {
+        this._startPoint = undefined;
+        this._middlePoint = undefined;
+        this._endPoint = undefined;
+    }
 
     transform(transform: TransformData): void {
         const circleData = circleTransform(transform, this);
         this.origin.x = circleData.origin.x;
         this.origin.y = circleData.origin.y;
         this.radius = circleData.radius;
+        this.clearCache();
     }
 
     contains(geometry: Geometry): boolean {

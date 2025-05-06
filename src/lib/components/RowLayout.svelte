@@ -1,12 +1,15 @@
 <script lang="ts">
     import Split from "split-grid";
-
+ 
     let {
         children = null,
         leftColumn = null,
         middleColumn = null,
         rightColumn = null,
-        activeStage = $bindable(),
+        height = $bindable(0),
+        leftColumnWidth = $bindable(0),
+        middleColumnWidth = $bindable(0),
+        rightColumnWidth = $bindable(0)
     } = $props();
 
     $effect(() => {
@@ -28,64 +31,25 @@
             });
         }
     });
+
 </script>
 
-<div class="breadcrumbs">
-    <div
-        class="breadcrumb"
-        class:active={activeStage > 1}
-        class:selected={activeStage === 1}
-    >
-        <button onclick={() => activeStage = 1}>Project</button>
-        <span class="chevron">›</span>
-    </div>
-    <div
-        class="breadcrumb"
-        class:active={activeStage > 2}
-        class:selected={activeStage === 2}
-    >
-        <button onclick={() => activeStage = 2}>Import</button>
-        <span class="chevron">›</span>
-    </div>
-    <div
-        class="breadcrumb"
-        class:active={activeStage > 3}
-        class:selected={activeStage === 3}
-    >
-        <button onclick={() => activeStage = 3}>Drawing</button>
-        <span class="chevron">›</span>
-    </div>
-    <div
-        class="breadcrumb"
-        class:active={activeStage > 4}
-        class:selected={activeStage === 4}
-    >
-        <button onclick={() => activeStage = 4}>Program</button>
-    </div>
-</div>
-
 <div class="columns">
-    <div class="column left-column">
+    <div class="column left-column" bind:clientWidth={leftColumnWidth}>
         {@render leftColumn?.()}
     </div>
     <div class="gutter-col gutter-col-1"></div>
-    <div class="column middle-column">
+    <div class="column middle-column" bind:clientHeight={height} bind:clientWidth={middleColumnWidth}>
         {@render children?.()}
         {@render middleColumn?.()}
     </div>
     <div class="gutter-col gutter-col-3"></div>
-    <div class="column right-column">
+    <div class="column right-column" bind:clientWidth={rightColumnWidth}>
         {@render rightColumn?.()}
     </div>
 </div>
 
 <style>
-    /* .columns {
-        display: flex;
-        overflow: hidden;
-        height: 100%;
-    } */
-
     .columns {
         display: grid;
         grid-template-columns: 1fr 10px 6fr 10px 1fr;
@@ -140,46 +104,4 @@
         overflow: scroll;
     }
 
-    /**
-     * Breadrcumbs
-     */
-    .breadcrumbs {
-        display: flex;
-        width: 100%;
-        padding: 1rem;
-        gap: 0.5rem;
-        border-bottom: 2px solid #ccc;
-    }
-
-    .breadcrumb {
-        display: flex;
-        align-items: center;
-        color: #666;
-        font-size: 0.9rem;
-        gap: 0.5rem;
-    }
-
-    .breadcrumb button {
-        border: none;
-        background: none;
-        cursor: pointer;
-    }
-
-    .breadcrumb.active {
-        color: #4caf50;
-        font-weight: 500;
-        border-bottom: 1px solid #4caf50;
-    }
-
-    .breadcrumb.selected {
-        color: blue;
-        font-weight: 500;
-        border-bottom: 1px solid blue;
-    }
-
-    .chevron {
-        color: #999;
-        font-size: 1.2rem;
-        line-height: 1;
-    }
 </style>

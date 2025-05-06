@@ -4,6 +4,7 @@ import type { KonvaMouseEvent, KonvaPointerEvent, KonvaWheelEvent } from "svelte
 import { SvelteSet } from "svelte/reactivity";
 import type { Cut } from "$lib/domain/planning/cut/cut";
 import type { Part } from "$lib/domain/planning/part/part";
+import type { Entity } from "$lib/entity";
 
 /**
  * Add a lot of useful features to Konva.Stage.
@@ -12,6 +13,10 @@ import type { Part } from "$lib/domain/planning/part/part";
  * state between many Svelte components.
  */
 export class StageState {
+
+    //
+    // Konva.Stage management
+    // 
 
     // Reference to underlying Konva.Stage object
     konvaStage = $state<Konva.Stage>();
@@ -35,14 +40,6 @@ export class StageState {
     strokeWidthPx = 1;
     strokeWidth = $derived(this.strokeWidthPx / this.stageScaleBy);
 
-    // Moused-over Konva Shape
-    activeShape = $state<Konva.Shape>();
-    // List of selected shapes
-    selectedKonvaShapes = $state<SvelteSet<Konva.Shape>>(
-        new SvelteSet(),
-    );
-    selectedEntities = $state(new SvelteSet<Part|Cut>());
-
     konvaStagePointerX = $state(0);
     konvaStagePointerY = $state(0);
     stagePointerX = $state(0);
@@ -54,6 +51,23 @@ export class StageState {
     translateX = $derived(((this.konvaStageWidth - this.boundingBox?.width) / 2 - this.boundingBox?.x) || 0);
     translateY = $derived(((this.konvaStageHeight - this.boundingBox?.height) / 2 -
         this.boundingBox?.y) || 0);
+
+    //
+    // Item selection
+    // 
+
+    // Moused-over Konva Shape
+    hoveredShape = $state<Konva.Shape>();
+    // List of selected shapes
+    selectedKonvaShapes = $state<SvelteSet<Konva.Shape>>(
+        new SvelteSet(),
+    );
+    selectedEntities = $state(new SvelteSet<Entity>());
+    hoveredEntities = $state(new SvelteSet<Entity>());
+
+    //
+    // Konva.Stage management
+    // 
 
     // Track scaling
     // Defined as arrow function since it's passed as a callback
@@ -97,22 +111,29 @@ export class StageState {
         this.stagePointerY = this.konvaStageHeight - this.konvaStagePointerY;
     }
 
+    //
+    // Item selection
+    // 
+
     // Highlight shape on mouseover.
     // Defined as arrow function since it's passed as a callback.
     onMouseEnter = (e: KonvaMouseEvent) => {
-        this.activeShape = e.target;
-        if (!this.activeShape?.getAttr("strokeLocked")) {
-            this.activeShape?.setAttr("lastStroke", this.activeShape.getAttr("stroke"));
-            this.activeShape.setAttr("stroke", "yellow");
-        }
+        console.log('Hovering', e.target);
+        this.hoveredShape = e.target;
+        // this.hoveredEntities.add(this.hoveredShape);
+        // if (!this.hoveredShape?.getAttr("strokeLocked")) {
+        //     this.hoveredShape?.setAttr("lastStroke", this.hoveredShape.getAttr("stroke"));
+        //     this.hoveredShape.setAttr("stroke", "yellow");
+        // }
     }
 
     // Remove highlight shape on mouseout.
     // Defined as arrow function since it's passed as a callback.
     onMouseLeave = () => {
-        if (!this.activeShape?.getAttr("strokeLocked"))
-            this.activeShape.setAttr("stroke", this.activeShape.getAttr("lastStroke"));
-        this.activeShape = undefined;
+        // if (!this.hoveredShape?.getAttr("strokeLocked"))
+        //     this.hoveredShape.setAttr("stroke", this.hoveredShape.getAttr("lastStroke"));
+        // this.hoveredEntities.delete(this.hoveredShape);
+        this.hoveredShape = undefined;
     }
 
     // Select shape.
@@ -122,20 +143,21 @@ export class StageState {
         console.log('onClick', target);
 
         // Add to selected shape list
-        if (!this.selectedKonvaShapes.has(this.activeShape))
-            this.selectedKonvaShapes.add(this.activeShape);
+        if (!this.selectedKonvaShapes.has(this.hoveredShape))
+            this.selectedKonvaShapes.add(this.hoveredShape);
         else
-            this.selectedKonvaShapes.delete(this.activeShape);
+            this.selectedKonvaShapes.delete(this.hoveredShape);
         
         // Lock highlight
-        this.activeShape.setAttr(
-            "strokeLocked",
-            !this.activeShape.getAttr("strokeLocked"),
-        );
-        
+        // this.hoveredShape.setAttr(
+        //     "strokeLocked",
+        //     !this.hoveredShape.getAttr("strokeLocked"),
+        // );
+        this.selectedEntities.add(this.hoveredShape);
+
     }
 
-    onClickEntity = (e, entity: Part|Cut) => {
+    onClickEntity = (e, entity: Entity) => {
         console.log('onClickEntity', e, entity);
 
         // Add to selected entity list
@@ -143,6 +165,16 @@ export class StageState {
             this.selectedEntities.add(entity);
         else
             this.selectedEntities.delete(entity);
+    }
+
+    onMouseEnterEntity = (e: KonvaMouseEvent, entity: Entity) => {
+        console.log('Hovering entity', entity);
+        this.hoveredEntities.add(entity);
+    }
+
+    onMouseLeaveEntity = (e: KonvaMouseEvent, entity: Entity) => {
+        console.log('Unhovering entity', entity);
+        this.hoveredEntities.delete(entity);
     }
 
 }

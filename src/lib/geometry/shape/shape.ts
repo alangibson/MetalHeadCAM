@@ -1,6 +1,6 @@
 import type { AngleRadians } from "../angle/angle.type";
 import type { Boundary } from "../boundary/boundary";
-import type { Geometry } from "../geometry/geometry";
+import { Geometry } from "../geometry/geometry";
 import type { OrientationEnum } from "../geometry/geometry.enum";
 import type { Point } from "../point/point";
 import type { PointData } from "../point/point.data";
@@ -11,21 +11,21 @@ export enum AxisEnum {
 }
 
 /** A 2 dimensional shape */
-export interface Shape extends Geometry {
-    startPoint: Point;
-    endPoint: Point;
-    isClosed: boolean;
-    boundary: Boundary;
-    length: number;
+export abstract class Shape extends Geometry {
+    abstract startPoint: Point;
+    abstract endPoint: Point;
+    abstract isClosed: boolean;
+    abstract boundary: Boundary;
+    abstract length: number;
     // Null if isClosed==false
-    area: number|null;
-    orientation: OrientationEnum;
-    contains(geometry: Geometry): boolean;
+    abstract area: number|null;
+    abstract orientation: OrientationEnum;
+    abstract contains(geometry: Geometry): boolean;
     // Convert shape to array of points
-    tessellate(samples?: number): Point[];
+    abstract tessellate(samples?: number): Point[];
     // Swap start and end points, at a minimum.
 	// Implementing classes must also take care of any points in between.
-	reverse(): void;
+	abstract reverse(): void;
     // Get angle on xy plane of line or tangent of curve at a given point
-    bearingAt(point: PointData): AngleRadians;
+    abstract bearingAt(point: PointData): AngleRadians;
 }

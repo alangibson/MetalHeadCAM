@@ -86,6 +86,12 @@ export class Ellipse implements EllipseData, Shape {
         return shapeLengthFromPoints(this.tessellate(1000));
     }
 
+    clearCache(): void {
+        this._startPoint = undefined;
+        this._middlePoint = undefined;
+        this._endPoint = undefined;
+    }
+
     transform(transform: TransformData): void {
         const ellipseData = ellipseTransform(transform, this);
         this.origin.x = ellipseData.origin.x;
@@ -95,6 +101,7 @@ export class Ellipse implements EllipseData, Shape {
         this.minorLength = ellipseData.minorLength;
         this.startAngle = ellipseData.startAngle;
         this.endAngle = ellipseData.endAngle;
+        this.clearCache();
     }
 
     contains(geometry: Geometry): boolean {

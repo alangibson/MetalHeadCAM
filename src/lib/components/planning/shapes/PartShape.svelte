@@ -7,6 +7,8 @@
     let { part, children = null }: { part: Part } = $props();
 </script>
 
-<KonvaGroup onclick={(e) => PlanningStageState.onClickEntity(e, part)}>
+<!-- TODO add onClick handler for part when we click inside part -->
+<!-- <KonvaGroup onclick={(e) => PlanningStageState.onClickEntity(e, part)}> -->
+<KonvaGroup>
     {@render children()}
 </KonvaGroup>

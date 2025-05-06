@@ -134,6 +134,7 @@ export class Spline implements SplineData, Shape {
             point.x = transformed.controlPoints[i].x;
             point.y = transformed.controlPoints[i].y;
         });
+        this.clearCache();
     }
 
     contains(geometry: Geometry): boolean {

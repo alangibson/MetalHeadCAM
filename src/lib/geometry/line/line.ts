@@ -63,12 +63,17 @@ export class Line implements LineData, Shape {
         return Math.sqrt(dx * dx + dy * dy);
     }
 
+    clearCache(): void {
+        this._middlePoint = undefined;
+    }
+
     transform(transform: TransformData): void {
         const transformed = lineTransform(transform, this);
         this.startPoint.x = transformed.startPoint.x;
         this.startPoint.y = transformed.startPoint.y;
         this.endPoint.x = transformed.endPoint.x;
         this.endPoint.y = transformed.endPoint.y;
+        this.clearCache();
     }
 
     contains(geometry: Geometry): boolean {

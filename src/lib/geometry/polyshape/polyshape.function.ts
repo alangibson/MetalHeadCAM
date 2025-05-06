@@ -8,6 +8,10 @@ import type { Shape } from "../shape/shape";
 import { Polyshape } from "./polyshape";
 import type { PolyshapeData } from "./polyshape.data";
 import { OrientationEnum } from "../geometry/geometry.enum";
+import { GeometryFactory, Coordinate } from 'jsts/org/locationtech/jts/geom';
+import IsSimpleOp from 'jsts/org/locationtech/jts/operation/IsSimpleOp';
+import { roundToDecimalPlaces } from "$lib/utils/numbers";
+import { DECIMAL_PRECISION } from "$lib/domain/importing/config/defaults";
 
 /**
  * Polyshape is closed if end-to-start points of all child shapes are coincident.
@@ -220,3 +224,20 @@ export function polyshapeConnectShapes(shapez: Shape[]): Shape[] {
 
 }
 
+/**
+ * Check if a polyshape intersects with itself.
+ * Uses JSTS to perform the intersection check.
+ */
+export function polyshapeIsSimple(polyshape: PolyshapeData): boolean {
+    const geometryFactory = new GeometryFactory();
+    
+    // Get points from the polyshape
+    const points = polyshapeTessellate(polyshape, 1000);
+    const coords = points.map(p => new Coordinate(roundToDecimalPlaces(p.x, DECIMAL_PRECISION), roundToDecimalPlaces(p.y, DECIMAL_PRECISION)));
+    
+    // Create a LineString from the points
+    const lineString = geometryFactory.createLineString(coords);
+    
+    // Check if the LineString is simple (no self-intersections)
+    return IsSimpleOp.isSimple(lineString);
+}

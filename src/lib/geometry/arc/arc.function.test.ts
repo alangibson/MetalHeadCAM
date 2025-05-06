@@ -141,6 +141,27 @@ describe('arcTransform', () => {
         expect(result.endAngle).toBe(Math.PI / 2); // unchanged
     });
 
+    it('should handle translation with negative origin', () => {
+        const arc: ArcData = {
+            origin: { x: -10, y: -20 },
+            radius: 5,
+            startAngle: 0,
+            endAngle: Math.PI / 2  // 90 degrees
+        };
+        const transform: TransformData = {
+            translateX: 10,
+            translateY: -5
+        };
+
+        const result = arcTransform(transform, arc);
+
+        expect(result.origin.x).toBe(0);   // -10 + 10
+        expect(result.origin.y).toBe(-25); // -20 - 5
+        expect(result.radius).toBe(5);     // unchanged
+        expect(result.startAngle).toBe(0); // unchanged
+        expect(result.endAngle).toBe(Math.PI / 2); // unchanged
+    });
+
     it('should handle scaling', () => {
         const arc: ArcData = {
             origin: { x: 10, y: 20 },
@@ -408,9 +429,9 @@ describe('arcBearingAt', () => {
             endAngle: 5 * Math.PI / 4, // 225 degrees
             orientation: OrientationEnum.COUNTERCLOCKWISE
         };
-        const point = { 
-            x: 5 * Math.cos(Math.PI / 4), 
-            y: 5 * Math.sin(Math.PI / 4) 
+        const point = {
+            x: 5 * Math.cos(Math.PI / 4),
+            y: 5 * Math.sin(Math.PI / 4)
         }; // Start point of arc
 
         // Act
@@ -624,11 +645,11 @@ describe('arcTessellate', () => {
         // First point should be at (5,0)
         expect(points[0].x).toBeCloseTo(5);
         expect(points[0].y).toBeCloseTo(0);
-        
+
         // Last point should be at (0,5)
         expect(points[samples].x).toBeCloseTo(0);
         expect(points[samples].y).toBeCloseTo(5);
-        
+
         // Middle point should be at (3.5355, 3.5355) - 45 degrees
         expect(points[2].x).toBeCloseTo(3.5355, 4);
         expect(points[2].y).toBeCloseTo(3.5355, 4);
@@ -652,11 +673,11 @@ describe('arcTessellate', () => {
         // First point should be at (0,5)
         expect(points[0].x).toBeCloseTo(0);
         expect(points[0].y).toBeCloseTo(5);
-        
+
         // Last point should be at (5,0)
         expect(points[samples].x).toBeCloseTo(5);
         expect(points[samples].y).toBeCloseTo(0);
-        
+
         // Middle point should be at (3.5355, 3.5355) - 45 degrees
         expect(points[2].x).toBeCloseTo(3.5355, 4);
         expect(points[2].y).toBeCloseTo(3.5355, 4);
@@ -679,7 +700,7 @@ describe('arcTessellate', () => {
         // First point should be at (5,0)
         expect(points[0].x).toBeCloseTo(5);
         expect(points[0].y).toBeCloseTo(0);
-        
+
         // Last point should be at (0,5)
         expect(points[samples].x).toBeCloseTo(0);
         expect(points[samples].y).toBeCloseTo(5);
@@ -702,7 +723,7 @@ describe('arcTessellate', () => {
         // First point should be at (0,5)
         expect(points[0].x).toBeCloseTo(0);
         expect(points[0].y).toBeCloseTo(5);
-        
+
         // Last point should be at (5,0)
         expect(points[samples].x).toBeCloseTo(5);
         expect(points[samples].y).toBeCloseTo(0);
@@ -747,7 +768,7 @@ describe('arcTessellate', () => {
         // First point should be at (15,20)
         expect(points[0].x).toBeCloseTo(15);
         expect(points[0].y).toBeCloseTo(20);
-        
+
         // Last point should be at (10,25)
         expect(points[samples].x).toBeCloseTo(10);
         expect(points[samples].y).toBeCloseTo(25);

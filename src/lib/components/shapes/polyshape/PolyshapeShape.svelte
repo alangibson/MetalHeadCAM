@@ -4,10 +4,12 @@
     import { shapeSvgPathCommand } from "../shape/shape.function";
     import ShapeBearing from "../markers/ShapeBearing.svelte";
     import ShapeTessellation from "../markers/ShapeTessellation.svelte";
+    import { DEFAULT_COLOR_POLYSHAPE } from "$lib/domain/importing/config/defaults";
 
     let {
         geometry: polyshape = $bindable<Polyshape>(),
         strokeWidth = $bindable(1),
+        strokeColor = $bindable(DEFAULT_COLOR_POLYSHAPE),
         onmouseenter,
         onmouseleave,
         onclick,
@@ -34,7 +36,7 @@
 
 <KonvaPath
     {data}
-    stroke="black"
+    stroke={strokeColor}
     {strokeWidth}
     lineCap="round"
     lineJoin="round"

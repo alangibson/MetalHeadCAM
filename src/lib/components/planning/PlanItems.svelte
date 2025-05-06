@@ -1,138 +1,80 @@
 <script lang="ts">
     import type { Plan } from "$lib/domain/planning/plan/plan";
-    import type { Part } from "$lib/domain/planning/part/part";
+    import { Part } from "$lib/domain/planning/part/part";
     import { PlanningStageState } from "./state.svelte";
+    import TreeGrid from "../gui/TreeGrid.svelte";
+    import type { SvelteSet } from "svelte/reactivity";
+    import type { Cut } from "$lib/domain/planning/cut/cut";
+    import type { WbNodeData } from 'wunderbaum';
+    // import types from 'wunderbaum';
 
     let { plan }: { plan: Plan|undefined } = $props();
 
-    // Track expanded state of parts
-    let expandedParts = $state<Set<Part>>(new Set());
-
-    function togglePart(part: Part) {
-        if (expandedParts.has(part)) {
-            expandedParts.delete(part);
-        } else {
-            expandedParts.add(part);
+    // TODO this won't actually be reactive because Plan is a non-reactive class
+    // TODO apply WbNodeData typing
+    let treeGridItems = $derived(() => {
+        const items = [];
+        for (const part of plan?.parts) {
+            const partItem = {
+                title: 'Part',
+                key: part.id,
+                expanded: true,
+                children: [],
+                entity: part
+            };
+            for (const cut of part.cuts) {
+                const cutItem = {
+                    title: 'Cut',
+                    key: cut.id,
+                    children: [],
+                    entity: cut
+                };
+                for (const shape of cut.path.shapes) {
+                    const shapeItem = {
+                        key: shape.id,
+                        title: shape.constructor.name,
+                        entity: shape
+                    };
+                    cutItem.children.push(shapeItem);
+                }
+                partItem.children.push(cutItem);
+            }
+            items.push(partItem);
         }
-    }
+        return items;
+    });
 
-    // Check if any shape in the part is selected
-    function isPartSelected(part: Part): boolean {
-        return PlanningStageState.selectedEntities.has(part) || 
-               part.cuts.some(cut => PlanningStageState.selectedEntities.has(cut));
-    }
+    // TODO react to changes in PlanningStageState.selectedEntities
+    // function selectTreeGridItems(selectedEntities: SvelteSet<Part|Cut>) {
+    //     for (const entity of selectedEntities) {
+
+    //     }
+    // }
+
+    // // Track expanded state of parts
+    // let expandedParts = $state<Set<Part>>(new Set());
+
+    // function togglePart(part: Part) {
+    //     if (expandedParts.has(part)) {
+    //         expandedParts.delete(part);
+    //     } else {
+    //         expandedParts.add(part);
+    //     }
+    // }
+
+    // // Check if any shape in the part is selected
+    // function isPartSelected(part: Part): boolean {
+    //     return PlanningStageState.selectedEntities.has(part) || 
+    //            part.cuts.some(cut => PlanningStageState.selectedEntities.has(cut));
+    // }
 </script>
 
-<div class="plan-panel">
-    <h3>Plan Items</h3>
-    <div class="part-count">Total Parts: {plan?.parts?.length}</div>
-    <ul class="part-list">
-        {#each plan?.parts as part}
-            <li>
-                <!-- svelte-ignore event_directive_deprecated -->
-                <!-- svelte-ignore a11y_click_events_have_key_events -->
-                <!-- svelte-ignore a11y_no_static_element_interactions -->
-                <div 
-                    class="part-header" 
-                    class:selected={isPartSelected(part)}
-                    on:click={() => togglePart(part)}
-                >
-                    <span class="expand-icon">{expandedParts.has(part) ? "▼" : "▶"}</span>
-                    <span class="part-name">Part</span>
-                    <span class="cut-count">({part?.cuts?.length} cuts)</span>
-                </div>
-                <ul class="cut-list" class:expanded={true}>
-                    {#each part.cuts as cut}
-                        <li class="cut-item">
-                            <div class="cut-type">{cut.constructor.name}</div>
-                            <div class="cut-details">
-                                <ul class="shape-list" class:expanded={true}>
-                                    {#each cut.path.shapes as shape}
-                                        <li class="shape-item">
-                                            <div class="shape-type">{shape.constructor.name}</div>
-                                            <div class="shape-details">
-                                                <ul>
-                                                    <!-- <li>isClosed: {shape.isClosed}</li>
-                                                    <li>orientation: {shape.orientation}</li> -->
-                                                </ul>
-                                            </div>
-                                        </li>
-                                    {/each}
-                                </ul>
-                            </div>
-                        </li>
-                    {/each}
-                </ul>
-            </li>
-        {/each}
-    </ul>
-</div>
+<!-- <div class="plan-panel"> -->
+<TreeGrid data={treeGridItems()} selected={PlanningStageState.selectedEntities}></TreeGrid>
+<!-- </div> -->
 
 <style>
-    .plan-panel {
+    /* .plan-panel {
         border-radius: 4px;
-    }
-
-    .part-list {
-        list-style: none;
-        padding: 0;
-        margin: 0;
-    }
-
-    .part-header {
-        display: flex;
-        align-items: center;
-        padding: 0.5rem;
-        border-radius: 4px;
-        margin-bottom: 0.25rem;
-    }
-
-    .part-header:hover {
-    }
-
-    .expand-icon {
-        margin-right: 0.5rem;
-    }
-
-    .part-name {
-        flex: 1;
-    }
-
-    .part-count {
-        margin-bottom: 1rem;
-    }
-
-    .cut-count {
-        margin-left: 0.5rem;
-    }
-
-    .cut-list {
-        padding-left: 2rem;
-        margin: 0.25rem 0;
-        list-style: none;
-        display: none;
-    }
-
-    .cut-list.expanded {
-        display: block;
-    }
-
-    .cut-item {
-    }
-
-    .cut-type {
-        padding: 0.2rem 0.4rem;
-        border-radius: 3px;
-    }
-
-    .cut-details {
-    }
-    
-    .shape-list {
-        list-style: none;
-    }
-
-    .part-header.selected {
-        background-color: #ffeb3b40;
-    }
+    } */
 </style>

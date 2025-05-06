@@ -3,7 +3,11 @@
     import { DXFConverter } from "$lib/domain/importing/dxf/dxf";
     import FileInput from "./FileInput.svelte";
 
-    let { svgContent = $bindable<string>(), drawing = $bindable<Drawing>(), activeStage = $bindable() } = $props();
+    let {
+        svgContent = $bindable<string>(),
+        drawing = $bindable<Drawing>(),
+        activeStage = $bindable(),
+    } = $props();
 
     function handleFileSelected(event: CustomEvent<File>) {
         const reader = new FileReader();
@@ -18,11 +22,5 @@
         reader.readAsText(file);
     }
 </script>
-<!-- 
-<div class="columns">
-    <div class="column">
-        <FileInput on:file-selected={handleFileSelected} />
-    </div>
-</div> -->
 
 <FileInput on:file-selected={handleFileSelected} />

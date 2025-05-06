@@ -36,8 +36,10 @@
 		"svelte-konva": "^1.0.0-next.0",
 		"three": "^0.175.0",
 		"transformation-matrix": "^3.0.0",
+		"uuid": "^11.1.0",
 		"vecks": "^3.9.2",
 		"verb-nurbs": "^3.0.2",
-		"window": "^4.2.7"
+		"window": "^4.2.7",
+		"wunderbaum": "^0.13.0"
 	}
 }

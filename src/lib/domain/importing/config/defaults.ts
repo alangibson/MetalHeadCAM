@@ -12,4 +12,6 @@ export const DECIMAL_PRECISION = 3;
 
 
 
-export const DEFAULT_COLOR_TESSELLATE_POINT = 'orange';
+export const DEFAULT_COLOR_TESSELLATE_POINT: string = 'orange';
+export const DEFAULT_COLOR_POLYSHAPE: string = "black";
+export const DEFAULT_COLOR_SELECTED_PATH: string = "yellow";

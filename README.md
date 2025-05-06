@@ -1,59 +1,9 @@
 
-### Known Issues
+## Known Issues
 
 - One arc transform in following file is misplaced:
   problem_with_arc_and_problem_with_G41-G42_auto_switch.dxf
 - Ellipse arcs aren't supported
-
-### Geometry
-
-Geometries are conceptualy organized in levels from most primitive to most complex.
-
-1. Point
-2. Arc, Circle, Ellipse, Line, Spline
-3. Poly???
-
-
-Geometry
-    Point
-    Shape
-        Line
-            Segment
-            Ray
-        Curve
-            Ellipse
-                Circle
-                    Arc (closed==false)
-            Spline
-                Nurbs
-                Quadratic
-                Cubic
-    Polyshape<Shape>
-        Polyline<Line>
-            Polygon (closed==true)
-        Polycurve<Curve>
-
-### Drawing
-
-Drawing
-    Area
-    Layer
-        Gui
-            Geometry
-
-### Program
-
-Program
-    Machine
-        Stock
-            Part
-                Cut
-                    Rapid
-                        Line
-                    Lead
-                        Arc, Line
-                    Path
-                        Geometry
 
 ## Developing
 
