@@ -28,6 +28,7 @@
     {#if cut.rapidIn}
         <LineShape
             geometry={cut.rapidIn}
+            strokeWidth={PlanningStageState.strokeWidth}
             onclick={(e) => PlanningStageState.onClickEntity(e, cut.rapidIn)}
             onmouseenter={(e) =>
                 PlanningStageState.onMouseEnterEntity(e, cut.rapidIn)}

@@ -15,8 +15,6 @@ export namespace Planning {
     
     export function fromDrawing(drawing: Drawing|undefined): Plan|undefined {
 
-        const plan = new Plan();
-
         if (! drawing)
             return undefined;
 
@@ -86,10 +84,11 @@ export namespace Planning {
 
         // TODO Add offsets to paths if needed
         
-        // Save Parts
-        plan.parts.push(...parts);
+        // Save Parts to Plan
+        const plan = new Plan(parts);
 
         // Translate Parts so orgin is 0,0
+        // TODO this should be done automatically in each entity/shape class
         const boundingBox = plan.boundary;
         plan.transform({
             translateX: -boundingBox.startPoint.x,
@@ -97,6 +96,7 @@ export namespace Planning {
         });
 
         // Add/optimize Rapid moves between Cuts
+        // TODO this should be done automatically whenever Plan.parts or Part.cuts is updated
         plan.updateRapids();
 
         return plan;    

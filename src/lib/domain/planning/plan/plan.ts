@@ -8,7 +8,11 @@ import type { Point } from "$lib/geometry/point/point";
 
 export class Plan {
     
-    parts: Part[] = [];
+    parts: Part[];
+
+    constructor(parts: Part[]) {
+        this.parts = parts;
+    }
 
     get boundary(): Boundary {
         return this.parts.reduce<Boundary>((bb, part) => bb.join(part.boundary),
@@ -54,5 +58,8 @@ export class Plan {
             // Assign rapid to the next part's first cut
             nextPart.cuts[0].rapidIn = rapid;
         }
+
+        // Reorder this.parts to match the rapid order
+        this.parts = solution.map(index => this.parts[index]);
     }
 }
