@@ -168,12 +168,12 @@ export class StageState {
     }
 
     onMouseEnterEntity = (e: KonvaMouseEvent, entity: Entity) => {
-        console.log('Hovering entity', entity);
+        // console.log('Hovering entity', entity);
         this.hoveredEntities.add(entity);
     }
 
     onMouseLeaveEntity = (e: KonvaMouseEvent, entity: Entity) => {
-        console.log('Unhovering entity', entity);
+        // console.log('Unhovering entity', entity);
         this.hoveredEntities.delete(entity);
     }
 

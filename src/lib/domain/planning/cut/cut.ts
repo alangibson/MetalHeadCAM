@@ -38,10 +38,12 @@ export class Cut extends Entity {
 	}
 
 	get startPoint(): Point {
+		// TODO consider lead in
 		return this.path.startPoint;
 	}
 
 	get endPoint(): Point {
+		// TODO consider lead out
 		return this.path.endPoint;
 	}
 
@@ -62,4 +64,5 @@ export class Cut extends Entity {
 		const children = [this.path];
         children.forEach(child => child.transform(transform));
     }
+
 }

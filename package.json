@@ -26,6 +26,7 @@
 	"dependencies": {
 		"@types/dxf": "^4.6.9",
 		"@types/jsts": "^0.17.24",
+		"@wemap/salesman.js": "^2.1.0",
 		"canvas": "^3.1.0",
 		"dxf": "^5.2.0",
 		"jsts": "^2.12.1",

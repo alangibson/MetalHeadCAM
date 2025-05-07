@@ -13,9 +13,15 @@
     let leadInChecked: boolean = $state(false);
     $effect(() => {
         if (leadInChecked) {
-            // TODO only create Lead object once
-            cut.leadIn = new Lead(leadInData);
+            if (! cut.leadIn) {
+                cut.leadIn = new Lead();
+            } else {
+                cut.leadIn.type = leadInData.type;
+                cut.leadIn.length = leadInData.length;
+            }
+            console.log('Lead', cut.leadIn);
         }
+        // TODO Lead class is not reactive. How do we re-render Cut?
     });    
     // TODO Lead Out
 

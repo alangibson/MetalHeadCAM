@@ -121,6 +121,8 @@ export class Spline implements SplineData, Shape {
     }
 
     clearCache(): void {
+        this._startPoint = undefined;
+        this._endPoint = undefined;
         // TODO if knots or weights were set by constructor, they should not be cleared
         this._knots = undefined;
         this._degree = undefined;

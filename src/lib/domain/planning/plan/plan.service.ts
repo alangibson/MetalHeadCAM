@@ -85,12 +85,6 @@ export namespace Planning {
         // TODO Add Leads if needed 
 
         // TODO Add offsets to paths if needed
-
-        // TODO Add/optimize Rapid moves between Cuts
-        //
-        // Works on parts, instead of cuts, because we have to consider
-        // if cuts are holes or shells of parts.
-        // PathOptimizer.optimize(parts);
         
         // Save Parts
         plan.parts.push(...parts);
@@ -102,6 +96,10 @@ export namespace Planning {
             translateY: -boundingBox.startPoint.y
         });
 
+        // Add/optimize Rapid moves between Cuts
+        plan.updateRapids();
+
         return plan;    
     }
+
 }

@@ -4,13 +4,13 @@
     let {shape, strokeWidth} = $props();
 </script>
 
-<!-- 
 <BearingMarker
     point={shape.startPoint}
     bearing={shape.bearingAt(shape.startPoint)}
     {strokeWidth}
     strokeColor="lightgreen"
 ></BearingMarker>
+<!-- 
 <BearingMarker
     point={shape.middlePoint}
     bearing={shape.bearingAt(shape.middlePoint)}
