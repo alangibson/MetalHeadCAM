@@ -4,8 +4,10 @@ import type { TransformData } from "$lib/geometry/transform/transform.data";
 import type { Cut } from "../cut/cut";
 import { solve } from '@wemap/salesman.js';
 import { Rapid } from "../rapid/rapid";
+import { KerfPositionEnum } from "../cut/cut.enum";
 
 export class Part extends Entity {
+
     shell: Cut;
 	holes: Cut[] = [];
     _cuts: Cut[] = [];
@@ -69,5 +71,14 @@ export class Part extends Entity {
             ...holeSolution.map(index => this.holes[index]),
             this.shell
         ];
+    }
+
+    kerf(width: number, includeOpenShapes: boolean): void {
+        this.shell.kerf(width, KerfPositionEnum.OUTSIDE);
+        this.holes.forEach(cut => {
+            if (includeOpenShapes || cut.isClosed) {
+                cut.kerf(width, KerfPositionEnum.INSIDE);
+            }
+        });
     }
 }

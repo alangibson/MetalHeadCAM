@@ -3,8 +3,9 @@ import type { TransformData } from '../transform/transform.data';
 import type { EllipseData } from './ellipse.data';
 import type { BoundaryData } from "../boundary/boundary.data";
 import { scale, rotate, translate, compose, applyToPoint } from 'transformation-matrix';
-import { rotateAngleNormalized } from "../angle/angle.function";
+import { rotateAngleNormalized, angleBetweenPoints } from "../angle/angle.function";
 import { OrientationEnum } from "../geometry/geometry.enum";
+import type { AngleRadians } from '../angle/angle.type';
 
 /** Get point on ellipse at given angle */
 export function ellipsePointAtAngle(
@@ -139,4 +140,15 @@ export function ellipseOrientation(startAngle: number, endAngle: number): Orient
     // If angle difference is positive, arc direction is CCW
     // If angle difference is negative, arc direction is CW
     return angleDiff >= 0 ? OrientationEnum.COUNTERCLOCKWISE : OrientationEnum.CLOCKWISE;
+}
+
+/**
+ * Calculate the tangent angle at a given point on an ellipse.
+ * The tangent is perpendicular to the radius from the center to the point.
+ */
+export function ellipseTangentAt(ellipse: EllipseData, point: PointData): AngleRadians {
+    // Calculate the angle from the center to the point
+    const angle = angleBetweenPoints(ellipse.origin, point);
+    // The tangent is perpendicular to the radius
+    return angle + Math.PI / 2;
 }

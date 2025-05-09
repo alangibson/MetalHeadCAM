@@ -95,6 +95,10 @@ export namespace Planning {
             translateY: -boundingBox.startPoint.y
         });
 
+        // Offset Cuts to account for kerf
+        const kerfWidth = 1; // TODO get from somewhere
+        plan.kerf(kerfWidth, true);
+
         // Add/optimize Rapid moves between Cuts
         // TODO this should be done automatically whenever Plan.parts or Part.cuts is updated
         plan.updateRapids();

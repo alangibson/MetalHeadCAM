@@ -1,13 +1,14 @@
 import type { TransformData } from "../transform/transform.data";
 import { Point } from "../point/point";
-import type { Shape } from "../shape/shape";
+import type { BooleanOperationEnum, Shape } from "../shape/shape";
 import type { ArcData } from "./arc.data";
-import { arcBoundary, arcOrientation, arcEndPoint, arcIsClosed, arcMiddlePoint, arcTessellate, arcStartPoint, arcTransform, arcBearingAt } from "./arc.function";
+import { arcBoundary, arcOrientation, arcEndPoint, arcIsClosed, arcMiddlePoint, arcTessellate, arcStartPoint, arcTransform, arcTangentAt } from "./arc.function";
 import { GeometryTypeEnum, OrientationEnum } from "../geometry/geometry.enum";
 import { Boundary } from "../boundary/boundary";
 import type { Geometry } from "../geometry/geometry";
 import type { PointData } from "../point/point.data";
 import type { AngleRadians } from "../angle/angle.type";
+import { tangentIntersection } from "../geometry/geometry.function";
 
 export class Arc implements ArcData, Shape {
 
@@ -127,9 +128,9 @@ export class Arc implements ArcData, Shape {
             throw new Error("Method not implemented.");
     }
 
-    tessellate(samples: number = 1000): Point[] {
-        // HACK one sample per unit length
-        samples = this.length
+    tessellate(samples?: number): Point[] {
+        if (! samples)
+            samples = this.length;
         // Convert to array of points for rendering/calculations
         const sample = arcTessellate(this, samples).map(p => new Point(p));
         return [this.startPoint, ...sample, this.endPoint];
@@ -143,8 +144,29 @@ export class Arc implements ArcData, Shape {
         this.clearCache();
     }
 
-    bearingAt(point: PointData): AngleRadians {
-        return arcBearingAt(this, point);
+    tangentAt(point: PointData): AngleRadians {
+        return arcTangentAt(this, point);
+    }
+
+    clone(): Arc {
+        return new Arc({
+            origin: this.origin.clone(),
+            radius: this.radius,
+            startAngle: this.startAngle,
+            endAngle: this.endAngle,
+            orientation: this.orientation
+        });
+    }
+
+    offset(distance: number): void {
+        const newRadius = this.radius + distance;
+        if (newRadius < 0) {
+            throw new Error("Offset distance would result in a negative radius");
+        }
+        this.radius = newRadius;
+        this.clearCache();
     }
 
 }
+
+

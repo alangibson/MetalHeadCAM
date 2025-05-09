@@ -3,6 +3,8 @@ import type { CircleData } from './circle.data';
 import type { TransformData } from '../transform/transform.data';
 import type { PointData } from '../point/point.data';
 import type { BoundaryData } from '../boundary/boundary.data';
+import { angleBetweenPoints } from '../angle/angle.function';
+import type { AngleRadians } from '../angle/angle.type';
 
 export function circleTransform(transform: TransformData, circle: CircleData): CircleData {
     // Create transformation matrix
@@ -80,4 +82,15 @@ export function circleMiddlePoint(circle: CircleData): PointData {
         x: circle.origin.x - circle.radius,
         y: circle.origin.y
     };
+}
+
+/**
+ * Calculates the tangent angle at a given point on the circle.
+ * The tangent is perpendicular to the radius at that point.
+ */
+export function circleTangentAt(circle: CircleData, point: PointData): AngleRadians {
+    // Calculate the angle from the center to the point
+    const angle = angleBetweenPoints(circle.origin, point);
+    // The tangent is perpendicular to the radius
+    return angle + Math.PI / 2;
 }

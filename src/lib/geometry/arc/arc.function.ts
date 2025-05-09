@@ -56,8 +56,6 @@ export function arcTransform(transform: TransformData, arc: ArcData): ArcData {
         scale(transform.scaleX || 1, transform.scaleY || 1)
     );
 
-    console.log('Arc transform', transform.translateX || 0, transform.translateY || 0, transform.rotateAngle, transform.scaleX || 1, transform.scaleY || 1);
-
     // Transform origin point
     const newOrigin: PointData = applyToPoint(matrix, arc.origin);
     const origin: PointData = {
@@ -174,7 +172,7 @@ export function arcIsClosed(arc: ArcData) {
 }
 
 /** Calculate the bearing (tangent angle) at a point on the arc */
-export function arcBearingAt(arc: ArcData, point: PointData): number {
+export function arcTangentAt(arc: ArcData, point: PointData): AngleRadians {
     // Calculate the angle from the center to the point
     const dx = point.x - arc.origin.x;
     const dy = point.y - arc.origin.y;

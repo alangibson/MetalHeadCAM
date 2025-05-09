@@ -28,6 +28,7 @@
 		"@types/jsts": "^0.17.24",
 		"@wemap/salesman.js": "^2.1.0",
 		"canvas": "^3.1.0",
+		"clipper2-js": "^1.2.4",
 		"dxf": "^5.2.0",
 		"jsts": "^2.12.1",
 		"konva": "^9.3.19",

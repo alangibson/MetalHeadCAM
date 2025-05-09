@@ -7,16 +7,20 @@ import { polyshapeIsClosed, polyshapeIsSimple, polyshapeMiddlePoint, polyshapeRe
 import type { TransformData } from "../transform/transform.data";
 import { GeometryTypeEnum, OrientationEnum } from "../geometry/geometry.enum";
 import { Boundary } from "../boundary/boundary";
-import type { Geometry } from "../geometry/geometry";
-import { shapeAreaFromPoints, shapeLengthFromPoints } from "../shape/shape.function";
+import { shapeAreaFromPoints } from "../shape/shape.function";
 import type { AngleRadians } from "../angle/angle.type";
 import { GeometryFactory, Coordinate } from 'jsts/org/locationtech/jts/geom';
 import { RelateOp } from 'jsts/org/locationtech/jts/operation/relate';
 import { polyshapeArea } from "./polyshape.function";
-import { pointDistance } from "../point/point.function";
+import { pointCoincident, pointDistance } from "../point/point.function";
 import { polyshapeConnectShapes } from "./polyshape.function";
-import { roundToDecimalPlaces } from "$lib/utils/numbers";
+import { roundToDecimalPlaces } from "$lib/geometry/number/numbers";
 import { DECIMAL_PRECISION } from "$lib/domain/importing/config/defaults";
+import type { Circle } from "../circle/circle";
+import type { Spline } from "../spline/spline";
+import { Line } from "../line/line";
+import type { Arc } from "../arc/arc";
+import { BufferOp } from 'jsts/org/locationtech/jts/operation/buffer';
 
 export class Polyshape extends Shape implements PolyshapeData {
 
@@ -87,7 +91,7 @@ export class Polyshape extends Shape implements PolyshapeData {
 
     get area(): number | null {
         if (!this.isClosed) return null;
-        return shapeAreaFromPoints(this.tessellate(1000));
+        return shapeAreaFromPoints(this.tessellate());
     }
 
     get length(): number {
@@ -122,7 +126,7 @@ export class Polyshape extends Shape implements PolyshapeData {
         const geometryFactory = new GeometryFactory();
 
         // Convert self (outer) to JSTS geometry
-        const outerPoints = this.tessellate(1000);
+        const outerPoints = this.tessellate();
         const outerCoords = outerPoints.map(p => new Coordinate(roundToDecimalPlaces(p.x, DECIMAL_PRECISION), roundToDecimalPlaces(p.y, DECIMAL_PRECISION)));
         if (outerCoords.length < 4) {
             console.warn('outerCoords.length < 4', outerCoords);
@@ -132,7 +136,7 @@ export class Polyshape extends Shape implements PolyshapeData {
         const outerPolygon = geometryFactory.createPolygon(outerLinearRing);
 
         // Convert inner polyshape to JSTS geometry
-        const innerPoints = innerPolyshape.tessellate(1000);
+        const innerPoints = innerPolyshape.tessellate();
         const innerCoords = innerPoints.map(p => new Coordinate(roundToDecimalPlaces(p.x, DECIMAL_PRECISION), roundToDecimalPlaces(p.y, DECIMAL_PRECISION)));
         if (innerPolyshape.isClosed) {
             if (innerCoords.length < 4) {
@@ -152,8 +156,9 @@ export class Polyshape extends Shape implements PolyshapeData {
 
     }
 
-    tessellate(sample: number = 1000): Point[] {
-        // if (!this._sample)
+    tessellate(sample?: number): Point[] {
+        if (! sample)
+            sample = this.length;
         this._sample = polyshapeTessellate(this, sample).map(p => new Point(p))
         return this._sample;
     }
@@ -164,14 +169,14 @@ export class Polyshape extends Shape implements PolyshapeData {
         this.clearCache();
     }
 
-    bearingAt(point: PointData): AngleRadians {
+    tangentAt(point: PointData): AngleRadians {
         // Find the closest segment to the point
         let closestShape: Shape | null = null;
         let minDistance = Infinity;
 
         // Sample points along each segment to find the closest one
         for (const shape of this.shapes) {
-            const points = shape.tessellate(1000);
+            const points = shape.tessellate();
 
             for (let i = 0; i < points.length - 1; i++) {
 
@@ -192,7 +197,116 @@ export class Polyshape extends Shape implements PolyshapeData {
         }
 
         // Return the bearing of the closest segment at the point
-        return closestShape.bearingAt(point);
+        return closestShape.tangentAt(point);
+    }
+
+    clone(): Polyshape {
+		return new Polyshape({
+			shapes: this.shapes.map(shape => shape.clone())
+		});
+	}
+
+    offset(distance: number): void {
+        // Offset each shape in the polyshape by the given distance
+        this.shapes.forEach(shape => shape.offset(distance));
+
+
+        // Get all points from the shape
+        const points = this.tessellate();
+        
+        // Create JSTS geometry
+        const geometryFactory = new GeometryFactory();
+        const coords = points.map(p => new Coordinate(
+            roundToDecimalPlaces(p.x, DECIMAL_PRECISION), 
+            roundToDecimalPlaces(p.y, DECIMAL_PRECISION)
+        ));
+        
+        // Create a polygon and buffer it
+        // const linearRing = geometryFactory.createLinearRing(coords);
+        // const polygon = geometryFactory.createPolygon(linearRing);
+        // const buffered = BufferOp.bufferOp(polygon, 0);
+        
+        const lineString = geometryFactory.createLineString(coords);
+        const buffered = BufferOp.bufferOp(lineString, 0);
+        
+        // Get the cleaned coordinates
+        const cleanedCoords = buffered.getCoordinates();
+        
+        // Create new shapes preserving the original types
+        let currentShape: Shape | null = null;
+        
+        for (let i = 0; i < cleanedCoords.length - 1; i++) {
+            const start = { x: cleanedCoords[i].x, y: cleanedCoords[i].y };
+            const end = { x: cleanedCoords[i + 1].x, y: cleanedCoords[i + 1].y };
+            
+            // Find the original shape that best matches this segment
+            const originalShape = this.shapes.find(s => {
+                const shapeStart = s.startPoint;
+                const shapeEnd = s.endPoint;
+                return (pointCoincident(shapeStart, start) && pointCoincident(shapeEnd, end)) ||
+                        (pointCoincident(shapeStart, end) && pointCoincident(shapeEnd, start));
+            });
+            
+            if (originalShape) {
+                
+                // Update the shape's points while preserving its type
+                switch (originalShape.type) {
+                    case GeometryTypeEnum.ARC:
+                        const arc = currentShape as Arc;
+                        // Update arc parameters to match new start/end points
+                        arc.origin = new Point({
+                            x: (start.x + end.x) / 2,
+                            y: (start.y + end.y) / 2
+                        });
+                        arc.radius = Math.sqrt(
+                            Math.pow(end.x - start.x, 2) + 
+                            Math.pow(end.y - start.y, 2)
+                        ) / 2;
+                        arc.startAngle = Math.atan2(start.y - arc.origin.y, start.x - arc.origin.x);
+                        arc.endAngle = Math.atan2(end.y - arc.origin.y, end.x - arc.origin.x);
+                        break;
+                        
+                    case GeometryTypeEnum.CIRCLE:
+                        const circle = currentShape as Circle;
+                        circle.origin = new Point({
+                            x: (start.x + end.x) / 2,
+                            y: (start.y + end.y) / 2
+                        });
+                        circle.radius = Math.sqrt(
+                            Math.pow(end.x - start.x, 2) + 
+                            Math.pow(end.y - start.y, 2)
+                        ) / 2;
+                        break;
+                        
+                    case GeometryTypeEnum.SPLINE:
+                        const spline = currentShape as Spline;
+                        // Update control points to match new start/end points
+                        spline.controlPoints[0] = new Point(start);
+                        spline.controlPoints[spline.controlPoints.length - 1] = new Point(end);
+                        // Adjust intermediate control points proportionally
+                        for (let j = 1; j < spline.controlPoints.length - 1; j++) {
+                            const t = j / (spline.controlPoints.length - 1);
+                            spline.controlPoints[j] = new Point({
+                                x: start.x + (end.x - start.x) * t,
+                                y: start.y + (end.y - start.y) * t
+                            });
+                        }
+                        break;
+                        
+                    case GeometryTypeEnum.LINE:
+                        const line = currentShape as Line;
+                        line.startPoint = new Point(start);
+                        line.endPoint = new Point(end);
+                        break;
+                }
+                
+                // newShapes.push(currentShape);
+            } else {
+                console.warn('Couldnt find original shape');
+            }
+        }
+
+        this.clearCache();
     }
 
 }

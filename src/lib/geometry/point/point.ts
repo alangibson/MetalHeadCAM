@@ -7,7 +7,6 @@ import { pointTransform } from "./point.function";
 import { pointCoincident } from "./point.function";
 
 export class Point implements PointData, Geometry {
-
     type = GeometryTypeEnum.POINT;
     x: number;
     y: number;
@@ -16,18 +15,27 @@ export class Point implements PointData, Geometry {
         this.x = props.x;
         this.y = props.y;
     }
-
+    
     /**
      * Points are the same within a given tolerance.
      */
-    coincident(thatPoint: PointData, tolerance: number = DEFAULT_COINCIDENCE_TOLERANCE): boolean {
+    coincident(
+        thatPoint: PointData,
+        tolerance: number = DEFAULT_COINCIDENCE_TOLERANCE,
+    ): boolean {
         return pointCoincident(this, thatPoint, tolerance);
     }
-    
+
     transform(transform: TransformData): void {
         const transformed = pointTransform(transform, this);
         this.x = transformed.x;
         this.y = transformed.y;
     }
 
+    clone(): Point {
+        return new Point({
+            x: this.x,
+            y: this.y,
+        });
+    }
 }

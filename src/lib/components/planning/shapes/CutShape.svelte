@@ -39,6 +39,14 @@
 
     <!-- TODO render lead in -->
 
+    <!-- Render original Cut Shape for reference -->
+    <PolyshapeShape
+        geometry={cut.shape}
+        strokeWidth={PlanningStageState.strokeWidth}
+        strokeColor="brown"
+    ></PolyshapeShape>
+
+    <!-- Render Cut path -->
     <PolyshapeShape
         geometry={cut.path}
         strokeWidth={PlanningStageState.strokeWidth}

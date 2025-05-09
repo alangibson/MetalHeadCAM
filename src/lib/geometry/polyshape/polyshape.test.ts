@@ -38,7 +38,7 @@ describe('Polyshape', () => {
             });
 
             // Convert circle to a Polyshape by creating lines between tessellated points
-            const circlePoints = circle.tessellate(32); // Use 32 points for a good approximation
+            const circlePoints = circle.tessellate(); // Use 32 points for a good approximation
             const circleShapes = circlePoints.map((point, i) => {
                 const nextPoint = circlePoints[(i + 1) % circlePoints.length];
                 return new Line({
@@ -97,7 +97,7 @@ describe('Polyshape', () => {
             });
 
             // Convert circle to a Polyshape
-            const circlePoints = circle.tessellate(32);
+            const circlePoints = circle.tessellate();
             const circleShapes = circlePoints.map((point, i) => {
                 const nextPoint = circlePoints[(i + 1) % circlePoints.length];
                 return new Line({

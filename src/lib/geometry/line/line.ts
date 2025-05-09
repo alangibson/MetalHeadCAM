@@ -1,5 +1,5 @@
 import { Point } from "../point/point";
-import type { Shape } from "../shape/shape";
+import { Shape } from "../shape/shape";
 import type { LineData } from "./line.data";
 import type { TransformData } from "../transform/transform.data";
 import { GeometryTypeEnum, OrientationEnum } from "../geometry/geometry.enum";
@@ -10,7 +10,7 @@ import type { AngleRadians } from "../angle/angle.type";
 import type { PointData } from "../point/point.data";
 import { angleBetweenPoints } from "../angle/angle.function";
 
-export class Line implements LineData, Shape {
+export class Line extends Shape implements LineData {
 
     type = GeometryTypeEnum.LINE;
     startPoint: Point;
@@ -19,6 +19,7 @@ export class Line implements LineData, Shape {
     private _middlePoint?: Point;
 
     constructor(data: LineData) {
+        super();
         this.startPoint = new Point(data.startPoint);
         this.endPoint = new Point(data.endPoint);
 
@@ -80,9 +81,9 @@ export class Line implements LineData, Shape {
         return false;
     }
 
-    tessellate(samples: number = 1000): Point[] {
-        // HACK one sample per unit length
-        samples = this.length
+    tessellate(samples?: number): Point[] {
+        if (! samples)
+            samples = this.length;
         const lineSamples = lineTessellate(this, samples);
         const sample = lineSamples.map(p => new Point(p));
         return [this.startPoint, ...sample, this.endPoint];
@@ -95,8 +96,34 @@ export class Line implements LineData, Shape {
         this._orientation = this._orientation == OrientationEnum.CLOCKWISE ? OrientationEnum.COUNTERCLOCKWISE : OrientationEnum.CLOCKWISE;
 	}
 
-    bearingAt(point: PointData): AngleRadians {
+    tangentAt(point: PointData): AngleRadians {
         return angleBetweenPoints(this.startPoint, this.endPoint);
+    }
+
+    clone(): Line {
+        return new Line({
+            startPoint: this.startPoint.clone(),
+            endPoint: this.endPoint.clone()
+        });
+    }
+
+    offset(distance: number): void {
+        // Calculate perpendicular vector
+        const dx = this.endPoint.x - this.startPoint.x;
+        const dy = this.endPoint.y - this.startPoint.y;
+        const length = Math.sqrt(dx * dx + dy * dy);
+        
+        // Normalize and rotate 90 degrees
+        const perpX = -dy / length;
+        const perpY = dx / length;
+        
+        // Apply offset
+        this.startPoint.x += perpX * distance;
+        this.startPoint.y += perpY * distance;
+        this.endPoint.x += perpX * distance;
+        this.endPoint.y += perpY * distance;
+        
+        this.clearCache();
     }
 
 }

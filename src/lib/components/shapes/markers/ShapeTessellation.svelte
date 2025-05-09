@@ -6,7 +6,7 @@
     let {shape}: {shape: Shape} = $props();
 </script>
 
-{#each shape.tessellate(1000) as point}
+{#each shape.tessellate() as point}
 <KonvaCircle
     x={point.x}
     y={point.y}

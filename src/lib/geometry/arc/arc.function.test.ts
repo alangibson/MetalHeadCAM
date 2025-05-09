@@ -4,7 +4,7 @@ import { degreesToRadians } from "../angle/angle.function";
 import type { ArcData } from './arc.data';
 import type { TransformData } from '../transform/transform.data';
 import { OrientationEnum } from '../geometry/geometry.enum';
-import { arcBearingAt } from './arc.function';
+import { arcTangentAt } from './arc.function';
 import { arcMiddlePoint } from './arc.function';
 import { arcTessellate } from './arc.function';
 
@@ -286,7 +286,7 @@ describe('arcBearingAt', () => {
         const point = { x: 5, y: 0 }; // Start point of arc
 
         // Act
-        const bearing = arcBearingAt(arc, point);
+        const bearing = arcTangentAt(arc, point);
 
         // Assert
         expect(bearing).toBeCloseTo(Math.PI / 2); // 90 degrees
@@ -304,7 +304,7 @@ describe('arcBearingAt', () => {
         const point = { x: -5, y: 0 }; // End point of arc
 
         // Act
-        const bearing = arcBearingAt(arc, point);
+        const bearing = arcTangentAt(arc, point);
 
         // Assert
         expect(bearing).toBeCloseTo(3 * Math.PI / 2); // 270 degrees
@@ -322,7 +322,7 @@ describe('arcBearingAt', () => {
         const point = { x: -5, y: 0 }; // Start point of arc
 
         // Act
-        const bearing = arcBearingAt(arc, point);
+        const bearing = arcTangentAt(arc, point);
 
         // Assert
         expect(bearing).toBeCloseTo(Math.PI / 2); // 90 degrees
@@ -340,7 +340,7 @@ describe('arcBearingAt', () => {
         const point = { x: 5, y: 0 }; // End point of arc
 
         // Act
-        const bearing = arcBearingAt(arc, point);
+        const bearing = arcTangentAt(arc, point);
 
         // Assert
         expect(bearing).toBeCloseTo(-Math.PI / 2); // -90 degrees
@@ -358,7 +358,7 @@ describe('arcBearingAt', () => {
         const point = { x: 0, y: 5 }; // Midpoint of arc
 
         // Act
-        const bearing = arcBearingAt(arc, point);
+        const bearing = arcTangentAt(arc, point);
 
         // Assert
         expect(bearing).toBeCloseTo(Math.PI); // 180 degrees
@@ -376,7 +376,7 @@ describe('arcBearingAt', () => {
         const point = { x: 0, y: 5 }; // Midpoint of arc
 
         // Act
-        const bearing = arcBearingAt(arc, point);
+        const bearing = arcTangentAt(arc, point);
 
         // Assert
         expect(bearing).toBeCloseTo(0); // 0 degrees
@@ -394,7 +394,7 @@ describe('arcBearingAt', () => {
         const point = { x: 3, y: 4 }; // Point not on arc but on circle
 
         // Act
-        const bearing = arcBearingAt(arc, point);
+        const bearing = arcTangentAt(arc, point);
 
         // Assert
         // The bearing should still be calculated correctly even if point is not on arc
@@ -414,7 +414,7 @@ describe('arcBearingAt', () => {
         const point = { x: 15, y: 20 }; // Start point of arc
 
         // Act
-        const bearing = arcBearingAt(arc, point);
+        const bearing = arcTangentAt(arc, point);
 
         // Assert
         expect(bearing).toBeCloseTo(Math.PI / 2); // 90 degrees
@@ -435,7 +435,7 @@ describe('arcBearingAt', () => {
         }; // Start point of arc
 
         // Act
-        const bearing = arcBearingAt(arc, point);
+        const bearing = arcTangentAt(arc, point);
 
         // Assert
         expect(bearing).toBeCloseTo(3 * Math.PI / 4); // 135 degrees

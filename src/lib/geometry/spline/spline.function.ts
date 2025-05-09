@@ -9,6 +9,7 @@ import { OrientationEnum } from "../geometry/geometry.enum";
 import { lineOrientation } from "../line/line.function";
 import { Point } from "../point/point";
 import { DEFAULT_COINCIDENCE_TOLERANCE } from "$lib/domain/importing/config/defaults";
+import type { AngleRadians } from "../angle/angle.type";
 
 /** Check if a spline is closed (start point equals end point) */
 export function splineIsClosed(spline: SplineData, tolerance: number = DEFAULT_COINCIDENCE_TOLERANCE): boolean {
@@ -122,7 +123,7 @@ export function splineEndPoint(spline: SplineData): PointData {
 }
 
 /** Sample points along a spline curve */
-export function splineTessellate(spline: SplineData, samples: number = 1000): PointData[] {
+export function splineTessellate(spline: SplineData, samples?: number): PointData[] {
     // For an open curve, we need n + degree + 1 knots
     // For a closed curve, we need n + 1 knots
     // const isClosed = splineIsClosed(spline);
@@ -184,4 +185,34 @@ export function splineTransform(transform: TransformData, spline: SplineData): S
     return {
         controlPoints
     };
+}
+
+/** Calculate the tangent angle at a point on the spline */
+export function splineTangentAt(spline: SplineData, point: PointData): AngleRadians {
+    // Sample points along the spline
+    const points = splineTessellate(spline, 1000);
+    
+    // Find the closest point
+    let closestIndex = 0;
+    let minDistance = Infinity;
+    
+    for (let i = 0; i < points.length; i++) {
+        const dx = points[i].x - point.x;
+        const dy = points[i].y - point.y;
+        const distance = dx * dx + dy * dy;
+        
+        if (distance < minDistance) {
+            minDistance = distance;
+            closestIndex = i;
+        }
+    }
+    
+    // Calculate the tangent using the points before and after the closest point
+    const prevIndex = Math.max(0, closestIndex - 1);
+    const nextIndex = Math.min(points.length - 1, closestIndex + 1);
+    
+    const dx = points[nextIndex].x - points[prevIndex].x;
+    const dy = points[nextIndex].y - points[prevIndex].y;
+    
+    return Math.atan2(dy, dx);
 }

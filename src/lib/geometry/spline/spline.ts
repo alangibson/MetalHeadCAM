@@ -11,6 +11,7 @@ import { shapeAreaFromPoints, shapeLengthFromPoints } from "../shape/shape.funct
 import type { PointData } from "../point/point.data";
 import type { AngleRadians } from "../angle/angle.type";
 import nurbs from 'nurbs';
+import { splineTangentAt } from "./spline.function";
 
 /**
  * A NURBS.
@@ -146,9 +147,9 @@ export class Spline implements SplineData, Shape {
             throw new Error("Method not implemented.");
     }
 
-    tessellate(samples: number = 1000): Point[] {
-        // HACK 10 samples per unit length
-        samples = this.length * 10;
+    tessellate(samples?: number): Point[] {
+        if (! samples)
+            samples = this.length * 10;
         const sample = splineTessellate(this, samples).map(p => new Point(p));
         return [this.startPoint, ...sample, this.endPoint];
     }
@@ -163,33 +164,17 @@ export class Spline implements SplineData, Shape {
         // this._endPoint = undefined;
     }
 
-    bearingAt(point: PointData): AngleRadians {
-        // Sample points along the spline
-        const points = this.tessellate(1000);
-        
-        // Find the closest point
-        let closestIndex = 0;
-        let minDistance = Infinity;
-        
-        for (let i = 0; i < points.length; i++) {
-            const dx = points[i].x - point.x;
-            const dy = points[i].y - point.y;
-            const distance = dx * dx + dy * dy;
-            
-            if (distance < minDistance) {
-                minDistance = distance;
-                closestIndex = i;
-            }
-        }
-        
-        // Calculate the tangent using the points before and after the closest point
-        const prevIndex = Math.max(0, closestIndex - 1);
-        const nextIndex = Math.min(points.length - 1, closestIndex + 1);
-        
-        const dx = points[nextIndex].x - points[prevIndex].x;
-        const dy = points[nextIndex].y - points[prevIndex].y;
-        
-        return Math.atan2(dy, dx);
+    tangentAt(point: PointData): AngleRadians {
+        return splineTangentAt(this, point);
+    }
+
+    /** Calculate the normal vector at a point on the spline */
+    normalAt(point: PointData): { x: number, y: number } {
+        const tangent = this.tangentAt(point);
+        return {
+            x: -Math.sin(tangent),
+            y: Math.cos(tangent)
+        };
     }
 
     /** Decompose NURBS into one or more cubic bezier curves */
@@ -215,6 +200,101 @@ export class Spline implements SplineData, Shape {
                 knots: verbNurbsCurveData.knots
             })            
         });
+    }
+
+    clone(): Spline {
+        return new Spline({
+            controlPoints: this.controlPoints.map(point => point.clone()),
+            knots: this.knots,
+            weights: this.weights,
+            degree: this.degree
+        });
+    }
+
+    offset(distance: number): void {
+        // Create a parallel curve by offsetting the control points
+        // and adjusting weights to maintain shape
+        const newControlPoints: Point[] = [];
+        const newWeights: number[] = [];
+        
+        // For each control point, calculate the offset direction
+        for (let i = 0; i < this.controlPoints.length; i++) {
+            const point = this.controlPoints[i];
+            const weight = this.weights[i];
+            
+            // Calculate normal vector at this control point
+            const normal = this.normalAt(point);
+            
+            // Offset the control point along the normal
+            newControlPoints.push(new Point({
+                x: point.x + distance * normal.x,
+                y: point.y + distance * normal.y
+            }));
+            
+            // Adjust weight to maintain shape
+            // For parallel curves, weights need to be adjusted based on distance
+            const adjustedWeight = weight * (1 + distance * Math.abs(Math.cos(this.tangentAt(point))));
+            newWeights.push(adjustedWeight);
+        }
+
+        // 
+        // test fitting to original curve
+        //
+
+        // Test fitting by sampling points along both curves and comparing distances
+        const samples = 100;
+        // Maximum allowed deviation in units
+        const maxError = 0.01; 
+        
+        // Sample points along original curve
+        const originalPoints = this.tessellate(samples);
+        
+        // Create temporary spline with new control points
+        const tempSpline = new Spline({
+            controlPoints: newControlPoints,
+            knots: this.knots,
+            weights: newWeights,
+            degree: this.degree
+        });
+        
+        // Sample points along new curve
+        const newPoints = tempSpline.tessellate(samples);
+        
+        // Compare corresponding points
+        let maxDeviation = 0;
+        for (let i = 0; i < newPoints.length; i++) {
+            const originalPoint = originalPoints[i];
+            const newPoint = newPoints[i];
+            const distance = Math.sqrt(
+                Math.pow(originalPoint.x - newPoint.x, 2) + 
+                Math.pow(originalPoint.y - newPoint.y, 2)
+            );
+            maxDeviation = Math.max(maxDeviation, distance);
+        }
+        
+        // If deviation is too large, adjust weights
+        // Adding half of distance because it should deviate by exactly that much
+        const perfectDeviation = Math.abs(distance);
+        const actualDeviation = Math.abs(maxDeviation - perfectDeviation);
+        console.log('deviation max', maxDeviation, 'perfect', perfectDeviation, 'actual', actualDeviation);
+        if (actualDeviation > maxError) {
+            console.warn(`Spline offset deviation too large: ${actualDeviation.toFixed(3)} units`);
+            // Adjust weights to improve fit
+            for (let i = 0; i < newWeights.length; i++) {
+                newWeights[i] *= (1 - maxDeviation / (2 * distance));
+            }
+        }
+        
+        // 
+        // Save results
+        //
+
+        // Update the spline with new control points and weights
+        this.controlPoints = newControlPoints;
+        this._weights = newWeights;
+        
+        // Clear cached values
+        this.clearCache();
     }
 
 }

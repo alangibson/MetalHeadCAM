@@ -10,7 +10,7 @@ import type { PolyshapeData } from "./polyshape.data";
 import { OrientationEnum } from "../geometry/geometry.enum";
 import { GeometryFactory, Coordinate } from 'jsts/org/locationtech/jts/geom';
 import IsSimpleOp from 'jsts/org/locationtech/jts/operation/IsSimpleOp';
-import { roundToDecimalPlaces } from "$lib/utils/numbers";
+import { roundToDecimalPlaces } from "$lib/geometry/number/numbers";
 import { DECIMAL_PRECISION } from "$lib/domain/importing/config/defaults";
 
 /**
@@ -18,9 +18,30 @@ import { DECIMAL_PRECISION } from "$lib/domain/importing/config/defaults";
  * All child shapes must be in the same orientation for this to work reliably.
  */
 export function polyshapeIsClosed(polyshape: PolyshapeData): boolean {
-    const startPoint: PointData = polyshape.shapes[0].startPoint;
-    const endPoint: PointData = polyshape.shapes[polyshape.shapes.length - 1].endPoint;
-    return pointCoincident(startPoint, endPoint);
+
+    // TODO bring this block back, but shapes shapes only need to be adjacent,
+    // not strictly connected end to start
+
+    // // Check if we have at least 2 shapes
+    // if (polyshape.shapes.length < 2) {
+    //     return false;
+    // }
+
+    // // Check that all shapes are connected end-to-start
+    // for (let i = 0; i < polyshape.shapes.length - 1; i++) {
+    //     const currentShape = polyshape.shapes[i];
+    //     const nextShape = polyshape.shapes[i + 1];
+        
+    //     // Check if current shape's end point connects to next shape's start point
+    //     if (!pointCoincident(currentShape.endPoint, nextShape.startPoint)) {
+    //         return false;
+    //     }
+    // }
+
+    // Finally check if the last shape connects back to the first shape
+    const lastShape = polyshape.shapes[polyshape.shapes.length - 1];
+    const firstShape = polyshape.shapes[0];
+    return pointCoincident(lastShape.endPoint, firstShape.startPoint);
 }
 
 export function polyshapeBoundary(polyshape: PolyshapeData): BoundaryData {
@@ -46,11 +67,11 @@ export function polyshapeIntersects(chainA: PointData[], chainB: PointData[]) {
 }
 
 /** Convert polyshape to array of points */
-export function polyshapeTessellate(polyshape: PolyshapeData, samples: number = 1000): PointData[] {
+export function polyshapeTessellate(polyshape: PolyshapeData, samples?: number): PointData[] {
     const points: PointData[] = [];
     // Collect points from all child shapes
     polyshape.shapes.forEach(shape => {
-        points.push(...shape.tessellate(samples));
+        points.push(...shape.tessellate());
     });
     return points;
 }

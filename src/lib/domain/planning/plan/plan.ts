@@ -2,9 +2,9 @@ import { Boundary } from "$lib/geometry/boundary/boundary";
 import type { TransformData } from "$lib/geometry/transform/transform.data";
 import type { Part } from "../part/part";
 import { Rapid } from "../rapid/rapid";
-import type { PointData } from "$lib/geometry/point/point.data";
 import { solve } from '@wemap/salesman.js';
 import type { Point } from "$lib/geometry/point/point";
+import type { KerfPositionEnum } from "../cut/cut.enum";
 
 export class Plan {
     
@@ -61,5 +61,9 @@ export class Plan {
 
         // Reorder this.parts to match the rapid order
         this.parts = solution.map(index => this.parts[index]);
+    }
+
+    kerf(width: number, includeOpenShapes: boolean): void {
+        this.parts.forEach(part => part.kerf(width, includeOpenShapes));
     }
 }
